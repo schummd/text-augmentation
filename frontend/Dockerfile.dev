@@ -1,7 +1,11 @@
 FROM node:16.3.0-alpine
+RUN apk add --no-cache bash
 WORKDIR /frontend
 COPY package.json yarn.lock ./
 RUN yarn install
-COPY . .
+RUN ls
+# COPY . .
+COPY env.sh .
+COPY .env .
 EXPOSE 3000
-CMD yarn start
+CMD yarn dev

@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+frontend/node_modules
 /.pnp
 .pnp.js
 
@@ -24,4 +24,9 @@ yarn-error.log*
 
 # Python
 __pycache__
+
+# environment variables
+# Temporary env files
+/frontend/public/env-config.js
+/frontend/env-config.js
 
