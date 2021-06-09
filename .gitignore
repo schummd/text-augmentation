@@ -29,4 +29,5 @@ __pycache__
 # Temporary env files
 /frontend/public/env-config.js
 /frontend/env-config.js
+/frontend/.env
 
