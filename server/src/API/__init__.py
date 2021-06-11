@@ -1,5 +1,5 @@
 from flask_restplus import Api
-from .dummy_resource.dummy import Dummy, api as test_ns
+from .news_api.news import NewsApi, api as test_ns
 
 api = Api(
     title='COMP9323 Project',
@@ -7,4 +7,5 @@ api = Api(
     description='API'
 )
 
-api.add_namespace(test_ns, path='/dummy_resource')
+
+api.add_namespace(test_ns, path='/news_api')

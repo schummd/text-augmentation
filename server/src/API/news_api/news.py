@@ -5,30 +5,29 @@ from flask_restplus import fields
 from flask_restplus import Namespace
 import os
 import random
-from os.path import join, dirname
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-import pprint
 import requests
 
+load_dotenv(find_dotenv('server.env'))
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
+
 app = Flask(__name__)
-api = Namespace('dummy_resource', description="dummy_resource")
+api = Namespace('news_api', description="news_api")
 
-model = api.model('dummy_resource', {
+model = api.model('news_api', {
     'article': fields.String(description='News'),
-
 })
 
 
 @ api.route('/')
-class Dummy(Resource):
+class NewsApi(Resource):
     @ api.response(200, 'Successful')
     @ api.response(400, 'Invalid request parameters')
     @ api.response(404, 'Page not found')
     @ api.doc(description="Test endpoint")
     @api.marshal_list_with(model)
     def get(self):
-        NEWS_API_KEY=""
         url = 'https://newsapi.org/v2/everything?'
         
         parameters = {

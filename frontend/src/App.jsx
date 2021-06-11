@@ -52,7 +52,7 @@ export default function Simple() {
   useEffect(() => {
     axios({
       method: "get",
-      url: "http://0.0.0.0:5000/dummy_resource",
+      url: "http://0.0.0.0:5000/news_api",
     })
       .then((res) => res.data)
       .then((data) => {

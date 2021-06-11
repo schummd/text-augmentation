@@ -6,6 +6,6 @@ RUN yarn install
 RUN ls
 # COPY . .
 COPY env.sh .
-COPY .env .
+COPY frontend.env .
 EXPOSE 3000
 CMD yarn dev

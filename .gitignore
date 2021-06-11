@@ -30,4 +30,5 @@ __pycache__
 /frontend/public/env-config.js
 /frontend/env-config.js
 /frontend/.env
+*.env
 
