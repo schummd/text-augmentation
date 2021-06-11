@@ -12,17 +12,8 @@
 4. Navigate to localhost:3000 for frontend, 0.0.0.0:5000 for backend (swagger)
 
 # API Keys
-Frontend keys will most likely be shared between us for now, however let's all individually keys for backend API integrations
+Frontend keys will most likely be shared between us for now, however let's individually obtain keys for backend API integrations
 so to not have to worry about rate limits etc.
-
-- copy server.env and frontend.env into directory as follows:
-```
-.
-├── frontend
-│   ├── frontend.env
-└── server
-    ├── server.env
-```
 
 ## Frontend 
 ### Required keys
