@@ -16,11 +16,15 @@ import {
   Stack,
   VStack,
   Image,
+  Text,
+  Center,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import LoginButton from "./components/LoginBtn";
 import LogoutButton from "./components/LogoutBtn";
 import { useAuth0 } from "@auth0/auth0-react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const Links = ["Find papers", "Saved papers"];
 
@@ -42,6 +46,20 @@ const NavLink = ({ children }) => (
 export default function Simple() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, isAuthenticated, isLoading } = useAuth0();
+  const [articleText, setArticleText] = useState("");
+  const [newData, setNewData] = useState(false);
+
+  useEffect(() => {
+    axios({
+      method: "get",
+      url: "http://0.0.0.0:5000/dummy_resource",
+    })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setArticleText(data.article);
+      });
+  }, [newData]);
 
   return (
     <>
@@ -67,21 +85,24 @@ export default function Simple() {
           <Flex alignItems={"center"}>
             {!isAuthenticated && <LoginButton></LoginButton>}
             {isAuthenticated && (
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  rounded={"full"}
-                  variant={"link"}
-                  cursor={"pointer"}
-                >
-                  <Avatar size={"sm"} src={user.picture} />
-                </MenuButton>
-                <MenuList>
-                  <MenuItem>
-                    <LogoutButton></LogoutButton>
-                  </MenuItem>
-                </MenuList>
-              </Menu>
+              <HStack>
+                <Text>Logged in as {user.name}</Text>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    rounded={"full"}
+                    variant={"link"}
+                    cursor={"pointer"}
+                  >
+                    <Avatar size={"sm"} src={user.picture} />
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem>
+                      <LogoutButton></LogoutButton>
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </HStack>
             )}
           </Flex>
         </Flex>
@@ -97,6 +118,16 @@ export default function Simple() {
         ) : null}
       </Box>
       <Box p={2}></Box>
+      <Center>
+        <VStack>
+          <Button colorScheme="purple" onClick={() => setNewData(!newData)}>
+            Fetch from flask
+          </Button>
+          <Box bg="tomato" w="90vh" color="white">
+            {articleText}
+          </Box>
+        </VStack>
+      </Center>
     </>
   );
 }

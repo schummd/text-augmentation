@@ -7,4 +7,4 @@ api = Api(
     description='API'
 )
 
-api.add_namespace(test_ns, path='/test')
+api.add_namespace(test_ns, path='/dummy_resource')
