@@ -1,0 +1,32 @@
+{
+  "swagger": "2.0",
+  "basePath": "/",
+  "paths": {
+      "/images/": {}
+  },
+  "info": {
+      "title": "COMP9323 Project",
+      "version": "1.0",
+      "description": "API"
+  },
+  "produces": [
+      "application/json"
+  ],
+  "consumes": [
+      "application/json"
+  ],
+  "tags": [
+      {
+          "name": "images",
+          "description": "images"
+      }
+  ],
+  "responses": {
+      "ParseError": {
+          "description": "When a mask can't be parsed"
+      },
+      "MaskError": {
+          "description": "When any error occurs on mask"
+      }
+  }
+}
