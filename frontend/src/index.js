@@ -1,8 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { ChakraProvider } from "@chakra-ui/react";
-import { Auth0Provider } from "@auth0/auth0-react";
-import App from "./App";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { ChakraProvider } from '@chakra-ui/react';
+import { Auth0Provider } from '@auth0/auth0-react';
+import App from './App';
 
 ReactDOM.render(
   <ChakraProvider>
@@ -14,5 +14,5 @@ ReactDOM.render(
       <App />
     </Auth0Provider>
   </ChakraProvider>,
-  document.getElementById("root")
+  document.getElementById('root')
 );

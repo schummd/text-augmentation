@@ -1,38 +1,13 @@
-# Usage
-1. Install docker
-2. copy server.env and frontend.env into directory as follows:
-```
-.
-├── frontend
-│   ├── frontend.env
-└── server
-    ├── server.env
-```
-3. In base directory run `docker compose up`
-4. Navigate to localhost:3000 for frontend, 0.0.0.0:5000 for backend (swagger)
+# Frontend
 
-# API Keys
-Frontend keys will most likely be shared between us for now, however let's individually obtain keys for backend API integrations
-so to not have to worry about rate limits etc.
+Skeleton for fetching data from JSON db file served via an express server.
 
-## Frontend 
-### Required keys
+1. In /frontend run `yarn install` then `yarn start`
+2. In /frontend-dev-server run `yarn install` then `yarn server`
 
-- Auth0 domain key (`AUTH0_DOMAIN`)
-- Auth0 client ID (`AUTH0_CLIENT_ID`)
-### Access within code:
-```javascript
-// example.js
-KEY_VALUE = window._env_.KEY_NAME
-```
-## Server 
-### Required keys
+Frontend should be running on http://localhost:3000
+frontend-dev-server should be running on http://localhost:3001
 
-- News API key (`NEWS_API_KEY`)
-### Access within code:
-```python
-# examply.py
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv('server.env'))
-KEY_VALUE = os.environ.get("KEY_NAME")
-```
+## frontend-dev-server endpoints
+GET / - returns JSON object with contents of frontend-dev-server/db.json
+
