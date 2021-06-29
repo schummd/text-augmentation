@@ -1,11 +1,3 @@
-/**
- * @author Alexander Catic <alex@catic.dev>
- * @version  0.1.0
- * @license The MIT License (MIT)
-   @file lib.ts
-   @description Express server
- */
-
 import express from "express";
 import cors from "cors";
 
