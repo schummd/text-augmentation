@@ -20,3 +20,10 @@ frontend-dev-server should be running on http://localhost:3001
 GET / - returns JSON object with contents of frontend-dev-server/db.json
 
 # Backend TBA
+
+# Collaboration
+
+Collaboration will be managed via Github Projects. Three projects have been created [here](https://github.com/COMP9323-project/Software-as-a-Sevice-project-/projects):
+- Frontend
+- Backend
+- Ops
