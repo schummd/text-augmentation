@@ -3,7 +3,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-unused-vars */
 // eslint-disable-next-line import/no-duplicates
-import react from 'react';
 import {
   Box,
   Flex,
@@ -24,11 +23,11 @@ import {
   Center,
   Textarea,
 } from '@chakra-ui/react';
+import react, { useEffect, useState } from 'react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 // eslint-disable-next-line import/no-duplicates
-import { useEffect, useState } from 'react';
 import LogoutButton from './components/LogoutBtn';
 import LoginButton from './components/LoginBtn';
 
@@ -58,14 +57,20 @@ const App = () => {
 
   // Fetch DB data from frontend-dev-server
   useEffect(() => {
-    axios({
-      method: 'get',
-      url: 'http://localhost:3001/',
-    })
-      .then((res) => res.data)
-      .then((data) => {
+    const fetchDataFromBackend = async () => {
+      try {
+        const res = await axios({
+          method: 'get',
+          url: 'http://localhost:3001/',
+        });
+        const { data } = res;
         setArticleText(data.db.alex.article);
-      });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchDataFromBackend();
   }, [newData]);
 
   return (
