@@ -1,1 +1,0 @@
-In root directory run `python api.py`
