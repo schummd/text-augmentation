@@ -11,32 +11,66 @@ If you have issues installing or using the VMWare software, then use VirtualBox 
 ## Tutorial
 Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_tutorial.mov?dl=0). Download for better quality.
 
-# Usage
 
-## Frontend
-1. Download an install [npm and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-2. Install [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
 
+# Frontend
+
+
+## Installation (only if not using VM)
+- Download an install [npm and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- Install [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
+
+##  Usage
 1. In /frontend run `yarn install` then `yarn dev`
 2. In /frontend-dev-server run `yarn install` then `yarn server`
 
 - Frontend should be running on http://localhost:3000
 - frontend-dev-server should be running on http://localhost:3001
 
-## Backend
-
-Follow instructions in server/README.md
-
-# Frontend
-
-Skeleton for fetching data from JSON db file served via an express server.
-
-
-
-## frontend-dev-server endpoints
-GET / - returns JSON object with contents of frontend-dev-server/db.json
-
 # Backend
+## BOILERPLATE: FLASK RESTX BOILER-PLATE WITH JWT
+
+### Full description and guide ###
+https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563
+### Terminal commands
+Note: make sure you have `pip` and `virtualenv` installed (If not using VM).
+
+    Initial installation: make install
+
+    To run test: make tests
+
+    To run application: make run
+
+    To run all commands at once : make all
+
+Make sure to run the initial migration commands to update the database.
+
+    `make migrate`
+    
+    OR
+    
+    > python manage.py db init
+
+    > python manage.py db migrate --message 'initial database migration'
+
+    > python manage.py db upgrade
+
+
+### Viewing the app ###
+
+    Open the following url on your browser to view swagger documentation
+    http://127.0.0.1:5000/
+
+
+### Using Insomnia (or Postman) ####
+
+    Authorization header is in the following format:
+
+    Key: Authorization
+    Value: "token_generated_during_login"
+
+    For testing authorization, url for getting all user requires an admin token while url for getting a single
+    user by public_id requires just a regular authentication.
 
 ## API Keys
 ### Current Key Names
@@ -78,6 +112,17 @@ class Example(Resource):
         # Return response
 
 ```
+
+# Frontend
+
+Skeleton for fetching data from JSON db file served via an express server.
+
+
+
+## frontend-dev-server endpoints
+GET / - returns JSON object with contents of frontend-dev-server/db.json
+
+# Backend
 
 # Collaboration
 
