@@ -11,10 +11,7 @@ If you have issues installing or using the VMWare software, then use VirtualBox 
 ## Tutorial
 Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_tutorial.mov?dl=0). Download for better quality.
 
-
-
 # Frontend
-
 
 ## Installation (only if not using VM)
 - Download an install [npm and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
@@ -28,11 +25,10 @@ Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_
 - frontend-dev-server should be running on http://localhost:3001
 
 # Backend
-## BOILERPLATE: FLASK RESTX BOILER-PLATE WITH JWT
+## Boilerplate: FLASK RESTX BOILER-PLATE WITH JWT
 
-### Full description and guide ###
-https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563
-### Terminal commands
+Full description and guide [here](https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563)
+## Usage
 Note: make sure you have `pip` and `virtualenv` installed (If not using VM).
 
     Initial installation: make install
@@ -56,7 +52,7 @@ Make sure to run the initial migration commands to update the database.
     > python manage.py db upgrade
 
 
-### Viewing the app ###
+## Viewing the app ###
 
     Open the following url on your browser to view swagger documentation
     http://127.0.0.1:5000/
@@ -108,22 +104,14 @@ class Example(Resource):
         load_dotenv(find_dotenv('server.env'))
         EXAMPLE_API_KEY_1 = os.environ.get("EXAMPLE_API_KEY_1")
         print("EXAMPLE_API_KEY_1: ",  EXAMPLE_API_KEY_1)
-        
-        # Return response
-
 ```
 
 # Frontend
 
 Skeleton for fetching data from JSON db file served via an express server.
 
-
-
 ## frontend-dev-server endpoints
 GET / - returns JSON object with contents of frontend-dev-server/db.json
-
-# Backend
-
 # Collaboration
 
 Collaboration will be managed via Github Projects. Three projects have been created [here](https://github.com/COMP9323-project/Software-as-a-Sevice-project-/projects):
