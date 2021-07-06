@@ -1,17 +1,42 @@
 import React from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { Button } from '@chakra-ui/react';
+import { useHistory } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { StoreContext } from '../utils/store';
+import 'react-toastify/dist/ReactToastify.css';
 
-const LogoutButton = () => {
-  const { logout } = useAuth0();
+const LogoutBtn = () => {
+  const context = React.useContext(StoreContext);
+  const { authToken, setLoggedIn } = context;
+
+  const history = useHistory();
+
+  const handleClick = async () => {
+    const payload = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+    };
+
+    const route = 'auth/logout';
+    const res = await fetch(route, payload);
+    if (res.error) {
+      toast.error(`Error: ${res.error}`);
+    } else {
+      setLoggedIn(false);
+      localStorage.clear();
+      history.push('/');
+      history.push('/Login');
+    }
+  };
+
   return (
-    <Button
-      colorScheme="red"
-      onClick={() => logout({ returnTo: window.location.origin })}
-    >
-      Log Out
+    <Button color="tomato" ml={4} onClick={handleClick}>
+      Logout
     </Button>
   );
 };
 
-export default LogoutButton;
+export default LogoutBtn;

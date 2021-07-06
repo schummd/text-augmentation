@@ -32,3 +32,8 @@ __pycache__
 /frontend/.env
 *.env
 
+# BACKEND
+
+# Database
+flask_boilerplate_main.db 
+
