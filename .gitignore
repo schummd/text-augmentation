@@ -40,3 +40,6 @@ flask_boilerplate_main.db
 # API keys
 server.env
 
+#Virtual environment
+venv/
+
