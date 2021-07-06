@@ -27,12 +27,12 @@ Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_
 # Backend
 ## Resources
 
-[TDD](https://testdriven.io/test-driven-development/)
-[Unittest](https://docs.python.org/3/library/unittest.html)
-[API design](https://swagger.io/resources/articles/best-practices-in-api-design/)
-[Flask-SQLAlchemy](https://docs.sqlalchemy.org/en/14/)
-[ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping)
-[Using Git](https://github.com/UofTCoders/studyGroup/tree/gh-pages/lessons/git)
+- [TDD](https://testdriven.io/test-driven-development/)
+- [Unittest](https://docs.python.org/3/library/unittest.html)
+- [API design](https://swagger.io/resources/articles/best-practices-in-api-design/)
+- [Flask-SQLAlchemy](https://docs.sqlalchemy.org/en/14/)
+- [ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping)
+- [Using Git](https://github.com/UofTCoders/studyGroup/tree/gh-pages/lessons/git)
 
 ## Boilerplate: FLASK RESTX BOILER-PLATE WITH JWT
 
