@@ -13,6 +13,7 @@ Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_
 
 # Frontend
 
+Skeleton for fetching data from JSON db file served via an express server.
 ## Installation (only if not using VM)
 - Download an install [npm and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - Install [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
@@ -24,6 +25,8 @@ Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_
 - Frontend should be running on http://localhost:3000
 - frontend-dev-server should be running on http://localhost:3001
 
+## frontend-dev-server endpoints
+GET / - returns JSON object with contents of frontend-dev-server/db.json
 # Backend
 ## Resources
 
@@ -115,12 +118,6 @@ class Example(Resource):
         print("EXAMPLE_API_KEY_1: ",  EXAMPLE_API_KEY_1)
 ```
 
-# Frontend
-
-Skeleton for fetching data from JSON db file served via an express server.
-
-## frontend-dev-server endpoints
-GET / - returns JSON object with contents of frontend-dev-server/db.json
 # Collaboration
 
 Collaboration will be managed via Github Projects. Three projects have been created [here](https://github.com/COMP9323-project/Software-as-a-Sevice-project-/projects):
