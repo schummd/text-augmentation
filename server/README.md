@@ -12,6 +12,10 @@ Note: make sure you have `pip` and `virtualenv` installed.
     To run all commands at once : make all
 
 Make sure to run the initial migration commands to update the database.
+
+    `make migrate`
+    
+    OR
     
     > python manage.py db init
 

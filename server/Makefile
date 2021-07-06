@@ -18,5 +18,11 @@ tests:
 run:
 	. venv/bin/activate; \
 	python manage.py run
+	
+migrate:
+	. venv/bin/activate; \
+	python manage.py db init
+	python manage.py db migrate --message 'initial database migration'
+	python manage.py db upgrade
 
 all: clean install tests run
