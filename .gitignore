@@ -37,3 +37,6 @@ __pycache__
 # Database
 flask_boilerplate_main.db 
 
+# API keys
+server.env
+

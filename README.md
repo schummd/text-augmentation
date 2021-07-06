@@ -36,7 +36,48 @@ Skeleton for fetching data from JSON db file served via an express server.
 ## frontend-dev-server endpoints
 GET / - returns JSON object with contents of frontend-dev-server/db.json
 
-# Backend TBA
+# Backend
+
+## API Keys
+### Current Key Names
+This is a list of all API keys used in our project. If you incorporate a new key, update this list with its name ONLY. Only update this list when your code has been pushed to master.
+- EXAMPLE_API_KEY
+
+In the /server folder, create a file named `server.env`:
+
+```
+├── server
+│   └── server.env
+```
+
+This is a private file included in .gitignore. Ensure no keys are pushed to the repo.
+Example file:
+
+```
+EXAMPLE_API_KEY_1="XXXXXXXXXX"
+EXAMPLE_API_KEY_2="YYYYYYYYY"
+```
+### Loading keys from server.env within code
+```python
+# example_controller.py
+
+import os
+from dotenv import load_dotenv, find_dotenv
+
+@api.route('/')
+class Example(Resource):
+    @api.response(200, 'Example endpoint succesfully fetched.')
+    @api.doc('Fetch example data')
+    def get(self):
+        
+        # Set all API keys in server.env as environment variables
+        load_dotenv(find_dotenv('server.env'))
+        EXAMPLE_API_KEY_1 = os.environ.get("EXAMPLE_API_KEY_1")
+        print("EXAMPLE_API_KEY_1: ",  EXAMPLE_API_KEY_1)
+        
+        # Return response
+
+```
 
 # Collaboration
 
