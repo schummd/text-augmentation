@@ -17,3 +17,9 @@ class AuthDto:
         'email': fields.String(required=True, description='The email address'),
         'password': fields.String(required=True, description='The user password '),
     })
+    
+    
+class Keywords:
+    api = Namespace('keywords', description='finding keywords using IBM API')
+
+
