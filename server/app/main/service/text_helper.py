@@ -24,9 +24,13 @@ def sql_store_text(title, username, textBody, private=False):
         return False
 
 def sql_retrieve_text(text_id, username):
-    requestedText = Text.query.filter_by(text_id=text_id, 
-        username=username).first()
-    return requestedText.title, requestedText.text_body
+    try:
+        requestedText = Text.query.filter_by(text_id=text_id, 
+            username=username).first()
+        return requestedText.title, requestedText.text_body    
+    except:
+        return None, None
+    
 
 
 def save_changes(data: Text) -> None:

@@ -6,6 +6,8 @@ from ..util.dto import Text
 from ..service.user_service import save_new_user, get_all_users, get_a_user
 from typing import Dict, Tuple
 from app.main.service.text_helper import sql_store_text, sql_retrieve_text
+from app.main.model.user import User
+from flask import abort
 
 api = Text.api
 
@@ -24,19 +26,25 @@ class PostTextToServer(Resource):
     @api.doc(params={'username': 'Username'})
     def post(self, username):
         text = request.get_json(force=True)
-        print(text, text["title"])
-        sql_store_text(text["title"], username, text["textBody"], True) #title, username, textBody, private(?)
-        return 200
+        postingUser = User.query.filter_by(username=username).first()
+        if postingUser:
+                sql_store_text(text["title"], username, text["textBody"], True) #title, username, textBody, private(?)
+                return 200
+        else:
+            abort(404, "Bad request, user not found")
 
-   
+
+  
 @api.response(200, 'OK')
 @api.response(400, 'Bad request')
 @api.route('/<string:username>/<string:text_id>')
 class GetTextFromServer(Resource):    
 
-    @api.expect(resource_fields)
     @api.doc(params={'text_id': 'Text ID', 'username': 'Username'})
     def get(self, text_id, username):
         title, body = sql_retrieve_text(text_id, username)
-        return flask.jsonify({'title': title,
-        'textBody': body})
+        postingUser = User.query.filter_by(username=username).first()
+        if postingUser and title and body:
+            return flask.jsonify({'title': title, 'textBody': body})
+        else:
+            abort(404, "Bad request, either user or text not found")
