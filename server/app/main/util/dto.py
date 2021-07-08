@@ -22,4 +22,6 @@ class AuthDto:
 class Keywords:
     api = Namespace('keywords', description='finding keywords using IBM API')
 
-
+class Text:
+    api = Namespace('text', description='text storage and retrieval')
+ 
