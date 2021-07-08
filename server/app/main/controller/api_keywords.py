@@ -1,4 +1,4 @@
-import flask_cors
+import flask
 from flask_restx import Resource
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
@@ -50,21 +50,23 @@ def watsonKeywords(textToAnalyse):
 
 @api.response(200, 'OK')
 @api.response(400, 'Bad request')
-@api.route('/')
-class RetrieveData(Resource):
+@api.route('/<int:textId>')
+class RetrieveKeywords(Resource):
 
-    @api.doc('display keywords')
+    @api.doc(params={'textId': "Text for analysis - ID"})
     # @api.marshal_list_with(_user, envelope='data')
-    def get(self):
-        textToAnalyse = f'Few studies have assessed attitudes and beliefs of school teachers on vaccination. Our ' \
-                        f'cross-sectional questionnaire-based prospective survey aims to explore vaccination coverage ' \
-                        f'and relevant knowledge of school teachers in Greece. Out of the 217 respondents, ' \
-                        f'93% believe that vaccines offer protection but only 69.7% were completely vaccinated as per ' \
-                        f'adults" National Immunization Schedule. In multivariate analysis, female gender, ' \
-                        f'being a parent, beliefs that vaccination should be mandatory and imposing penalties to ' \
-                        f'vaccine refusals are the main factors that account for teachers" "behavioral" variability ' \
-                        f'towards vaccination. Strengthening the training of school teachers in health promotion ' \
-                        f'should become a priority in the era of the highly anticipated vaccine against severe acute ' \
-                        f'respiratory syndrome-coronavirus-2 (SARS-CoV-2). '
-        keywords = watsonKeywords(textToAnalyse)
-        return keywords
+    def get(self, textId):
+        # textToAnalyse = f'Few studies have assessed attitudes and beliefs of school teachers on vaccination. Our ' \
+        #                 f'cross-sectional questionnaire-based prospective survey aims to explore vaccination coverage ' \
+        #                 f'and relevant knowledge of school teachers in Greece. Out of the 217 respondents, ' \
+        #                 f'93% believe that vaccines offer protection but only 69.7% were completely vaccinated as per ' \
+        #                 f'adults" National Immunization Schedule. In multivariate analysis, female gender, ' \
+        #                 f'being a parent, beliefs that vaccination should be mandatory and imposing penalties to ' \
+        #                 f'vaccine refusals are the main factors that account for teachers" "behavioral" variability ' \
+        #                 f'towards vaccination. Strengthening the training of school teachers in health promotion ' \
+        #                 f'should become a priority in the era of the highly anticipated vaccine against severe acute ' \
+        #                 f'respiratory syndrome-coronavirus-2 (SARS-CoV-2). '
+        # keywords = watsonKeywords(textToAnalyse)
+
+        print(textId)
+        return 200
