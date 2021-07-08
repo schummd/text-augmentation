@@ -17,24 +17,26 @@ resource_fields = api.model('text', {
 
 @api.response(200, 'OK')
 @api.response(400, 'Bad request')
-@api.route('/', methods=['POST', 'GET'])
+@api.route('/<string:username>', methods=['POST', 'GET'])
 class PostTextToServer(Resource):
 
     @api.expect(resource_fields)
-    def post(self):
+    @api.doc(params={'username': 'Username'})
+    def post(self, username):
         text = request.get_json(force=True)
         print(text, text["title"])
-        sql_store_text(text["title"], 'Joan', text["textBody"], True) #title, username, textBody, private(?)
+        sql_store_text(text["title"], username, text["textBody"], True) #title, username, textBody, private(?)
         return 200
 
    
 @api.response(200, 'OK')
 @api.response(400, 'Bad request')
-@api.route('/<string:text_id>')
+@api.route('/<string:username>/<string:text_id>')
 class GetTextFromServer(Resource):    
 
-    @api.doc(params={'text_id': 'Text ID'})
-    def get(self, text_id):
-        title, body = sql_retrieve_text(text_id, username='Joan')
+    @api.expect(resource_fields)
+    @api.doc(params={'text_id': 'Text ID', 'username': 'Username'})
+    def get(self, text_id, username):
+        title, body = sql_retrieve_text(text_id, username)
         return flask.jsonify({'title': title,
         'textBody': body})
