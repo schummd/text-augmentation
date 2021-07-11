@@ -5,7 +5,7 @@ on:
   # but only for the main branch
   push:
     branches:
-      - gh-action-lint
+      - refs/heads/gh-action-lint
 jobs:
   build:
     runs-on: ubuntu-latest
