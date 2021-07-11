@@ -1,30 +1,94 @@
-import { Center, Text, VStack } from '@chakra-ui/layout';
-// eslint-disable-next-line no-unused-vars
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StoreContext } from '../utils/store';
+import Navigation from '../components/Navigation';
+import {
+  Redirect,
+} from 'react-router-dom';
+import {
+  makeStyles,
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+} from '@material-ui/core';
+// import axios from 'axios';
+// import { toast } from 'react-toastify';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'gray',
+    minHeight: '100vh',
+    width: '100%',
+    backgroundColor: '#F0F0F0',
+  },
+  containerDiv: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignSelf: 'flex-start',
+    width: '100%',
+  },
+  titleDiv: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    margin: theme.spacing(2),
+  },
+}));
 
 const Home = () => {
   const context = React.useContext(StoreContext);
-  const { authToken, setAuthToken, setLoggedIn } = context;
-
-  useEffect(() => {
-    const loggedInUser = localStorage.getItem('user');
-    if (loggedInUser) {
-      const userData = JSON.parse(loggedInUser);
-      setAuthToken(userData.token);
-      setLoggedIn(true);
+  const token = context.token[0];
+  
+  React.useEffect(() => {
+    if (token === null) {
+      return <Redirect to={{ pathname: '/login' }} />
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const setPage = context.pageState[1];
+  const [loadingState, setLoadingState] = React.useState('load');
 
+  React.useEffect(() => {
+    setPage('/home');
+    async function setupHome () {
+      setLoadingState('loading');
+      setLoadingState('done');
+    }
+    setupHome();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const classes = useStyles();
   return (
-    <Center>
-      <VStack>
-        <Text fontSize="3xl">Homepage</Text>
-        {authToken && <Text>{`Auth token: ${authToken}`}</Text>}
-      </VStack>
-    </Center>
+    <Container>
+      <Navigation />
+      <Container className={classes.container}>
+        {
+          loadingState !== 'done' &&
+          <div>
+            <CircularProgress color="primary" />
+          </div>
+        }
+        {
+          loadingState === 'done' &&
+          <Box className={classes.containerDiv}>
+            <Box className={classes.titleDiv}>
+              <Box>
+                <Typography paragraph align="left" variant="h4">
+                  Home
+                </Typography>
+              </Box>
+            </Box>
+            <br />
+            <br />
+          </Box>
+        }
+      </Container>
+    </Container>
   );
-};
+}
 
 export default Home;
