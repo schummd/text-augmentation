@@ -18,10 +18,11 @@ class AuthDto:
         'password': fields.String(required=True, description='The user password '),
     })
     
-    
-class Keywords:
-    api = Namespace('keywords', description='finding keywords using IBM API')
 
-class Text:
-    api = Namespace('text', description='text storage and retrieval')
- 
+class TextDto:
+    api = Namespace('text', description='text related operations')
+    text = api.model('text', {
+        'text_title': fields.String(required=True, description='text title'),
+        'text_body': fields.String(required=True, description='text body'),
+    })
+    

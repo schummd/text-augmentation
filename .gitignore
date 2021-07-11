@@ -35,7 +35,8 @@ __pycache__
 # BACKEND
 
 # Database
-flask_boilerplate_main.db 
+flask_boilerplate_main.db
+flask_boilerplate_test.db
 
 # API keys
 server.env
@@ -43,3 +44,5 @@ server.env
 #Virtual environment
 venv/
 
+# ignore local migrations
+server/migrations/

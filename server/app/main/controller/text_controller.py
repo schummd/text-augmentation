@@ -1,50 +1,27 @@
 from flask import request
-from flask_restx import Resource, fields
-import flask
-from app.main.util.decorator import admin_token_required
-from ..util.dto import Text
-from ..service.user_service import save_new_user, get_all_users, get_a_user
-from typing import Dict, Tuple
-from app.main.service.text_helper import sql_store_text, sql_retrieve_text
-from app.main.model.user import User
-from flask import abort
+from flask_restx import Resource
+from flask_restx.reqparse import RequestParser
 
-api = Text.api
+from app.main.util.decorator import token_required
+from ..util.dto import TextDto
+from ..service.text_service import save_new_text
+from typing import Dict
 
-
-resource_fields = api.model('text', {
-    'title': fields.String, 
-    'textBody': fields.String,
-})
-
-@api.response(200, 'OK')
-@api.response(400, 'Bad request')
-@api.route('/<string:username>', methods=['POST', 'GET'])
-class PostTextToServer(Resource):
-
-    @api.expect(resource_fields)
-    @api.doc(params={'username': 'Username'})
-    def post(self, username):
-        text = request.get_json(force=True)
-        postingUser = User.query.filter_by(username=username).first()
-        if postingUser:
-                sql_store_text(text["title"], username, text["textBody"], True) #title, username, textBody, private(?)
-                return 200
-        else:
-            abort(404, "Bad request, user not found")
+api = TextDto.api
+_text = TextDto.text
 
 
-  
-@api.response(200, 'OK')
-@api.response(400, 'Bad request')
-@api.route('/<string:username>/<string:text_id>')
-class GetTextFromServer(Resource):    
+@api.route('/')
+class Text(Resource):
+    @api.expect(_text, validate=True)
+    @token_required
+    @api.response(201, 'Text successfully saved.')
+    @api.doc('create a new user')
+    @api.header("hello", "test")
+    def post(self) -> Dict[str, str]:
+        """Saves a new text"""
+        data = request.json
+        return save_new_text(data=data)
 
-    @api.doc(params={'text_id': 'Text ID', 'username': 'Username'})
-    def get(self, text_id, username):
-        title, body = sql_retrieve_text(text_id, username)
-        postingUser = User.query.filter_by(username=username).first()
-        if postingUser and title and body:
-            return flask.jsonify({'title': title, 'textBody': body})
-        else:
-            abort(404, "Bad request, either user or text not found")
+
+
