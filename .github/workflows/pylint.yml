@@ -22,4 +22,4 @@ jobs:
         pip install pylint
     - name: Run Pylint
       run: |
-        python lint.py --path ./server --threshold 2
+        pylint ./server --threshold 2
