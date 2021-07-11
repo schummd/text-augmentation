@@ -5,6 +5,7 @@ from flask.globals import request
 
 from app.main import db
 from app.main.model.text import Text
+from app.main.model.user import User # 
 from app.main.service.auth_helper import Auth
 
 
@@ -32,6 +33,9 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
        }
     
     return response_object
+
+def get_all_texts(username):
+    return Text.query.join(User, Text.user_id==User.id).filter(User.username==username).all()
 
 def save_changes(data: Text) -> None:
     db.session.add(data)
