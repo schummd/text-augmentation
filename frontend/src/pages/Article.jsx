@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Home = () => {
+const Article = () => {
   const context = React.useContext(StoreContext);
   const token = context.token[0];
   
@@ -53,7 +53,7 @@ const Home = () => {
   const [loadingState, setLoadingState] = React.useState('load');
 
   React.useEffect(() => {
-    setPage('/home');
+    setPage('/articles');
     async function setupHome () {
       setLoadingState('loading');
       setLoadingState('done');
@@ -78,7 +78,7 @@ const Home = () => {
             <Box className={classes.titleDiv}>
               <Box>
                 <Typography paragraph align="left" variant="h4">
-                  Home
+                  Text
                 </Typography>
               </Box>
             </Box>
@@ -91,4 +91,4 @@ const Home = () => {
   );
 }
 
-export default Home;
+export default Article;
