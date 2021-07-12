@@ -14,7 +14,7 @@ from typing import Dict
 
 def save_new_text(username, data: Dict[str, str]) -> Dict[str, str]:
 
-    # get user_if from provided username 
+    # get user_id from provided username 
     user = User.query.filter_by(username=username).first() 
 
     # # Get user from provided auth token
