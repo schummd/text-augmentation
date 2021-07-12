@@ -29,6 +29,16 @@ def login_user_text(self):
         content_type='application/json'
     )
 
+def save_text(text_id, title):
+    new_text = Text(
+            text_id=text_id,
+            created_on=datetime.datetime.utcnow(),
+            text_title=title,
+            user_id=1,
+            text_body='what does the fox say?',
+        )
+    db.session.add(new_text)
+    db.session.commit()
 
 class TestText(BaseTestCase):
 
@@ -73,6 +83,7 @@ class TestText(BaseTestCase):
             self.assertTrue(data_add_text['status'] == 'fail')
             self.assertTrue(data_add_text['message'] == 'Provide a valid auth token.')
 
+
     def test_text_add_invalid_body(self):
         with self.client:
             register_user_text(self)
@@ -100,15 +111,7 @@ class TestText(BaseTestCase):
         with self.client:
             register_user_text(self)
             response_login = login_user_text(self)
-            new_text = Text(
-                text_id='test_fetch_specific_text_test_id',
-                created_on=datetime.datetime.utcnow(),
-                text_title='some title',
-                user_id=1,
-                text_body='what does the fox say?',
-            )
-            db.session.add(new_text)
-            db.session.commit()
+            save_text(text_id='test_fetch_specific_text_test_id', title='some title')
             response_get_text = self.client.get(
                  '/text/alex/test_fetch_specific_text_test_id',
                  headers=dict(
@@ -119,6 +122,8 @@ class TestText(BaseTestCase):
             ) 
             data_get_text = json.loads(response_get_text.data.decode()) 
             self.assertTrue(data_get_text['text_title'] == 'some title')
+
+
             
 
 if __name__ == '__main__':
