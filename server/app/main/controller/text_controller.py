@@ -10,18 +10,18 @@ from typing import Dict
 api = TextDto.api
 _text = TextDto.text
 
-@api.route('/')
-class Text(Resource):
-    @api.expect(_text, validate=True)
-    @token_required
-    @api.response(201, 'Text successfully saved.')
-    @api.doc('create a new user')
-    @api.header("hello", "test")
+# @api.route('/')
+# class Text(Resource):
+#     @api.expect(_text, validate=True)
+#     @token_required
+#     @api.response(201, 'Text successfully saved.')
+#     @api.doc('create a new user')
+#     @api.header("hello", "test")
 
-    def post(self) -> Dict[str, str]:
-        """Saves a new text"""
-        data = request.json
-        return save_new_text(data=data)
+#     def post(self, username) -> Dict[str, str]:
+#         """Saves a new text"""
+#         data = request.json
+#         return save_new_text(username, data=data)
 
 
 # GET /text/{username}
@@ -39,6 +39,9 @@ class UserText(Resource):
         else: 
             return text 
 
-    def post(self, username): 
+    @api.expect(_text, validate=True)
+    @api.response(201, 'Text successfully saved.')
+    @api.doc('save a text')
+    def post(self, username) -> Dict[str, str]: 
         data = request.json 
-        return save_new_text(data=data) 
+        return save_new_text(username, data=data) 
