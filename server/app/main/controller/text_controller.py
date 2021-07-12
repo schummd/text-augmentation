@@ -55,6 +55,7 @@ class Text(Resource):
 @api.route('/<username>/<text_id>')
 @api.param('username', 'The User identifier')
 @api.param('text_id', 'The Text identifier') 
+@api.response(404, 'User or text not found.')
 class TextUser(Resource):
 
     @api.doc('get a text')
