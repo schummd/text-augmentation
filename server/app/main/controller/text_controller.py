@@ -81,6 +81,7 @@ class TextUser(Resource):
             return update 
 
     @api.doc('delete a text')
+    @api.response(201, 'Text successfully deleted.')
     def delete(self, username, text_id): 
         """Delete text given username and text id"""
         confirmation = delete_a_text(username, text_id)
