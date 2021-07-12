@@ -1,5 +1,6 @@
 import React from 'react';
 import ReadMoreLogo from '../assets/readmore-logo.png';
+import { StoreContext } from '../utils/store';
 import { useHistory } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import {
@@ -60,6 +61,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Register = () => {
+  const context = React.useContext(StoreContext);
+  const urlBase = context.urlBase;
   const history = useHistory();
   const toastErrorStyle = {
     backgroundColor: '#cc0000',
@@ -96,7 +99,7 @@ const Register = () => {
     } else {
       axios({
         method: 'POST',
-        url: `user/`,
+        url: `${urlBase}/user/`,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',

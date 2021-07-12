@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Navigation = () => {
   const context = React.useContext(StoreContext);
+  const urlBase = context.urlBase;
   const history = useHistory();
   const classes = useStyles();
   const theme = useTheme();
@@ -52,9 +53,10 @@ const Navigation = () => {
   const setToken = context.token[1];
 
   const btnLogout = () => {
+    console.log(token);
     axios({
       method: 'POST',
-      url: `auth/logout`,
+      url: `${urlBase}/auth/logout`,
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
@@ -65,8 +67,9 @@ const Navigation = () => {
         setToken(null);
         history.push('/login');
         setUsername(null);
-      })
+      })    
       .catch((error) => {
+        console.log(error)
         let errorText = '';
         error.response.data.error !== undefined
           ? errorText = error.response.data.error
@@ -128,31 +131,31 @@ const Navigation = () => {
                   </Button>
                 </Tooltip>
 
-                <Tooltip title="Texts">
+                <Tooltip title="My Reads">
                   <Button
                     id="texts-button"
                     variant="contained"
                     color="default"
                     className={classes.btnText}
-                    // onClick={() => {
-                    //   history.push('/mytexts')
-                    // }}
+                    onClick={() => {
+                      history.push('/myreads')
+                    }}
                   >
-                    My Texts
+                    My Reads
                   </Button>
                 </Tooltip>
 
-                <Tooltip title="New Text">
+                <Tooltip title="New Article">
                   <Button
-                    id="new-text-button"
+                    id="new-article-button"
                     variant="contained"
                     color="primary"
                     className={classes.btnText}
-                    // onClick={() => {
-                    //   history.push('/texts/new')
-                    // }}
+                    onClick={() => {
+                      history.push('/articles/new')
+                    }}
                   >
-                    New Text
+                    New Article
                   </Button>
                 </Tooltip>
 

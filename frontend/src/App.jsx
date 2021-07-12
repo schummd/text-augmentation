@@ -3,6 +3,10 @@ import './App.css';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import MyReads from './pages/MyReads';
+import NewArticle from './pages/NewArticle';
+import Article from './pages/Article';
+import UserProfile from './pages/UserProfile';
 import {
   BrowserRouter as Router,
   Switch,
@@ -52,6 +56,18 @@ function App () {
                 </Route>
                 <Route exact path="/home">
                   <Home />
+                </Route>
+                <Route exact path="/myreads">
+                  <MyReads />
+                </Route>
+                <Route exact path="/articles/new">
+                  <NewArticle />
+                </Route>
+                <Route exact path="/articles/:id">
+                  <Article />
+                </Route>
+                <Route exact path="/user/:id">
+                  <UserProfile />
                 </Route>
                 <Route path="/">
                   <Redirect to="/login" />

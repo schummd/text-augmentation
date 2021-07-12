@@ -76,6 +76,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = () => {
   const context = React.useContext(StoreContext);
+  const urlBase = context.urlBase;
+  console.log(urlBase);
   const setToken = context.token[1];
   const setPage = context.pageState[1];
   const history = useHistory();
@@ -106,7 +108,7 @@ const Login = () => {
     } else {
       axios({
         method: 'POST',
-        url: `auth/login`,
+        url: `${urlBase}/auth/login`,
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
@@ -117,6 +119,7 @@ const Login = () => {
         }
       })
         .then((response) => {
+          console.log(response);
           setToken(response.data.Authorization);
           history.push('/home');
         })
