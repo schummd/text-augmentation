@@ -48,6 +48,10 @@ class Text(Resource):
         data = request.json 
         return save_new_text(username, data=data) 
 
+
+# GET /text/{username}/{text_id}
+# PUT /text/{username}/{text_id}
+# DELETE /text/{username}/{text_id}
 @api.route('/<username>/<text_id>')
 @api.param('username', 'The User identifier')
 @api.param('text_id', 'The Text identifier') 
@@ -69,7 +73,11 @@ class TextUser(Resource):
     def put(self, username, text_id):
         """Update text given username and text id"""
         data = request.json 
-        return update_text(username, text_id, data=data)
+        update = update_text(username, text_id, data=data)
+        if not update:
+            api.abort(404)
+        else: 
+            return update 
 
     @api.doc('delete a text')
     def delete(self, username, text_id): 
