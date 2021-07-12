@@ -52,18 +52,18 @@ def update_text(username, text_id, data: Dict[str, str]) -> Dict[str, str]:
     # get user_id from provided username 
     user = User.query.filter_by(username=username).first()
     # get row to update 
-    update = Text.query.filter_by(text_id=text_id, user_id=user.id).first() 
+    row = Text.query.filter_by(text_id=text_id, user_id=user.id).first() 
+
     # update text title and body
-    update.text_title = data['text_title']  # update created_on time too? 
-    update.text_body = data['text_body']
+    row.text_title = data['text_title']  # update created_on time too? 
+    row.text_body = data['text_body']
 
     db.session.commit() 
 
     response_object = {
-           'status': 'success',
-           'message': 'Successfully updated text.'
-       }
-    
+        'status': 'success',
+        'message': 'Successfully updated text.'
+    }
     return response_object
 
 
@@ -72,14 +72,14 @@ def delete_a_text(username, text_id):
     user = User.query.filter_by(username=username).first() 
     # get row to delete 
     row = Text.query.filter_by(text_id=text_id, user_id=user.id).first() 
-
+    
     db.session.delete(row)
     db.session.commit()
 
     response_object = {
-           'status': 'success',
-           'message': 'Successfully deleted text.'
-       }
+        'status': 'success',
+        'message': 'Successfully deleted text.'
+    }
     
     return response_object
 
