@@ -1,7 +1,9 @@
+import datetime
 import unittest
 
 from app.main import db
 import json
+from app.main.model.text import Text
 from app.test.base import BaseTestCase
 
 
@@ -52,6 +54,7 @@ class TestText(BaseTestCase):
             self.assertTrue(data_add_text['status'] == 'success')
             self.assertTrue(data_add_text['message'] == 'Successfully added text.')
             
+            
     def test_add_text_not_logged_in(self):
         with self.client:
             response_add_text = self.client.post(
@@ -93,5 +96,35 @@ class TestText(BaseTestCase):
             self.assertTrue(data_add_text['message'] == "Input payload validation failed")
 
 
+    def test_fetch_specific_text(self):
+        with self.client:
+            register_user_text(self)
+            response_login = login_user_text(self)
+            new_text = Text(
+                text_id='test_fetch_specific_text_test_id',
+                created_on=datetime.datetime.utcnow(),
+                text_title='some title',
+                user_id=1,
+                text_body='what does the fox say?',
+            )
+            db.session.add(new_text)
+            db.session.commit()
+            response_get_text = self.client.get(
+                 '/text/alex/test_fetch_specific_text_test_id',
+                 headers=dict(
+                     Authorization=json.loads(
+                         response_login.data.decode()
+                     )['Authorization']
+                 )
+            ) 
+            data_get_text = json.loads(response_get_text.data.decode()) 
+            self.assertTrue(data_get_text['text_title'] == 'some title')
+            
+
 if __name__ == '__main__':
     unittest.main()
+
+      
+
+
+

@@ -29,15 +29,16 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
     
     response_object = {
            'status': 'success',
-           'message': 'Successfully added text.'
+           'message': 'Successfully added text.',
+           'text_id': new_text.text_id
        }
     return response_object
 
-'''Retrieves specific text of the indicated user'''
+'''Retrieves specific text of the indicated user (not neccessarily the logged in one)'''
 def retrieve_text(username, text_id, data: Dict[str, str]) -> Dict[str, str]:
     logged_in_user = Auth.get_logged_in_user(request)[0]['data']
-    user_id = logged_in_user['user_id']
-    # check if the user requesting the text is connected to the logged in user
+    logged_in_user_id = logged_in_user['user_id']
+    #TODO check if the user requesting the text is connected to the logged in user
     
     print(text_id)
     try:
@@ -46,7 +47,7 @@ def retrieve_text(username, text_id, data: Dict[str, str]) -> Dict[str, str]:
         filter(Text.text_id==text_id).first()
         return requestedText    
     except:
-        return abort (404, "Bad request, either user or text not found")
+        return abort (404, "Bad request, either user or text not found.")
     
 
 def save_changes(data: Text) -> None:

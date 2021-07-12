@@ -12,13 +12,12 @@ _text = TextDto.text
 _user = UserDto.user
 
 
-
-@api.route('/', methods=['POST'])
+@api.route('/')
 class Text(Resource):
     @api.expect(_text, validate=True)
     @token_required
     @api.response(201, 'Text successfully saved.')
-    @api.doc('create a new text')
+    @api.doc('create a new user')
     @api.header("hello", "test")
     def post(self) -> Dict[str, str]:
         """Saves a new text"""
