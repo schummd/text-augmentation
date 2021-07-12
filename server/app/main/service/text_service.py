@@ -44,7 +44,6 @@ def retrieve_text(username, text_id, data: Dict[str, str]) -> Dict[str, str]:
         requestedText = Text.query.join(User, Text.user_id==User.id).\
         filter(User.username==username).\
         filter(Text.text_id==text_id).first()
-        print(requestedText)
         return requestedText    
     except:
         return abort (404, "Bad request, either user or text not found")
