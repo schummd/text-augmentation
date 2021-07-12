@@ -29,7 +29,7 @@ _text = TextDto.text
 @api.route('/<username>')
 @api.param('username', 'The User identifier')
 @api.response(404, 'User not found.')
-class UserText(Resource):
+class Text(Resource):
     @api.doc('get a text')
     @api.marshal_with(_text)
     def get(self, username):

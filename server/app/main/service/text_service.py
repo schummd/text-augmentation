@@ -16,7 +16,6 @@ def save_new_text(username, data: Dict[str, str]) -> Dict[str, str]:
 
     # get user_if from provided username 
     user = User.query.filter_by(username=username).first() 
-    # print('USER ID', user.id)
 
     # # Get user from provided auth token
     # logged_in_user = Auth.get_logged_in_user(request)[0]['data']
