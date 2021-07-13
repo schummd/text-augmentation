@@ -5,8 +5,6 @@ from app.main import db
 from app.main.model.user import User
 from typing import Dict, Tuple
 
-import jwt
-from ..config import key
 
 def save_new_user(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     user = User.query.filter_by(email=data['email']).first()
