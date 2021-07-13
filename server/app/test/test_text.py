@@ -32,7 +32,7 @@ class TestText(BaseTestCase):
 
     def test_valid_add_text(self):
         with self.client:
-            register_user_text(self)
+            register_response = register_user_text(self)
             response_login = login_user_text(self)
             response_add_text = self.client.post(
                  '/text/',
