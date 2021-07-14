@@ -132,63 +132,63 @@ class TestText(BaseTestCase):
             self.assertTrue(data_add_text['message'] == "Input payload validation failed")
 
 
-    # def test_fetch_specific_text(self):
-    #     with self.client:
-    #         data = register_user(self, 'alice')
-    #         print(data)
-    #         response_login = login_user(self, 'alice')
-    #         response_add_text = self.client.post(
-    #              '/text/',
-    #              headers=dict(
-    #                  Authorization=json.loads(
-    #                      response_login.data.decode()
-    #                  )['Authorization']
-    #              ),
-    #               data=json.dumps(dict(
-    #                 text_title='Alice',
-    #                 text_body='in Wonderland'
-    #               )),
-    #              content_type='application/json'
-    #         )
+    def test_fetch_specific_text(self):
+        with self.client:
+            data = register_user(self, 'alice')
+            print(data)
+            response_login = login_user(self, 'alice')
+            response_add_text = self.client.post(
+                 '/text/',
+                 headers=dict(
+                     Authorization=json.loads(
+                         response_login.data.decode()
+                     )['Authorization']
+                 ),
+                  data=json.dumps(dict(
+                    text_title='Alice',
+                    text_body='in Wonderland'
+                  )),
+                 content_type='application/json'
+            )
 
             # save_text(text_id='test_fetch_specific_text_test_id', title='some title')
 
 
 
-            # data_add_text = json.loads(response_add_text.data.decode())
-            # alices_text_id = data_add_text['text_id']
-            # print(alices_text_id)
-            # self.assertEqual(response_add_text.status_code, 200)
-            # self.assertTrue(data_add_text['status'] == 'success')
-            # self.assertTrue(data_add_text['message'] == 'Successfully added text.')
+            data_add_text = json.loads(response_add_text.data.decode())
+            alices_text_id = data_add_text['text_id']
+            print(alices_text_id)
+            self.assertEqual(response_add_text.status_code, 200)
+            self.assertTrue(data_add_text['status'] == 'success')
+            self.assertTrue(data_add_text['message'] == 'Successfully added text.')
 
-            # register_user(self, 'bob')
-            # bob_login_response = login_user(self, 'bob')
-            # self.client.patch(
-            #      '/user/bob/following',
-            #      headers=dict(
-            #          Authorization=json.loads(
-            #              bob_login_response.data.decode()
-            #          )['Authorization']
-            #      ),
-            #      follower=json.dumps(dict(
-            #         user_to_follow='alice'
-            #      )),
-            #      content_type='application/json'
-            # )
+            register_user(self, 'bob')
+            bob_login_response = login_user(self, 'bob')
+            self.client.patch(
+                 '/user/bob/following',
+                 headers=dict(
+                     Authorization=json.loads(
+                         bob_login_response.data.decode()
+                     )['Authorization']
+                 ),
+                 data=json.dumps(dict(
+                    user_to_follow='alice'
+                 )),
+                 content_type='application/json'
+            )
             
             
-            # response_get_text = self.client.get(
-            #      '/text/alice/'+alices_text_id,
-            #      headers=dict(
-            #          Authorization=json.loads(
-            #              bob_login_response.data.decode()
-            #          )['Authorization']
-            #      )
-            # ) 
-            # print(response_get_text)
-            # data_get_text = json.loads(response_get_text.data.decode()) 
-            # self.assertTrue(data_get_text['text_title'] == 'Alice')
+            response_get_text = self.client.get(
+                 '/text/alice/'+alices_text_id,
+                 headers=dict(
+                     Authorization=json.loads(
+                         bob_login_response.data.decode()
+                     )['Authorization']
+                 )
+            ) 
+            print(response_get_text)
+            data_get_text = json.loads(response_get_text.data.decode()) 
+            self.assertTrue(data_get_text['text_title'] == 'Alice')
 
 
             

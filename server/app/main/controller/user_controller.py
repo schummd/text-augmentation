@@ -44,7 +44,7 @@ class User(Resource):
         else:
             return user
 
-@api.route('/user/<string:username>/following')
+@api.route('/<string:username>/following')
 @api.param('username', 'My username')
 @api.response(404, 'User not found.')
 class Follow(Resource):

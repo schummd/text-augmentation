@@ -49,7 +49,7 @@ class TestFollowerModel(BaseTestCase):
             
             register_user(self, 'bob')
             bob_login_response = login_user(self, 'bob')
-            data = json.loads(login_response.data.decode())
+            data = json.loads(bob_login_response.data.decode())
             self.assertTrue(data['status'] == 'success')
             
             follow_request_response = self.client.patch(
@@ -60,9 +60,9 @@ class TestFollowerModel(BaseTestCase):
                      )['Authorization']
                  ),
                  data=json.dumps(dict(
-                    user_to_follow='alice'
-                    
-                  ))
+                    user_to_follow='alice'            
+                  )),
+                 content_type='application/json'
                  
             )
             print('Test Followers', follow_request_response)
