@@ -57,36 +57,43 @@ def generate_token(user: User) -> Tuple[Dict[str, str], int]:
         }
         return response_object, 401
 
-def follow_a_user(username: User) -> Boolean:
-    logged_in_user = Auth.get_logged_in_user(request)[0]['data']['user_id']
-    logged_in_username = User.query.filter_by(id=logged_in_user).first().username
-    print(logged_in_username)
+def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], int]:
+    # logged_in_user = Auth.get_logged_in_user(request)[0]['data']['user_id']
+    # logged_in_username = User.query.filter_by(id=logged_in_user).first().username
+    # print(Auth.get_logged_in_user(request)[0]['data']['user_id'])
     session = db.session()
+    fail_response_object = {
+        'status': 'fail',
+        'message': 'Some error occurred. Please try again.'
+    }
+    print(f'Follow request by {username} to follow {user_to_follow}')
     # Checking if the user tries to follow himself
-    if (logged_in_username == username): 
-        return 'Bad request', 400
+    if (user_to_follow == username): 
+        return fail_response_object, 400
+
     # Checking if the connection already exists    
     if (Follower.query.
-        filter_by(user_name=logged_in_username).\
-        filter_by(following = username).\
+        filter_by(user_name=username).\
+        filter_by(following = user_to_follow).\
         count() > 0):
-        return abort(400) #'Connection already exist', 400      
+        return fail_response_object, 400 #'Connection already exist', 400      
 
     try:
         new_following = Follower(
-            user_name=logged_in_username,
-            following=username
+            user_name=username,
+            following=user_to_follow
         )
         session.add(new_following)
         session.commit()
-        return 'Follower update sucessful', 200
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully connected.',
+        }
+        return response_object, 201
     except Exception as e:
         print('Follower update unsucessful', e)
-        # response_object = {
-        #     'status': 'fail',
-        #     'message': 'Some error occurred. Please try again.'
-        # }
-        return abort(401)
+        return fail_response_object, 401
+
 
   
 

@@ -9,6 +9,7 @@ from typing import Dict, Tuple
 
 api = UserDto.api
 _user = UserDto.user
+_follower = UserDto.follower
 
 
 @api.route('/')
@@ -43,16 +44,19 @@ class User(Resource):
         else:
             return user
 
-@api.route('/follow/<username>')
-@api.param('username', 'Username of the user to follow')
+@api.route('/user/<string:username>/following')
+@api.param('username', 'My username')
 @api.response(404, 'User not found.')
 class Follow(Resource):
+    @api.expect(_follower, validate=True)
     @api.doc('follow a user')
-    def put(self, username):
+    def patch(self, username):
         """follow another user"""
-        status_updated = follow_a_user(username)
-        if not status_updated:
-            api.abort(404)
-        else:
-            return {'outcome':'Connection approved'}, 200
+        data = request.json
+        #TODO: add unfollow method here
+        print(data)
+        user_to_follow = data['user_to_follow']
+        response, code = follow_a_user(username, user_to_follow)
+        print(response, code)
+        return code
 

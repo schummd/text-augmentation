@@ -45,7 +45,6 @@ class UserSpecificText(Resource):
                 'status': 'failure',
                 'message': 'Cannot find text or user.'
             }
-            return response_object, 404 #api.abort(404)
-       
+            return response_object, 404 #api.abort(404)      
 
 

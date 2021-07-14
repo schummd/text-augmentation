@@ -12,5 +12,5 @@ class Follower(db.Model):
     following = db.Column(db.String(50),  db.ForeignKey("user.username") )
    
 
-    # User = db.relationship('User', backref=db.backref('followers', lazy=True))
+   
 
