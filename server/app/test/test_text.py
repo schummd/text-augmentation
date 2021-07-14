@@ -91,7 +91,10 @@ class TestText(BaseTestCase):
             data_add_text = json.loads(response_add_text.data.decode())
             self.assertTrue(data_add_text['errors']['text_title'] == "'text_title' is a required property")
             self.assertTrue(data_add_text['message'] == "Input payload validation failed")
-
+    
+    def test_get_all_texts(self): 
+        with self.client:
+            pass
 
 if __name__ == '__main__':
     unittest.main()
