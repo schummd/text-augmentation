@@ -52,7 +52,7 @@ class TextList(Resource):
 #     @api.doc('get one text')
 #     @api.marshal_with(_text)
 #     def get(self, username, text_id):
-#         """Get one text of a user"""
+#         """Get one tex    t of a user"""
 #         return get_a_text(username, text_id)
 
 
@@ -64,7 +64,7 @@ class TextList(Resource):
 class TextUser(Resource): 
     @api.expect(_text, validate=True)
     @token_required
-    @api.response(201, 'Text successfully updated.')
+    @api.response(200, 'Text successfully updated.')
     @api.doc('update a text')
     def put(self, text_id):
         """Update text given username and text id"""
@@ -72,48 +72,8 @@ class TextUser(Resource):
         return update_text(text_id, data=data)
 
     @token_required
-    @api.response(201, 'Text successfully deleted.')
+    @api.response(200, 'Text successfully deleted.')
     @api.doc('delete a text')
     def delete(self, text_id): 
         """Delete text given username and text id"""
         return delete_a_text(text_id)
-
-
-# DELETE /text/{username}/{text_id}
-# @api.route('/<username>/<text_id>')
-# @api.param('username', 'The User identifier')
-# @api.param('text_id', 'The Text identifier') 
-# @api.response(404, 'User or text not found.')
-# class TextUser(Resource):
-
-    # @api.doc('get a text')
-    # @api.marshal_with(_text)
-    # def get(self, username, text_id):
-    #     """Get text given username and text id"""
-        # text = get_a_text(username, text_id)
-        # if not text:
-        #     api.abort(404)
-        # else:
-        #     return text 
-
-    # @api.expect(_text, validate=True)
-    # @api.response(201, 'Text successfully updated.')
-    # @api.doc('update a text')
-    # def put(self, username, text_id):
-    #     """Update text given username and text id"""
-    #     data = request.json 
-    #     update = update_text(username, text_id, data=data)
-    #     if not update:
-    #         api.abort(404)
-    #     else: 
-    #         return update 
-
-    # @api.doc('delete a text')
-    # @api.response(201, 'Text successfully deleted.')
-    # def delete(self, username, text_id): 
-    #     """Delete text given username and text id"""
-    #     confirmation = delete_a_text(username, text_id)
-    #     if not confirmation:
-    #         api.abort(404)
-    #     else:
-    #         return confirmation

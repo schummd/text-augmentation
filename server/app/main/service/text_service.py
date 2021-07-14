@@ -12,17 +12,15 @@ from app.main.service.auth_helper import Auth
 from typing import Dict
 
 def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
-    # get user_id from provided username 
-    # user = User.query.filter_by(username=username).first() 
-
     # Get user from provided auth token
     logged_in_user = Auth.get_logged_in_user(request)[0]['data']
-    # print(logged_in_user)
+
+    text = str(uuid.uuid4())
     
     new_text = Text(
         # user_id=user.id,
         user_id=logged_in_user['user_id'],
-        text_id=str(uuid.uuid4()),
+        text_id=text,
         created_on=datetime.datetime.utcnow(),
         text_title=data['text_title'],
         text_body=data['text_body'],
@@ -32,7 +30,8 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
     
     response_object = {
            'status': 'success',
-           'message': 'Successfully added text.'
+           'message': 'Successfully added text.',
+           'text_id': f'{text}'
        }
     
     return response_object
@@ -47,13 +46,8 @@ def get_a_text(username, text_id):
 
 
 def update_text(text_id, data: Dict[str, str]) -> Dict[str, str]: 
-    # get user_id from provided username 
-    # user = User.query.filter_by(username=username).first()
-
     # Get user from provided auth token
     logged_in_user = Auth.get_logged_in_user(request)[0]['data']
-    # print(logged_in_user)
-
     # get row to update 
     row = Text.query.filter_by(text_id=text_id, user_id=logged_in_user['user_id']).first() 
     # check if row exists 
@@ -68,7 +62,7 @@ def update_text(text_id, data: Dict[str, str]) -> Dict[str, str]:
             'status': 'success',
             'message': 'Successfully updated text.'
         }
-        return response_object, 201
+        return response_object, 200
     
     else: 
         response_object = {
@@ -79,13 +73,8 @@ def update_text(text_id, data: Dict[str, str]) -> Dict[str, str]:
 
 
 def delete_a_text(text_id):
-    # get user_id from provided username 
-    # user = User.query.filter_by(username=username).first() 
-
     # Get user from provided auth token
     logged_in_user = Auth.get_logged_in_user(request)[0]['data']
-    # print(logged_in_user)
-
     # get row to delete 
     row = Text.query.filter_by(text_id=text_id, user_id=logged_in_user['user_id']).first() 
     # check if row exists 
@@ -98,7 +87,7 @@ def delete_a_text(text_id):
             'status': 'success',
             'message': 'Successfully deleted text.'
         }
-        return response_object, 201
+        return response_object, 200
     
     else: 
         response_object = {
