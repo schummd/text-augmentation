@@ -23,4 +23,5 @@ Return Oxford dictionary definition for the word of interest
 GET/definitions/{word}  
 
 Follow all public articles of another user. Does not require permission.  
-PUT/follow/{username}
+PATCH /user/{username}/following - Adds or removes a users followers
+GET /user/{username}/following - gets all users a user is following
