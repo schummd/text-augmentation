@@ -23,4 +23,4 @@ Return Oxford dictionary definition for the word of interest
 GET/definitions/{word}  
 
 Follow all public articles of another user. Does not require permission.
-PUT/follow/{username}
+PUT/follow/{user_id}
