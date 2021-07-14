@@ -58,9 +58,6 @@ def generate_token(user: User) -> Tuple[Dict[str, str], int]:
         return response_object, 401
 
 def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], int]:
-    # logged_in_user = Auth.get_logged_in_user(request)[0]['data']['user_id']
-    # logged_in_username = User.query.filter_by(id=logged_in_user).first().username
-    # print(Auth.get_logged_in_user(request)[0]['data']['user_id'])
     session = db.session()
     fail_response_object = {
         'status': 'fail',
@@ -76,7 +73,7 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
         filter_by(user_name=username).\
         filter_by(following = user_to_follow).\
         count() > 0):
-        return fail_response_object, 400 #'Connection already exist', 400      
+        return fail_response_object, 400      
 
     try:
         new_following = Follower(

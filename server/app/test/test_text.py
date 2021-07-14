@@ -151,9 +151,7 @@ class TestText(BaseTestCase):
                  content_type='application/json'
             )
 
-            # save_text(text_id='test_fetch_specific_text_test_id', title='some title')
-
-
+            
 
             data_add_text = json.loads(response_add_text.data.decode())
             alices_text_id = data_add_text['text_id']
