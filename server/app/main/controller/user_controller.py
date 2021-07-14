@@ -3,8 +3,9 @@ from flask_restx import Resource
 
 from app.main.util.decorator import admin_token_required
 from ..util.dto import UserDto
-from ..service.user_service import save_new_user, get_all_users, get_a_user
+from ..service.user_service import save_new_user, get_all_users, get_a_user, follow_a_user
 from typing import Dict, Tuple
+
 
 api = UserDto.api
 _user = UserDto.user
@@ -42,5 +43,16 @@ class User(Resource):
         else:
             return user
 
-
+@api.route('/follow/<username>')
+@api.param('username', 'Username of the user to follow')
+@api.response(404, 'User not found.')
+class Follow(Resource):
+    @api.doc('follow a user')
+    def put(self, username):
+        """follow another user"""
+        status_updated = follow_a_user(username)
+        if not status_updated:
+            api.abort(404)
+        else:
+            return {'outcome':'Connection approved'}, 200
 

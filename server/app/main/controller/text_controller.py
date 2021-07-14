@@ -40,17 +40,12 @@ class UserSpecificText(Resource):
         data = request.json
         try:
             return  retrieve_text(username, text_id, data=data)
-            # title = res.text_title
-            # body = res.text_body
-            # resp = {'text_title': title, 'text_body': body}
-            # print(resp)
-            # return resp
         except:
             response_object = {
                 'status': 'failure',
                 'message': 'Cannot find text or user.'
             }
-            return response_object #api.abort(400)
+            return response_object, 404 #api.abort(404)
        
 
 
