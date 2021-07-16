@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-
+import React from 'react';
+import Backend from '../backend.json';
 export const StoreContext = React.createContext(null);
 
 // eslint-disable-next-line react/prop-types
 const Context = ({ children }) => {
-  const [db, setDb] = useState('');
-  const [loggedIn, setLoggedIn] = React.useState();
-  const [authToken, setAuthToken] = React.useState(false);
-  const [email, setEmail] = React.useState(false);
+  const backendPort = 'BACKEND_PORT' in Backend ? Backend.BACKEND_PORT : 5000;
+  const [token, setToken] = React.useState(null);
+  const [username, setUsername] = React.useState(null);
+  const [page, setPage] = React.useState('/login');
+  const [myTexts, setMyTexts] = React.useState([]);
+  const [singularText, setSingularText] = React.useState('');
 
   const store = {
-    db,
-    setDb,
-    loggedIn,
-    setLoggedIn,
-    authToken,
-    setAuthToken,
-    email,
-    setEmail,
+    urlBase: `http://localhost:${backendPort}`,
+    token: [token, setToken],
+    username: [username, setUsername],
+    pageState: [page, setPage],
+    myTexts: [myTexts, setMyTexts],
+    singularText: [singularText, setSingularText],
   };
 
   return (
