@@ -4,7 +4,7 @@ GET all texts for the specific user
 1 GET /text/{username}  
 
 POST new text to belong to a specific user  
-2 POST /text/{username}  
+2 POST /text/
 
 Update/delete specific text   
 3 PUT /text/{username}/{text_id}    
