@@ -25,4 +25,7 @@ class TextDto:
         'text_title': fields.String(required=True, description='text title'),
         'text_body': fields.String(required=True, description='text body'),
     })
-    
+
+    text_id = api.inherit('text_id', text, {
+        'text_id': fields.String(required=False, description='text id')
+    })

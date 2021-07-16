@@ -4,11 +4,12 @@ from flask_restx.reqparse import RequestParser
 
 from app.main.util.decorator import token_required
 from ..util.dto import TextDto
-from ..service.text_service import save_new_text, get_all_texts, get_a_text, update_text, delete_a_text
+from ..service.text_service import save_new_text, get_all_texts, update_text, delete_a_text
 from typing import Dict
 
 api = TextDto.api
 _text = TextDto.text
+_textID = TextDto.text_id
 
 
 # POST /text 
@@ -32,14 +33,10 @@ class Text(Resource):
 @api.response(404, 'User not found.')
 class TextList(Resource):
     @api.doc('get all texts')
-    @api.marshal_with(_text)
+    @api.expect(_textID)
     def get(self, username):
         """Get list of all texts"""
-        text = get_all_texts(username)
-        if not text:
-            api.abort(404)
-        else: 
-            return text 
+        return get_all_texts(username)
 
 
 # # GET /text/{username}/{text_id} 
@@ -52,7 +49,7 @@ class TextList(Resource):
 #     @api.doc('get one text')
 #     @api.marshal_with(_text)
 #     def get(self, username, text_id):
-#         """Get one tex    t of a user"""
+#         """Get one text of a user"""
 #         return get_a_text(username, text_id)
 
 

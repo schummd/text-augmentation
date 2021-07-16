@@ -1,3 +1,4 @@
+
 import uuid
 import datetime
 
@@ -38,11 +39,32 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
 
 
 def get_all_texts(username):
-    return Text.query.join(User, Text.user_id==User.id).filter(User.username==username).all()
+    text_ids = db.session.query(Text.text_id, Text.text_title, Text.text_body).join(User, Text.user_id==User.id).filter(User.username==username).all()
+    texts_list = []
+
+    if len(text_ids) != 0: 
+
+        for col in text_ids:
+            text = {} 
+            text['text_id'] = col[0]
+            text['text_title'] = col[1]
+            text['text_body'] = col[2]
+            texts_list.append(text)
+
+        return texts_list, 200
+    
+    else: 
+        
+        response_object = {
+            'status': 'fail',
+            'message': 'Text does not exist.'
+        }
+
+        return response_object, 404
 
 
-def get_a_text(username, text_id): 
-    return Text.query.join(User, Text.user_id==User.id).filter(User.username==username, Text.text_id==text_id).first() 
+# def get_a_text(username, text_id): 
+#     return Text.query.join(User, Text.user_id==User.id).filter(User.username==username, Text.text_id==text_id).first() 
 
 
 def update_text(text_id, data: Dict[str, str]) -> Dict[str, str]: 
