@@ -4,7 +4,7 @@ from flask_restx.reqparse import RequestParser
 
 from app.main.util.decorator import token_required
 from ..util.dto import TextDto
-from ..service.text_service import save_new_text, get_all_texts, update_text, delete_a_text
+from ..service.text_service import save_new_text, get_all_texts, get_a_text, update_text, delete_a_text
 from typing import Dict
 
 api = TextDto.api
@@ -39,18 +39,18 @@ class TextList(Resource):
         return get_all_texts(username)
 
 
-# # GET /text/{username}/{text_id} 
-# @api.route('/<username>/<text_id>')
-# @api.param('username', 'The User identifier')
-# @api.param('text_id', 'The Text identifier')
-# @api.response(404, 'User or text not found')
-# class TextOne(Resource):
-
-#     @api.doc('get one text')
-#     @api.marshal_with(_text)
-#     def get(self, username, text_id):
-#         """Get one text of a user"""
-#         return get_a_text(username, text_id)
+# GET /text/{username}/{text_id} 
+@api.route('/<username>/<text_id>')
+@api.param('username', 'The User identifier')
+@api.param('text_id', 'The Text identifier')
+@api.response(404, 'User or text not found')
+class TextOne(Resource):
+    @api.doc('get one text')
+    # @api.marshal_with(_textID)
+    @api.expect(_textID)
+    def get(self, username, text_id):
+        """Get one text of a user"""
+        return get_a_text(username, text_id)
 
 
 # PUT /text/{text_id}

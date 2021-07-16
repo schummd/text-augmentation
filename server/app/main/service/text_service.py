@@ -42,29 +42,47 @@ def get_all_texts(username):
     text_ids = db.session.query(Text.text_id, Text.text_title, Text.text_body).join(User, Text.user_id==User.id).filter(User.username==username).all()
     texts_list = []
 
-    if len(text_ids) != 0: 
+    for col in text_ids:
+        text = {} 
+        text['text_id'] = col[0]
+        text['text_title'] = col[1]
+        text['text_body'] = col[2]
+        texts_list.append(text)
 
-        for col in text_ids:
-            text = {} 
-            text['text_id'] = col[0]
-            text['text_title'] = col[1]
-            text['text_body'] = col[2]
-            texts_list.append(text)
+    response_object = {
+        'status': 'success',
+        'data': texts_list
+    }
 
-        return texts_list, 200
-    
-    else: 
+    return response_object, 200
+
+
+def get_a_text(username, text_id): 
+    text = db.session.query(Text.text_id, Text.text_title, Text.text_body).join(User, Text.user_id==User.id).filter(User.username==username, Text.text_id==text_id).first() 
+
+    if text: 
         
+        text_data = list(text)
+        text = {}
+        text['text_id'] = text_data[0]
+        text['text_title'] = text_data[1]
+        text['text_body'] = text_data[2]
+
         response_object = {
-            'status': 'fail',
-            'message': 'Text does not exist.'
+            'status': 'success',
+            'data': text
         }
 
-        return response_object, 404
+        return response_object, 200 
 
+    else: 
 
-# def get_a_text(username, text_id): 
-#     return Text.query.join(User, Text.user_id==User.id).filter(User.username==username, Text.text_id==text_id).first() 
+        response_object = {
+            'status': 'fail',
+            'data': ''
+        }
+
+        return response_object, 404 
 
 
 def update_text(text_id, data: Dict[str, str]) -> Dict[str, str]: 

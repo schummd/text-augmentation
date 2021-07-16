@@ -125,17 +125,48 @@ class TestText(BaseTestCase):
             # assert get request response 
             data_get_texts = json.loads(response_get_texts.data.decode())
             self.assertEqual(response_get_texts.status_code, 200)
-            self.assertTrue(data_get_texts[0]['text_title'] == "test title 1")
-            self.assertTrue(data_get_texts[0]['text_body'] == "hello world")
-            self.assertTrue(data_get_texts[1]['text_title'] == "test title 2")
-            self.assertTrue(data_get_texts[1]['text_body'] == "test another text")
+            self.assertTrue(data_get_texts['status'] == "success")
+            self.assertTrue(data_get_texts['data'][0]['text_title'] == "test title 1")
+            self.assertTrue(data_get_texts['data'][0]['text_body'] == "hello world")
+            self.assertTrue(data_get_texts['data'][1]['text_title'] == "test title 2")
+            self.assertTrue(data_get_texts['data'][1]['text_body'] == "test another text")
 
     def test_get_all_user_texts_invalid(self): 
         with self.client:
             register_user_text(self)
             # don't add any texts to the user 
             response_get_texts = self.client.get('/text/alex')
-            self.assertEqual(response_get_texts.status_code, 404)
+            self.assertEqual(response_get_texts.status_code, 200)
+            data_get_texts = json.loads(response_get_texts.data.decode())
+            self.assertTrue(data_get_texts['status'] == "success")
+            self.assertTrue(len(data_get_texts['data']) == 0)
+
+    def test_get_a_user_text(self):
+        with self.client: 
+            register_user_text(self)
+            response_login = login_user_text(self)
+            # add text 
+            add_text = user_add_text(self, response_login, 'test title 1', 'hello world')
+            text_id = json.loads(add_text.data.decode())['text_id']
+            # request text for registered user 
+            response_get_text = self.client.get(f'/text/alex/{text_id}')
+            # response 
+            self.assertEqual(response_get_text.status_code, 200)
+            data_get_text = json.loads(response_get_text.data.decode())
+            self.assertTrue(data_get_text['status'] == "success")
+            self.assertTrue(data_get_text['data']['text_title'] == "test title 1")
+            self.assertTrue(data_get_text['data']['text_body'] == "hello world")
+
+    def test_get_a_user_text_invalid(self): 
+        with self.client: 
+            register_user_text(self)
+            response_login = login_user_text(self)
+            # request invalid text id for registered user 
+            response_get_text = self.client.get('/text/alex/12345')
+            self.assertEqual(response_get_text.status_code, 404)
+            data_get_text = json.loads(response_get_text.data.decode())
+            self.assertTrue(data_get_text['status'] == "fail")
+            self.assertTrue(len(data_get_text['data']) == 0)
 
     def test_valid_update_text(self): 
         with self.client: 
