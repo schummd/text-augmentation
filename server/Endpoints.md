@@ -1,27 +1,27 @@
 ## Endpoints we are implementing:
 
 GET all texts for the specific user  
-GET /text/{username}  
+1 GET /text/{username}  
 
 POST new text to belong to a specific user  
-POST /text/{username}  
+2 POST /text/{username}  
 
 Update/delete specific text   
-PUT /text/{username}/{text_id}    
-DELETE /text/{username}/{text_id}    
+3 PUT /text/{username}/{text_id}    
+4 DELETE /text/{username}/{text_id}    
 
 GET specific text of the user that is not the one who is logged it, but connected   
-GET /text/{username}/{text_id}  
+5 GET /text/{username}/{text_id}  
 
 Return keywords for the specified text (IBM-Watson)  
-GET keywords/{text_id}  
+6 GET keywords/{text_id}  
 
 Return Wikipedia article relevant to the word of interest  
-GET/wikipedia/{word}  
+7 GET/wikipedia/{word}  
 
 Return Oxford dictionary definition for the word of interest  
-GET/definitions/{word}  
+8 GET/definitions/{word}  
 
 Follow all public articles of another user. Does not require permission.    
-PATCH /user/{username}/following - Adds or removes a users followers  
-GET /user/{username}/following - gets all users a user is following  
+9 PATCH /user/{username}/following - Adds or removes a users followers  
+10 GET /user/{username}/following - gets all users a user is following  
