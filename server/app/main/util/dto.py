@@ -28,4 +28,6 @@ class TextDto:
         'text_title': fields.String(required=True, description='text title'),
         'text_body': fields.String(required=True, description='text body'),
     })
-    
+
+class Keywords:
+    api = Namespace('keywords', description='finding keywords using IBM API')    

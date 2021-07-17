@@ -14,18 +14,19 @@ _user = UserDto.user
 
 @api.route('/')
 class Text(Resource):
-    @api.expect(_text, validate=True)
+    @api.expect(_text)
     @token_required
     @api.response(201, 'Text successfully saved.')
-    @api.doc('create a new user')
+    @api.doc('create a new text')
     @api.header("hello", "test")
     def post(self) -> Dict[str, str]:
         """Saves a new text"""
         data = request.json
+        print(data)
         return save_new_text(data=data)
 
 
-'''Retrieves specific text of the indicated user'''
+'''Retrieves specific text of another user'''
 @api.response(200, 'OK')
 @api.response(400, 'Bad request')
 @api.route('/<string:username>/<string:text_id>', methods=['GET'])
@@ -36,7 +37,7 @@ class UserSpecificText(Resource):
     @api.doc('retrieve text')
     @api.marshal_with(_text)
     def get(self, username, text_id) -> Dict[str, str]:
-        """Retrieves text from db"""
+        """Retrieves specific text of another user"""
         data = request.json
         try:
             return  retrieve_text(username, text_id, data=data)
@@ -45,6 +46,6 @@ class UserSpecificText(Resource):
                 'status': 'failure',
                 'message': 'Cannot find text or user.'
             }
-            return response_object, 404 #api.abort(404)      
+            return response_object, 404       
 
 
