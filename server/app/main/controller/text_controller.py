@@ -9,7 +9,7 @@ from typing import Dict
 
 api = TextDto.api
 _text = TextDto.text
-_textID = TextDto.text_id
+# _textID = TextDto.text_id
 
 
 # POST /text 
@@ -33,7 +33,7 @@ class Text(Resource):
 @api.response(404, 'User not found.')
 class TextList(Resource):
     @api.doc('get all texts')
-    @api.expect(_textID)
+    # @api.expect(_textID)
     def get(self, username):
         """Get list of all texts"""
         return get_all_texts(username)
@@ -47,7 +47,7 @@ class TextList(Resource):
 class TextOne(Resource):
     @api.doc('get one text')
     # @api.marshal_with(_textID)
-    @api.expect(_textID)
+    # @api.expect(_textID)
     def get(self, username, text_id):
         """Get one text of a user"""
         return get_a_text(username, text_id)
