@@ -26,5 +26,5 @@ Follow all public articles of another user. Does not require permission.
 9 PATCH /user/{username}/following - Adds or removes a users followers  
 10 GET /user/{username}/following - gets all users a user is following  
 
-Get news feed: most recent titles of the followed users
+Get news feed: most recent titles of the followed users  
 11 GET /user/{username}/newsfeed
