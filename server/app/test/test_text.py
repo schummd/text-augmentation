@@ -1,10 +1,13 @@
+import datetime
 import unittest
 
 from app.main import db
 
 import json
+from app.main.model.text import Text
 from app.test.base import BaseTestCase
-
+from app.main.controller.user_controller import *
+from app.test.test_follower_model import *
 
 
 def register_user_text(self):
@@ -29,6 +32,40 @@ def login_user_text(self):
         content_type='application/json'
     )
 
+def register_user(self, name):
+    return self.client.post(
+        '/user/',
+        data=json.dumps(dict(
+            email=name+'@gmail.com',
+            username=name,
+            password='123456',
+        )),
+        content_type='application/json'
+    )
+
+
+
+def login_user(self, name):
+    return self.client.post(
+        '/auth/login',
+        data=json.dumps(dict(
+            email=name+'@gmail.com',
+            password='123456'
+        )),
+        content_type='application/json'
+    )
+
+
+def save_text(text_id, title, user_id):
+    new_text = Text(
+            text_id=text_id,
+            created_on=datetime.datetime.utcnow(),
+            text_title=title,
+            user_id=user_id,
+            text_body='what does the fox say?',
+        )
+    db.session.add(new_text)
+    db.session.commit()
 
 def user_add_text(self, response_login, title, body):
     # add text 
@@ -71,6 +108,7 @@ class TestText(BaseTestCase):
             self.assertTrue(data_add_text['status'] == 'success')
             self.assertTrue(data_add_text['message'] == 'Successfully added text.')
             
+            
     def test_add_text_not_logged_in(self):
         with self.client:
             response_add_text = self.client.post(
@@ -88,6 +126,7 @@ class TestText(BaseTestCase):
             data_add_text = json.loads(response_add_text.data.decode())
             self.assertTrue(data_add_text['status'] == 'fail')
             self.assertTrue(data_add_text['message'] == 'Provide a valid auth token.')
+
 
     def test_text_add_invalid_body(self):
         with self.client:
@@ -349,5 +388,12 @@ class TestText(BaseTestCase):
             self.assertTrue(data_delete_texts['status'] == 'fail')
             self.assertTrue(data_delete_texts['message'] == 'Provide a valid auth token.')
 
+            
+
 if __name__ == '__main__':
     unittest.main()
+
+      
+
+
+

@@ -3,10 +3,12 @@ import uuid
 import datetime
 
 from flask.globals import request
+from flask import abort
 
 from app.main import db
 from app.main.model.text import Text
-from app.main.model.user import User # 
+from app.main.model.user import User
+from app.main.model.follower import Follower
 from app.main.service.auth_helper import Auth
 
 
@@ -26,7 +28,6 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
         text_title=data['text_title'],
         text_body=data['text_body'],
     )
-    
     save_changes(new_text)
     
     response_object = {
@@ -34,7 +35,6 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
            'message': 'Successfully added text.',
            'text_id': f'{text}'
        }
-    
     return response_object
 
 

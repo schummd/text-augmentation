@@ -1,15 +1,15 @@
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, fields
 from flask_restx.reqparse import RequestParser
-
+import flask
 from app.main.util.decorator import token_required
-from ..util.dto import TextDto
+from ..util.dto import TextDto, UserDto
 from ..service.text_service import save_new_text, get_all_texts, get_a_text, update_text, delete_a_text
 from typing import Dict
 
 api = TextDto.api
 _text = TextDto.text
-# _textID = TextDto.text_id
+_user = UserDto.user
 
 
 # POST /text 
@@ -23,8 +23,8 @@ class Text(Resource):
     def post(self) -> Dict[str, str]:
         """Saves a new text"""
         data = request.json
+        print(data)
         return save_new_text(data=data)
-
 
 
 # GET /text/{username}

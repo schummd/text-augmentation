@@ -8,6 +8,9 @@ class UserDto:
         'username': fields.String(required=True, description='user username'),
         'password': fields.String(required=True, description='user password'),
         'public_id': fields.String(description='user Identifier')
+    }) 
+    follower = api.model('follower', {
+         'user_to_follow': fields.String(required=True,description='user Identifier'),
     })
 
 
@@ -25,6 +28,6 @@ class TextDto:
         'text_title': fields.String(required=True, description='text title'),
         'text_body': fields.String(required=True, description='text body'),
     })
-    # text_id = api.inherit('text_id', text, {
-    #     'text_id': fields.String(required=False, description='text id')
-    # })
+
+class Keywords:
+    api = Namespace('keywords', description='finding keywords using IBM API')    
