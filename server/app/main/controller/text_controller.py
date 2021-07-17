@@ -14,7 +14,7 @@ _user = UserDto.user
 
 @api.route('/')
 class Text(Resource):
-    @api.expect(_text)
+    @api.expect(_text, validate=True)
     @token_required
     @api.response(201, 'Text successfully saved.')
     @api.doc('create a new text')
