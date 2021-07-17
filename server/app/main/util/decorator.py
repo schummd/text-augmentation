@@ -11,7 +11,7 @@ def token_required(f) -> Callable:
     def decorated(*args, **kwargs):
 
         data, status = Auth.get_logged_in_user(request)
-        token = data.get('data')
+        token = data.get("data")
 
         if not token:
             return data, status
@@ -26,17 +26,14 @@ def admin_token_required(f: Callable) -> Callable:
     def decorated(*args, **kwargs):
 
         data, status = Auth.get_logged_in_user(request)
-        token = data.get('data')
+        token = data.get("data")
 
         if not token:
             return data, status
 
-        admin = token.get('admin')
+        admin = token.get("admin")
         if not admin:
-            response_object = {
-                'status': 'fail',
-                'message': 'admin token required'
-            }
+            response_object = {"status": "fail", "message": "admin token required"}
             return response_object, 401
 
         return f(*args, **kwargs)

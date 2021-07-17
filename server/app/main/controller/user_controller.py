@@ -3,7 +3,12 @@ from flask_restx import Resource
 
 from app.main.util.decorator import admin_token_required
 from ..util.dto import UserDto
-from ..service.user_service import save_new_user, get_all_users, get_a_user, follow_a_user
+from ..service.user_service import (
+    save_new_user,
+    get_all_users,
+    get_a_user,
+    follow_a_user,
+)
 from typing import Dict, Tuple
 
 
@@ -12,29 +17,29 @@ _user = UserDto.user
 _follower = UserDto.follower
 
 
-@api.route('/')
+@api.route("/")
 class UserList(Resource):
-    @api.doc('list_of_registered_users')
+    @api.doc("list_of_registered_users")
     @admin_token_required
-    @api.marshal_list_with(_user, envelope='data')
+    @api.marshal_list_with(_user, envelope="data")
     def get(self):
         """List all registered users"""
         return get_all_users()
 
     @api.expect(_user, validate=True)
-    @api.response(201, 'User successfully created.')
-    @api.doc('create a new user')
+    @api.response(201, "User successfully created.")
+    @api.doc("create a new user")
     def post(self) -> Tuple[Dict[str, str], int]:
         """Creates a new User """
         data = request.json
         return save_new_user(data=data)
 
 
-@api.route('/<public_id>')
-@api.param('public_id', 'The User identifier')
-@api.response(404, 'User not found.')
+@api.route("/<public_id>")
+@api.param("public_id", "The User identifier")
+@api.response(404, "User not found.")
 class User(Resource):
-    @api.doc('get a user')
+    @api.doc("get a user")
     @api.marshal_with(_user)
     def get(self, public_id):
         """get a user given its identifier"""
@@ -44,18 +49,19 @@ class User(Resource):
         else:
             return user
 
-@api.route('/<string:username>/following')
-@api.param('username', 'My username')
-@api.response(404, 'User not found.')
+
+@api.route("/<string:username>/following")
+@api.param("username", "My username")
+@api.response(404, "User not found.")
 class Follow(Resource):
     @api.expect(_follower, validate=True)
-    @api.doc('follow a user')
+    @api.doc("follow a user")
     def patch(self, username):
         """follow another user"""
         data = request.json
-        #TODO: add unfollow method here
+        # TODO: add unfollow method here
         print(data)
-        user_to_follow = data['user_to_follow']
+        user_to_follow = data["user_to_follow"]
         response, code = follow_a_user(username, user_to_follow)
         print(response, code)
         return code

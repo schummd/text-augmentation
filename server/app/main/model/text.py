@@ -1,9 +1,9 @@
-
 from .. import db
 
 
 class Text(db.Model):
     """ Text Model for storing text related details """
+
     __tablename__ = "text"
 
     user_id = db.Column(db.String(50), unique=False)
@@ -13,5 +13,5 @@ class Text(db.Model):
     text_body = db.Column(db.Text)
 
     def __repr__(self):
-        return f'<Text {self.text_id}>'
+        return f"<Text {self.text_id}>"
 
