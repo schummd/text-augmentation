@@ -29,12 +29,12 @@ from typing import Dict
 def watson_keywords(text_to_analyse):
     load_dotenv(find_dotenv("server.env"))
     IBM_WATSON_API_KEY = os.environ.get("IBM_WATSON_API_KEY")
-    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/e3ac764e-7638-493a-94af-4b2939ba3861"
     authenticator = IAMAuthenticator(IBM_WATSON_API_KEY)
+    IBM_WATSON_URL = os.environ.get("IBM_WATSON_URL")
     natural_language_understanding = NaturalLanguageUnderstandingV1(
         version="2021-03-25", authenticator=authenticator
     )
-    natural_language_understanding.set_service_url(url)
+    natural_language_understanding.set_service_url(IBM_WATSON_URL)
     response = natural_language_understanding.analyze(
         text=text_to_analyse,
         features=Features(
@@ -44,16 +44,18 @@ def watson_keywords(text_to_analyse):
     ).get_result()
 
     _keywords = response["keywords"]
-    results = []
+    kw = []
     for word in _keywords:
-        results.append(word["text"])
+        kw.append(word["text"])
     _concepts = response["concepts"]
+    cn = []
     for word in _concepts:
-        results.append(word["text"])
-    return results
+        cn.append(word["text"])
+    return {"keywords": kw, "concepts": cn}
 
 
 def find_keywords(text_id, data: Dict[str, str]):
+    print(Auth.get_logged_in_user(request)[0])
     logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
     requestedText = (
         Text.query.join(User, Text.user_id == User.id)
