@@ -101,7 +101,7 @@ EXAMPLE_API_KEY_2="YYYYYYYYY"
 ```
 For IBM-Watson, in addition to the API key, the service provider also generates a specific URL.
 Please store it together with the API key: IBM_WATSON_URL="XXXXX"
-The slideshow illustrating how to obtain IBM-Watson credentials is in the current folder.
+The slideshow illustrating how to obtain IBM-Watson credentials is in Teams, Resources channel, Files.
 
 ### Loading keys from server.env within code
 ```python
