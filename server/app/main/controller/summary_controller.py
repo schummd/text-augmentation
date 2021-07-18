@@ -29,6 +29,5 @@ class Summarize(Resource):
     def get(self, text_id):
         data = request.json
         summary = summarize(text_id, data=data)
-        print(summary)
-        return summary  # flask.json.loads(summary)
+        return summary
 
