@@ -99,9 +99,11 @@ Example file:
 EXAMPLE_API_KEY_1="XXXXXXXXXX"
 EXAMPLE_API_KEY_2="YYYYYYYYY"
 ```
-For IBM-Watson, in addition to the API key, the service provider also generates a specific URL.
+For IBM-Watson, in addition to the API key (IBM_WATSON_API_KEY), the service provider also generates a specific URL.
 Please store it together with the API key: IBM_WATSON_URL="XXXXX"
 The slideshow illustrating how to obtain IBM-Watson credentials is in Teams, Resources channel, Files.
+
+For the MEANING CLOUD the name of the key is MEANING_CLOUD. It could be obtained at https://www.meaningcloud.com/developer/summarization/dev-tools/1.0
 
 
 ### Loading keys from server.env within code
