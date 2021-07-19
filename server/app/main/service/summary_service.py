@@ -34,17 +34,23 @@ def summarize(text_id, data: Dict[str, str]):
 
     apikey = os.environ.get("MEANING_CLOUD")
     print(f"apikey is {apikey}")
+    try:
+        params = (
+            ("key", apikey),
+            ("txt", requestedText.text_body),
+            ("sentences", "1"),
+        )
+        url = f"https://api.meaningcloud.com/summarization-1.0"
 
-    params = (
-        ("key", apikey),
-        ("txt", requestedText.text_body),
-        ("sentences", "1"),
-    )
-    url = f"https://api.meaningcloud.com/summarization-1.0"
-
-    response = requests.post(url, params=params)
-    summary = response.content.decode("utf-8")
-    from_json = flask.json.loads(summary)
-    summary_text = from_json["summary"]
-    return {"summary": summary_text}
+        response = requests.post(url, params=params)
+        summary = response.content.decode("utf-8")
+        from_json = flask.json.loads(summary)
+        summary_text = from_json["summary"]
+        return {"summary": summary_text}
+    except Exception as e:
+        response_object = {
+            "status": "fail",
+            "message": "Some error occurred. Please try again.",
+        }
+        return response_object, 400
 

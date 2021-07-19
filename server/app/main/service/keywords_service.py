@@ -63,6 +63,13 @@ def find_keywords(text_id, data: Dict[str, str]):
         .filter(Text.text_id == text_id)
         .first()
     )
-    print(logged_in_user["user_id"], text_id, requestedText.text_body)
-    return watson_keywords(requestedText.text_body)
+    # print(logged_in_user["user_id"], text_id, requestedText.text_body)
+    try:
+        return watson_keywords(requestedText.text_body)
+    except Exception as e:
+        response_object = {
+            "status": "fail",
+            "message": "Some error occurred. Please try again.",
+        }
+        return response_object, 400
 
