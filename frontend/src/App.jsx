@@ -11,14 +11,11 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect
+  Redirect,
 } from 'react-router-dom';
 import StoreProvider from './utils/store';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  ToastContainer,
-  Slide
-} from 'react-toastify';
+import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const useStyles = makeStyles((theme) => ({
@@ -37,54 +34,54 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function App () {
+function App() {
   const classes = useStyles();
   return (
     <StoreProvider>
-        <div className={classes.appBg}>
-          <div className={classes.appBody}>
-            <Router>
-              <Switch>
-                <Route exact path="/">
-                  <Redirect to="/login" />
-                </Route>
-                <Route exact path="/login">
-                  <Login />
-                </Route>
-                <Route exact path="/register">
-                  <Register />
-                </Route>
-                <Route exact path="/home">
-                  <Home />
-                </Route>
-                <Route exact path="/myreads">
-                  <MyReads />
-                </Route>
-                <Route exact path="/articles/new">
-                  <NewArticle />
-                </Route>
-                <Route exact path="/articles/:id">
-                  <Article />
-                </Route>
-                <Route exact path="/user/:id">
-                  <UserProfile />
-                </Route>
-                <Route path="/">
-                  <Redirect to="/login" />
-                </Route>
-              </Switch>
-            </Router>
-          </div>
+      <div className={classes.appBg}>
+        <div className={classes.appBody}>
+          <Router>
+            <Switch>
+              <Route exact path="/">
+                <Redirect to="/login" />
+              </Route>
+              <Route exact path="/login">
+                <Login />
+              </Route>
+              <Route exact path="/register">
+                <Register />
+              </Route>
+              <Route exact path="/home">
+                <Home />
+              </Route>
+              <Route exact path="/myreads">
+                <MyReads />
+              </Route>
+              <Route exact path="/articles/:id">
+                <NewArticle />
+              </Route>
+              {/* <Route exact path="/articles/:id">
+                <Article />
+              </Route> */}
+              <Route exact path="/user/:id">
+                <UserProfile />
+              </Route>
+              <Route path="/">
+                <Redirect to="/login" />
+              </Route>
+            </Switch>
+          </Router>
         </div>
+      </div>
       <ToastContainer
         autoClose={3000}
         transition={Slide}
         limit={3}
         style={{
           justifyContent: 'center',
-          textAlign: 'center'
+          textAlign: 'center',
         }}
-      />      
+      />
     </StoreProvider>
   );
 }

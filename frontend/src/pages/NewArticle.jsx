@@ -1,9 +1,10 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import { createTextObject } from '../utils/utils';
 import Navigation from '../components/Navigation';
-import {
-  Redirect,
-} from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
+import axios from 'axios';
 import {
   makeStyles,
   Box,
@@ -19,8 +20,8 @@ import {
 } from '@material-ui/core';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
 import SearchIcon from '@material-ui/icons/Search';
-// import axios from 'axios';
-// import { toast } from 'react-toastify';
+import CustomEditor from '../components/CustomEditor';
+import { toast } from 'react-toastify';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -70,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
   titleDivSingleBtn: {
     paddingLeft: '8px',
     paddingRight: '8px',
-  },  
+  },
   btnText: {
     fontSize: '14px',
     textTransform: 'capitalize',
@@ -142,7 +143,7 @@ const useStyles = makeStyles((theme) => ({
     border: '1px solid gray',
     '&:hover': {
       backgroundColor: '#C0C0C0',
-    }
+    },
   },
   displayTextfield: {
     width: '100%',
@@ -154,27 +155,121 @@ const useStyles = makeStyles((theme) => ({
 
 const NewArticle = () => {
   const context = React.useContext(StoreContext);
-  // const urlBase = context.urlBase;
-  const token = context.token[0];
-  
+  const [token, setToken] = context.token;
+  const [username, setUsername] = context.username;
+  const [editorState, setEditorState] = context.editorState;
+  const [singularRead, setSingularRead] = context.singularRead;
+  const [myReads, setMyReads] = context.myReads;
+  const { blankEditorState } = context;
+
   const [uiBtn, setUiBtn] = React.useState('define');
   const [highlightMode, setHighlightMode] = React.useState(false);
+  const titleRef = React.useRef();
+  const notesRef = React.useRef();
+
+  const { id } = useParams();
+  const history = useHistory();
+  const [loadingState, setLoadingState] = React.useState('load');
+  const [update, setUpdate] = React.useState(false);
+
+  React.useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedStoredUser = JSON.parse(storedUser);
+      setUsername(parsedStoredUser.username);
+      setToken(parsedStoredUser.token);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const [thisRead] = myReads.filter((myRead) => myRead.text_id === id);
+    if (thisRead && id !== 'new') {
+      setSingularRead(thisRead);
+      const rawEditorState = convertFromRaw(
+        JSON.parse(thisRead.text_body).editorState
+      );
+      setEditorState(EditorState.createWithContent(rawEditorState));
+    }
+    setLoadingState('done');
+  }, [id, myReads, update]);
+
+  React.useEffect(() => {
+    if (id === 'new') {
+      setEditorState(blankEditorState());
+      setSingularRead('');
+    }
+  }, [id]);
+
+  const saveArticle = async (editorState) => {
+    const rawEditorState = convertToRaw(editorState.getCurrentContent());
+    const textObject = createTextObject(
+      `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
+      JSON.stringify({
+        editorState: rawEditorState,
+        notes: notesRef.current.value,
+      })
+    );
+
+    try {
+      const payload = {
+        method: `${id === 'new' ? 'POST' : 'PUT'}`,
+        url: `${id === 'new' ? '/text/' : `/text/${id}`}`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+        },
+        data: textObject,
+      };
+      console.log(payload);
+      const res = await axios(payload);
+      const resData = res.data;
+      console.log(resData);
+      if (resData.status === 'success') {
+        toast.success(`${resData.message}`);
+        if (payload.method === 'POST') {
+          history.push(`/articles/${resData.text_id}`);
+        }
+        setUpdate(!update);
+        const updatedReads = await getArticles();
+        setMyReads(updatedReads);
+        titleRef.current.value = '';
+      } else {
+        toast.warn(`${resData.message}`);
+      }
+    } catch (error) {
+      toast.error('error saving article to server');
+    }
+  };
+
+  const getArticles = async () => {
+    try {
+      const payload = {
+        method: 'GET',
+        url: `/text/${username}`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      console.log(payload);
+      const res = await axios(payload);
+      const resData = res.data;
+      console.log(resData);
+      if (resData.status === 'success') {
+        toast.success(`Retrieved Reads from server.`);
+      } else {
+        toast.warn(`${resData.message}`);
+      }
+      const { data } = resData;
+      return data;
+    } catch (error) {
+      toast.error('Error retrieving Reads from server.');
+    }
+  };
 
   React.useEffect(() => {
     if (token === null) {
-      return <Redirect to={{ pathname: '/login' }} />
+      return <Redirect to={{ pathname: '/login' }} />;
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const setPage = context.pageState[1];
-  const [loadingState, setLoadingState] = React.useState('load');
-
-  React.useEffect(() => {
-    setPage('/articles/new');
-    async function setupHome () {
-      setLoadingState('loading');
-      setLoadingState('done');
-    }
-    setupHome();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const classes = useStyles();
@@ -182,20 +277,18 @@ const NewArticle = () => {
     <Container className={classes.outerWidth}>
       <Navigation />
       <Container className={classes.container}>
-        {
-          loadingState !== 'done' &&
+        {loadingState !== 'done' && (
           <div>
             <CircularProgress color="primary" />
           </div>
-        }
-        {
-          loadingState === 'done' &&
+        )}
+        {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
               <Box className={classes.titleSubDiv}>
                 <Box className={classes.titleText}>
                   <Typography align="left" variant="h4">
-                    New Article
+                    {id === 'new' ? 'New Read' : singularRead.text_title}
                   </Typography>
                 </Box>
                 <Box className={classes.titleDivBtns}>
@@ -205,7 +298,7 @@ const NewArticle = () => {
                         variant="contained"
                         className={classes.btnText}
                         onClick={() => {
-                          console.log("Clicked Upload")
+                          console.log('Clicked Upload');
                         }}
                       >
                         Upload
@@ -213,16 +306,14 @@ const NewArticle = () => {
                     </Tooltip>
                   </Box>
                   <Box className={classes.titleDivSingleBtn}>
-                    <Tooltip title="Save Article">
+                    <Tooltip title="Save Read">
                       <Button
                         variant="contained"
                         color="primary"
                         className={classes.btnText}
-                        onClick={() => {
-                          console.log("Clicked Save Article")
-                        }}                        
+                        onClick={() => saveArticle(editorState)}
                       >
-                        Save Article
+                        {id === 'new' ? 'Save New Read' : 'Update Read'}
                       </Button>
                     </Tooltip>
                   </Box>
@@ -233,21 +324,16 @@ const NewArticle = () => {
             <Box className={classes.containerUi}>
               <Box className={classes.uiInteractionWrapper}>
                 <TextField
-                  placeholder="Title"
+                  placeholder={id === 'new' ? 'TItle' : 'Update Title'}
                   variant="outlined"
                   multiline
                   fullWidth
                   maxRows={2}
                   className={classes.uiInputText}
+                  inputRef={titleRef}
                 />
-                <TextField
-                  placeholder="Text"
-                  variant="outlined"
-                  multiline
-                  fullWidth
-                  rows={20}
-                  className={classes.uiInputText}
-                />
+
+                <CustomEditor></CustomEditor>
 
                 <Grid
                   container
@@ -257,23 +343,28 @@ const NewArticle = () => {
                   align="center"
                   className={classes.interactionBtnsGrid}
                 >
-
-                  <Grid container item xs={1} align="center" justify="flex-start">
+                  <Grid
+                    container
+                    item
+                    xs={1}
+                    align="center"
+                    justify="flex-start"
+                  >
                     <Box className={classes.btnHighlightDiv}>
                       <Tooltip title="Highlight">
                         <IconButton
                           className={
-                            highlightMode === true ?
-                              classes.btnHighlightClicked :
-                              classes.btnHighlight
+                            highlightMode === true
+                              ? classes.btnHighlightClicked
+                              : classes.btnHighlight
                           }
                           variant="contained"
                           disableFocusRipple
                           disableRipple
                           onClick={() => {
-                            console.log("Clicked Highlight")
+                            console.log('Clicked Highlight');
                             setHighlightMode(!highlightMode);
-                          }}                        
+                          }}
                         >
                           <BorderColorIcon />
                         </IconButton>
@@ -288,12 +379,12 @@ const NewArticle = () => {
                           <Button
                             variant="outlined"
                             className={
-                              uiBtn === 'define' ?
-                                classes.btnUiClicked :
-                                classes.btnUi
+                              uiBtn === 'define'
+                                ? classes.btnUiClicked
+                                : classes.btnUi
                             }
                             onClick={() => {
-                              console.log("Clicked Define")
+                              console.log('Clicked Define');
                               setUiBtn('define');
                             }}
                           >
@@ -306,14 +397,14 @@ const NewArticle = () => {
                           <Button
                             variant="outlined"
                             className={
-                              uiBtn === 'analyse' ?
-                                classes.btnUiClicked :
-                                classes.btnUi
+                              uiBtn === 'analyse'
+                                ? classes.btnUiClicked
+                                : classes.btnUi
                             }
                             onClick={() => {
-                              console.log("Clicked Analyse")
+                              console.log('Clicked Analyse');
                               setUiBtn('analyse');
-                            }}                        
+                            }}
                           >
                             Analyse
                           </Button>
@@ -324,14 +415,14 @@ const NewArticle = () => {
                           <Button
                             variant="outlined"
                             className={
-                              uiBtn === 'weblinks' ?
-                                classes.btnUiClicked :
-                                classes.btnUi
+                              uiBtn === 'weblinks'
+                                ? classes.btnUiClicked
+                                : classes.btnUi
                             }
                             onClick={() => {
-                              console.log("Clicked Web Links")
+                              console.log('Clicked Web Links');
                               setUiBtn('weblinks');
-                            }}                        
+                            }}
                           >
                             Web Links
                           </Button>
@@ -364,11 +455,10 @@ const NewArticle = () => {
                   variant="outlined"
                   multiline
                   inputProps={{
-                    readOnly: true
+                    readOnly: true,
                   }}
                   fullWidth
                   rows={5}
-                  // value={definedText}
                   className={classes.displayTextfield}
                 />
 
@@ -379,18 +469,18 @@ const NewArticle = () => {
                   fullWidth
                   rows={15}
                   className={classes.uiInputText}
+                  inputRef={notesRef}
                 />
-
               </Box>
               {/* end UI display section */}
             </Box>
             <br />
             <br />
           </Box>
-        }
+        )}
       </Container>
     </Container>
   );
-}
+};
 
 export default NewArticle;
