@@ -93,6 +93,22 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
         return fail_response_object, 401
 
 
+def get_all_following(username):
+    following = Follower.query.filter_by(user_name=username).all()
+
+    following_list = []
+
+    for user in following:
+        follow = {}
+        follow["user_name"] = user.user_name
+        follow["following"] = user.following
+        following_list.append(follow)
+
+    response_object = {"status": "success", "data": following_list}
+
+    return response_object, 200
+
+
 def save_changes(data: User) -> None:
     db.session.add(data)
     db.session.commit()

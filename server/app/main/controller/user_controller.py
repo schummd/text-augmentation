@@ -4,10 +4,12 @@ from flask_restx import Resource
 from app.main.util.decorator import admin_token_required
 from ..util.dto import UserDto
 from ..service.user_service import (
+    get_all_following,
     save_new_user,
     get_all_users,
     get_a_user,
     follow_a_user,
+    get_all_following,
 )
 from typing import Dict, Tuple
 
@@ -50,7 +52,7 @@ class User(Resource):
             return user
 
 
-@api.route("/<string:username>/following")
+@api.route("/<username>/following")
 @api.param("username", "My username")
 @api.response(404, "User not found.")
 class Follow(Resource):
@@ -66,3 +68,8 @@ class Follow(Resource):
         print(response, code)
         return code
 
+    # GET /user/{username}/following
+    @api.doc("users a user following")
+    def get(self, username):
+        """Get all users a user following"""
+        return get_all_following(username)
