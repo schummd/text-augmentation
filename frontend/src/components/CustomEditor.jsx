@@ -12,6 +12,10 @@ const CustomEditor = () => {
     setEditorState(state);
   };
 
+  React.useEffect(() => {
+    console.log('changed');
+  }, [editorState]);
+
   return (
     <div className="App">
       <Editor
