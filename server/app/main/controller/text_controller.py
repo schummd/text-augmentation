@@ -3,7 +3,7 @@ from flask_restx import Resource, fields
 from flask_restx.reqparse import RequestParser
 import flask
 from app.main.util.decorator import token_required
-from ..util.dto import TextDto, UserDto
+from ..util.dto import TextDto
 from ..service.text_service import (
     save_new_text,
     get_all_texts,
@@ -15,7 +15,6 @@ from typing import Dict
 
 api = TextDto.api
 _text = TextDto.text
-_user = UserDto.user
 
 
 # POST /text
