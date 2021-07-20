@@ -46,3 +46,7 @@ class TextDto:
 
 class Keywords:
     api = Namespace("keywords", description="finding keywords using IBM API")
+
+
+class Parse:
+    api = Namespace("parse", description="Parsing papers")
