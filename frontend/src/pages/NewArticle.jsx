@@ -1,10 +1,17 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
-import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import {
+  convertToRaw,
+  convertFromRaw,
+  EditorState,
+  convertFromHTML,
+  ContentState,
+} from 'draft-js';
 import { createTextObject } from '../utils/utils';
 import Navigation from '../components/Navigation';
 import { Redirect, useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import { useForm } from 'react-hook-form';
 import {
   makeStyles,
   Box,
@@ -17,6 +24,7 @@ import {
   IconButton,
   Grid,
   InputAdornment,
+  FormControl,
 } from '@material-ui/core';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
 import SearchIcon from '@material-ui/icons/Search';
@@ -172,6 +180,16 @@ const NewArticle = () => {
   const [loadingState, setLoadingState] = React.useState('load');
   const [update, setUpdate] = React.useState(false);
 
+  const parsedPdfToHtml = (data) => {
+    const { sections } = data;
+    const sectionsOfInterest = sections.filter((section) =>
+      section.hasOwnProperty('heading')
+    );
+    return sectionsOfInterest
+      .map((section) => `<h3>${section.heading}</h3><p>${section.text}</p>`)
+      .join('');
+  };
+
   React.useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -191,7 +209,7 @@ const NewArticle = () => {
       setEditorState(EditorState.createWithContent(rawEditorState));
     }
     setLoadingState('done');
-  }, [id, myReads, update]);
+  }, []);
 
   React.useEffect(() => {
     if (id === 'new') {
@@ -199,6 +217,61 @@ const NewArticle = () => {
       setSingularRead('');
     }
   }, [id]);
+
+  const { register, handleSubmit } = useForm();
+
+  const readFile = async (file) => {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => {
+        resolve(fr.result);
+      };
+      fr.onerror = reject;
+      fr.readAsDataURL(file);
+    });
+  };
+
+  const uploadSubmit = async (d) => {
+    const uploadedFile = d.uploadedPDF[0];
+    const dataUrl = await readFile(uploadedFile);
+    const rawBase64Data = dataUrl.split(',')[1];
+
+    try {
+      const payload = {
+        method: `POST`,
+        url: `/parse/`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+        data: rawBase64Data,
+      };
+
+      const res = await axios(payload);
+      const resData = res.data;
+      console.log(resData);
+      if (resData.status === 'success') {
+        toast.success(`${resData.message}`);
+      } else {
+        toast.warn(`${resData.message}`);
+      }
+      const markup = parsedPdfToHtml(resData.data);
+      const blocksFromHTML = convertFromHTML(markup);
+      const state = ContentState.createFromBlockArray(
+        blocksFromHTML.contentBlocks,
+        blocksFromHTML.entityMap
+      );
+      const newState = EditorState.createWithContent(state);
+      // console.log(newState);
+      setEditorState(newState);
+    } catch (error) {
+      console.log(error);
+      toast.error('error parsing PDF');
+    }
+
+    // console.log(file);
+  };
 
   const saveArticle = async (editorState) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());
@@ -294,15 +367,43 @@ const NewArticle = () => {
                 <Box className={classes.titleDivBtns}>
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Upload">
-                      <Button
-                        variant="contained"
-                        className={classes.btnText}
-                        onClick={() => {
-                          console.log('Clicked Upload');
-                        }}
-                      >
-                        Upload
-                      </Button>
+                      <form onSubmit={handleSubmit(uploadSubmit)}>
+                        {/* <input
+                          type="file"
+                          name="pdfFile"
+                          {...register('uploadedPDF', { required: true })}
+                        /> */}
+                        <input
+                          accept="application/pdf"
+                          // className={classes.input}
+                          style={{ display: 'none' }}
+                          id="raised-button-file"
+                          multiple
+                          type="file"
+                          name="pdfFile"
+                          {...register('uploadedPDF', { required: true })}
+                        />
+                        <label htmlFor="raised-button-file">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            className={classes.btnText}
+                            color="secondary"
+                          >
+                            Upload
+                          </Button>
+                        </label>
+                        <FormControl>
+                          <Button
+                            className={classes.btnText}
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                          >
+                            Process
+                          </Button>
+                        </FormControl>
+                      </form>
                     </Tooltip>
                   </Box>
                   <Box className={classes.titleDivSingleBtn}>
