@@ -23,7 +23,7 @@ def send_to_parser(data):
             "Content-type: application/pdf",
             "--data-binary",
             "@temp.pdf",
-            "http://localhost:8080/v1",
+            "http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/v1",
         ],
         stdin=PIPE,
         stdout=PIPE,
