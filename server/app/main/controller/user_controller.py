@@ -62,10 +62,10 @@ class Follow(Resource):
         """follow another user"""
         data = request.json
         # TODO: add unfollow method here
-        print(data)
+        # print(data)
         user_to_follow = data["user_to_follow"]
         response, code = follow_a_user(username, user_to_follow)
-        print(response, code)
+        # print(response, code)
         return code
 
     # GET /user/{username}/following

@@ -65,7 +65,7 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
         "status": "fail",
         "message": "Some error occurred. Please try again.",
     }
-    print(f"Follow request by {username} to follow {user_to_follow}")
+    # print(f"Follow request by {username} to follow {user_to_follow}")
     # Checking if the user tries to follow himself
     if user_to_follow == username:
         return fail_response_object, 400
@@ -89,7 +89,7 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
         }
         return response_object, 201
     except Exception as e:
-        print("Follower update unsucessful", e)
+        # print("Follower update unsucessful", e)
         return fail_response_object, 401
 
 
