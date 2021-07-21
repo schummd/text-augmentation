@@ -222,13 +222,11 @@ class TestText(BaseTestCase):
         with self.client:
             register_user_text(self)
             response_login = login_user_text(self)
-            print("HERE 3")
             # save text, get text id
             add_text = user_add_text(
                 self, response_login, "test title 1", "hello world"
             )
             text_id = json.loads(add_text.data.decode())["text_id"]
-            print("HERE 4")
             # delete the text
             response_delete_text = self.client.delete(
                 f"/text/{text_id}",
