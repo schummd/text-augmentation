@@ -77,28 +77,33 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
         .count()
         > 0
     ):
-        session.query(Follower).filter(
-            (Follower.user_name == username) & (Follower.following == user_to_follow)
-        ).delete()
-        session.commit()
-        response_object = {
-            "status": "success",
-            "message": "Successfully disconnected.",
-        }
-        return response_object, 201
-
-    try:
-        new_following = Follower(user_name=username, following=user_to_follow)
-        session.add(new_following)
-        session.commit()
-        response_object = {
-            "status": "success",
-            "message": "Successfully connected.",
-        }
-        return response_object, 201
-    except Exception as e:
-        print("Follower update unsucessful", e)
-        return fail_response_object, 401
+        try:
+            session.query(Follower).filter(
+                (Follower.user_name == username)
+                & (Follower.following == user_to_follow)
+            ).delete()
+            session.commit()
+            response_object = {
+                "status": "success",
+                "message": "Successfully disconnected.",
+            }
+            return response_object, 201
+        except Exception as e:
+            print("Follower update unsucessful", e)
+            return fail_response_object, 401
+    else:
+        try:
+            new_following = Follower(user_name=username, following=user_to_follow)
+            session.add(new_following)
+            session.commit()
+            response_object = {
+                "status": "success",
+                "message": "Successfully connected.",
+            }
+            return response_object, 201
+        except Exception as e:
+            print("Follower update unsucessful", e)
+            return fail_response_object, 401
 
 
 def save_changes(data: User) -> None:

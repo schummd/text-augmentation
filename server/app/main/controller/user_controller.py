@@ -59,7 +59,6 @@ class User(Resource):
 @api.response(404, "User not found.")
 class Follow(Resource):
     @api.expect(_follower, validate=True)
-    @api.expect(user_auth, validate=True)
     @api.doc("follow a user")
     @token_required
     def patch(self, username):
