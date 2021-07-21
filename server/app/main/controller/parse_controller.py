@@ -1,4 +1,3 @@
-from subprocess import Popen, PIPE
 from flask_restx import Resource
 import logging
 from flask import request
@@ -6,46 +5,13 @@ from flask_restx import Resource
 from ..util.dto import Parse
 from app.main.util.decorator import token_required
 import base64
-import json
+
+from ..service.parse_service import parse_paper
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 api = Parse.api
-
-
-def send_to_parser(data):
-    parse_subprocess = Popen(
-        [
-            "curl",
-            "-v",
-            "-H",
-            "Content-type: application/pdf",
-            "--data-binary",
-            "@temp.pdf",
-<<<<<<< HEAD
-            "http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/v1",
-=======
-            "http://localhost:8080/v1",
->>>>>>> d5d7d90ee01770fe76514ee5ee63777fb6a095b2
-        ],
-        stdin=PIPE,
-        stdout=PIPE,
-        stderr=PIPE,
-    )
-
-    output, err = parse_subprocess.communicate()
-    d = json.loads(output.decode())
-    print(d)
-    return_code = parse_subprocess.returncode
-
-    response_object = {
-        "status": "success",
-        "message": "Successfully parsed PDF.",
-        "data": d,
-    }
-
-    return response_object, 200
 
 
 @api.response(200, "OK")
@@ -60,5 +26,5 @@ class ParsedPDF(Resource):
         with open("temp.pdf", "wb") as f:
             f.write(decoded_pdf)
 
-        return send_to_parser(decoded_pdf)
+        return parse_paper(decoded_pdf)
 
