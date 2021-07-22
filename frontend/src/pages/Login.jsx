@@ -1,10 +1,7 @@
 import React from 'react';
 import ReadMoreLogo from '../assets/readmore-logo.png';
 import { useHistory } from 'react-router-dom';
-import {
-  useForm,
-  Controller,
-} from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { StoreContext } from '../utils/store';
 import {
   makeStyles,
@@ -65,13 +62,13 @@ const useStyles = makeStyles((theme) => ({
     width: '14em',
   },
   textarea: {
-    color: '#648dae'
+    color: '#648dae',
   },
   toasty: {
     textAlign: 'center',
     justifyContent: 'center',
     alignContent: 'center',
-  }
+  },
 }));
 
 const Login = () => {
@@ -80,31 +77,29 @@ const Login = () => {
   console.log(urlBase);
   const setToken = context.token[1];
   const setPage = context.pageState[1];
+  const setUsername = context.username[1];
+
   const history = useHistory();
   const toastErrorStyle = {
     backgroundColor: '#cc0000',
     opacity: 0.8,
     textAlign: 'center',
-    fontSize: '18px'
+    fontSize: '18px',
   };
   const { handleSubmit, control } = useForm();
   const onSubmit = (data) => {
     if (data.username === '') {
-      toast.error(
-        'Please enter your Email', {
-          position: 'top-right',
-          hideProgressBar: true,
-          style: toastErrorStyle
-        }
-      );
+      toast.error('Please enter your Email', {
+        position: 'top-right',
+        hideProgressBar: true,
+        style: toastErrorStyle,
+      });
     } else if (data.password === '') {
-      toast.error(
-        'Please enter your Password', {
-          position: 'top-right',
-          hideProgressBar: true,
-          style: toastErrorStyle
-        }
-      );
+      toast.error('Please enter your Password', {
+        position: 'top-right',
+        hideProgressBar: true,
+        style: toastErrorStyle,
+      });
     } else {
       axios({
         method: 'POST',
@@ -115,27 +110,33 @@ const Login = () => {
         },
         data: {
           email: data.email,
-          password: data.password
-        }
+          password: data.password,
+        },
       })
         .then((response) => {
           console.log(response);
           setToken(response.data.Authorization);
+          setUsername(response.data.username);
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              username: response.data.username,
+              token: response.data.Authorization,
+            })
+          );
           history.push('/home');
         })
         .catch((error) => {
           let errorText = '';
           error.response.data.error !== undefined
-            ? errorText = error.response.data.error
-            : errorText = 'Invalid input'
-          toast.error(
-            errorText, {
-              position: 'top-right',
-              hideProgressBar: true,
-              style: toastErrorStyle
-            }
-          );
-        })
+            ? (errorText = error.response.data.error)
+            : (errorText = 'Invalid input');
+          toast.error(errorText, {
+            position: 'top-right',
+            hideProgressBar: true,
+            style: toastErrorStyle,
+          });
+        });
     }
   };
   React.useEffect(() => {
@@ -154,13 +155,9 @@ const Login = () => {
       </Box>
       <br />
       <Box className={classes.titleContainer}>
-        <Typography variant="h4">
-          ReadMore
-        </Typography>
+        <Typography variant="h4">ReadMore</Typography>
         <Divider />
-        <Typography variant="h5">
-          Log In
-        </Typography>
+        <Typography variant="h5">Log In</Typography>
       </Box>
       <br />
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -226,6 +223,6 @@ const Login = () => {
       <br />
     </Container>
   );
-}
+};
 
 export default Login;
