@@ -17,7 +17,7 @@ Return keywords for the specified text (IBM-Watson)
 6 GET keywords/{text_id}  
 
 Return Wikipedia article relevant to the word of interest  
-7 GET/wikipedia/{title}    
+7 GET/wikipedia/{word}    
 
 Return Oxford dictionary definition for the word of interest  
 8 GET/definitions/{word}  
