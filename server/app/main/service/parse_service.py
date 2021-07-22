@@ -2,9 +2,12 @@ from subprocess import Popen, PIPE
 import json
 import os
 from typing import Dict
+import base64
 
 
-def parse_paper(data: bytes) -> Dict[str, str]:
+def parse_paper(encoded_pdf: str) -> Dict[str, str]:
+
+    data = base64.b64decode(encoded_pdf)
 
     TEMP_FILENAME = "temp.pdf"
 

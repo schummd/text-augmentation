@@ -48,5 +48,9 @@ class Keywords:
     api = Namespace("keywords", description="finding keywords using IBM API")
 
 
-class Parse:
+class ParseDto:
     api = Namespace("parse", description="Parsing papers")
+    pdf = api.model(
+        "pdf",
+        {"data": fields.String(required=True, description="base64 encoded PDF"),},
+    )
