@@ -75,3 +75,9 @@ science-parse/EvalErrors.log
 !science-parse/core/
 !science-parse/server/
 !science-parse/project/
+
+# CDK
+
+science-parse/cdk/cdk.out/
+science-parse/cdk/node_modules
+science-parse/Dockerfile
