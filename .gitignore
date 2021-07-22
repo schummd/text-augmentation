@@ -46,3 +46,32 @@ venv/
 
 # ignore local migrations
 server/migrations/
+
+# science-parse
+# gradle
+science-parse/.gradle/**
+science-parse/build/**
+science-parse/gradle/**
+science-parse/out/**
+science-parse/gradlew.*
+science-parse/gradlew
+
+# intellij
+science-parse/*.ipr
+science-parse/*.iws
+science-parse/*.iml
+
+# emacs
+.*~
+
+# sbt
+science-parse/target/**
+science-parse/project/target/**
+science-parse/project/project/**
+
+science-parse/EvalErrors.log
+
+!science-parse/cli/
+!science-parse/core/
+!science-parse/server/
+!science-parse/project/

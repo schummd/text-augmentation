@@ -4,7 +4,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import MyReads from './pages/MyReads';
-import NewArticle from './pages/NewArticle';
 import Article from './pages/Article';
 import UserProfile from './pages/UserProfile';
 import {
@@ -58,11 +57,8 @@ function App() {
                 <MyReads />
               </Route>
               <Route exact path="/articles/:id">
-                <NewArticle />
-              </Route>
-              {/* <Route exact path="/articles/:id">
                 <Article />
-              </Route> */}
+              </Route>
               <Route exact path="/user/:id">
                 <UserProfile />
               </Route>
