@@ -4,10 +4,8 @@ import unittest
 from app.main import db
 
 import json
-from app.main.model.text import Text
 from app.test.base import BaseTestCase
 from app.main.controller.user_controller import *
-from app.test.test_follower_model import *
 import base64
 
 
