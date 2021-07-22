@@ -22,9 +22,5 @@ class ParsedPDF(Resource):
     def post(self):
         encoded_pdf = request.data.decode()
         decoded_pdf = base64.b64decode(encoded_pdf)
-
-        with open("temp.pdf", "wb") as f:
-            f.write(decoded_pdf)
-
         return parse_paper(decoded_pdf)
 
