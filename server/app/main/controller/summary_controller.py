@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 api = Summary.api
 _user = UserDto.user
-_keywords_text = Keywords.keywords_text
+_keywords_text = Summary.keywords_text
 
 
 @api.response(200, "OK")
