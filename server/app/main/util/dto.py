@@ -54,6 +54,10 @@ class Keywords:
 
 class Summary:
     api = Namespace("summary", description="summarising text using Meaning Cloud")
+    keywords_text = api.model(
+        "text",
+        {"text_body": fields.String(required=True, description="Text to analys"),},
+    )
 
 
 class Definition:
