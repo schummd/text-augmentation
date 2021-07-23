@@ -46,6 +46,10 @@ class TextDto:
 
 class Keywords:
     api = Namespace("keywords", description="finding keywords using IBM API")
+    keywords_text = api.model(
+        "text",
+        {"text_body": fields.String(required=True, description="Text to analys"),},
+    )
 
 
 class Summary:

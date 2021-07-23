@@ -20,15 +20,11 @@ import requests
 from requests.structures import CaseInsensitiveDict
 
 
-def summarize(text_id, data: Dict[str, str]):
-    print(Auth.get_logged_in_user(request)[0])
-    logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    requestedText = (
-        Text.query.join(User, Text.user_id == User.id)
-        .filter(User.id == logged_in_user["user_id"])
-        .filter(Text.text_id == text_id)
-        .first()
-    )
+def summarize(data: Dict[str, str]):
+    # print(Auth.get_logged_in_user(request)[0])
+    # logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
+    # text_title=data["text_title"],
+    text_body = data["text_body"]
 
     load_dotenv(find_dotenv("server.env"))
 
@@ -37,7 +33,7 @@ def summarize(text_id, data: Dict[str, str]):
     try:
         params = (
             ("key", apikey),
-            ("txt", requestedText.text_body),
+            ("txt", text_body),
             ("sentences", "1"),
         )
         url = f"https://api.meaningcloud.com/summarization-1.0"
