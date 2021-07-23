@@ -29,3 +29,4 @@ python-dotenv==0.18.0
 ibm-watson==5.2.1
 ibm-cloud-sdk-core==3.10.1
 black==19.10b0
+wikipedia==1.4.0
