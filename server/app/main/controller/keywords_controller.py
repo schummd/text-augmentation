@@ -25,17 +25,18 @@ logging.basicConfig(level=logging.DEBUG)
 
 api = Keywords.api
 _user = UserDto.user
+_keywords_text = Keywords.keywords_text
 
 
 @api.response(200, "OK")
 @api.response(400, "Bad request")
 @token_required
-@api.route("/<string:text_id>")
+@api.route("/")
 class RetrieveKeywords(Resource):
-    @api.doc(params={"text_id": "Text for analysis - ID"})
-    def get(self, text_id):
+    @token_required
+    @api.expect(_keywords_text, validate=True)
+    def post(self):
         data = request.json
-        keywords = find_keywords(text_id, data=data)
-        print(keywords)
+        keywords = find_keywords(data=data)
         return keywords  # a list
 
