@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 api = Summary.api
 _user = UserDto.user
-_keywords_text = Summary.keywords_text
+_summary_text = Summary.summary_text
 
 
 @api.response(200, "OK")
@@ -27,7 +27,7 @@ _keywords_text = Summary.keywords_text
 @api.route("/")
 class Summarize(Resource):
     @token_required
-    @api.expect(_keywords_text, validate=True)
+    @api.expect(_summary_text, validate=True)
     def post(self):
         data = request.json
         summary = summarize(data=data)
