@@ -54,18 +54,13 @@ def watson_keywords(text_to_analyse):
     return {"keywords": kw, "concepts": cn}
 
 
-def find_keywords(text_id, data: Dict[str, str]):
-    print(Auth.get_logged_in_user(request)[0])
-    logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    requestedText = (
-        Text.query.join(User, Text.user_id == User.id)
-        .filter(User.id == logged_in_user["user_id"])
-        .filter(Text.text_id == text_id)
-        .first()
-    )
+def find_keywords(data: Dict[str, str]):
+    # print(Auth.get_logged_in_user(request)[0])
+    # logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
     # print(logged_in_user["user_id"], text_id, requestedText.text_body)
+    text_body = data["text_body"]
     try:
-        return watson_keywords(requestedText.text_body)
+        return watson_keywords(text_body)
     except Exception as e:
         response_object = {
             "status": "fail",
