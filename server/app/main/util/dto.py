@@ -62,7 +62,7 @@ class Definition:
                 required=True, description="Definition of the word"
             ),
         },
-
+    )
       
 class ParseDto:
     api = Namespace("parse", description="Parsing papers")
