@@ -63,11 +63,24 @@ class Definition:
             ),
         },
     )
-      
+
+
 class ParseDto:
     api = Namespace("parse", description="Parsing papers")
     pdf = api.model(
         "pdf",
         {"data": fields.String(required=True, description="base64 encoded PDF"),},
+    )
 
+
+class Wiki:
+    api = Namespace("wikipedia", description="summary related operations")
+    synonym = api.model(
+        "summary",
+        {
+            "title": fields.String(required=True, description="The title"),
+            "summary": fields.String(
+                required=True, description="Summary related to the title"
+            ),
+        },
     )
