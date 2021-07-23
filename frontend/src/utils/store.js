@@ -1,5 +1,9 @@
 import React from 'react';
 import Backend from '../backend.json';
+import { EditorState } from 'draft-js';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
 export const StoreContext = React.createContext(null);
 
 // eslint-disable-next-line react/prop-types
@@ -8,16 +12,25 @@ const Context = ({ children }) => {
   const [token, setToken] = React.useState(null);
   const [username, setUsername] = React.useState(null);
   const [page, setPage] = React.useState('/login');
-  const [myTexts, setMyTexts] = React.useState([]);
-  const [singularText, setSingularText] = React.useState('');
+  const [myReads, setMyReads] = React.useState([]);
+  const [singularRead, setSingularRead] = React.useState('');
+  const [editorState, setEditorState] = React.useState(
+    EditorState.createEmpty()
+  );
+
+  const blankEditorState = () => {
+    return EditorState.createEmpty();
+  };
 
   const store = {
     urlBase: `http://localhost:${backendPort}`,
     token: [token, setToken],
     username: [username, setUsername],
     pageState: [page, setPage],
-    myTexts: [myTexts, setMyTexts],
-    singularText: [singularText, setSingularText],
+    myReads: [myReads, setMyReads],
+    singularRead: [singularRead, setSingularRead],
+    editorState: [editorState, setEditorState],
+    blankEditorState,
   };
 
   return (

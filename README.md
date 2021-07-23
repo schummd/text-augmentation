@@ -28,6 +28,18 @@ Skeleton for fetching data from JSON db file served via an express server.
 ## frontend-dev-server endpoints
 GET / - returns JSON object with contents of frontend-dev-server/db.json
 # Backend
+
+## science-parse
+
+Scientific paper parsing library used for parsing PDFs. Taken from [here](https://github.com/stoposto/science-parse) which is a fork of [science-parse](https://github.com/allenai/science-parse). Due to high resource usage and operational overhead required to provide a reliable local instance for team members, it has been deployed[here](http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/) on a load balanced AWS ECS service.
+### Deployment
+
+To deploy yourself(not required):
+
+0. Install and configure [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+1. install [aws cdk](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install)
+2. Navigate to ./science-parse/cdk 
+3. Run `cdk deploy`
 ## Resources
 
 - [TDD](https://testdriven.io/test-driven-development/)
@@ -99,6 +111,13 @@ Example file:
 EXAMPLE_API_KEY_1="XXXXXXXXXX"
 EXAMPLE_API_KEY_2="YYYYYYYYY"
 ```
+For IBM-Watson, in addition to the API key (IBM_WATSON_API_KEY), the service provider also generates a specific URL.
+Please store it together with the API key: IBM_WATSON_URL="XXXXX"
+The slideshow illustrating how to obtain IBM-Watson credentials is in Teams, Resources channel, Files.
+
+For the MEANING CLOUD the name of the key is MEANING_CLOUD. It could be obtained at https://www.meaningcloud.com/developer/summarization/dev-tools/1.0
+
+
 ### Loading keys from server.env within code
 ```python
 # example_controller.py

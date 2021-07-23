@@ -9,6 +9,8 @@ from .main.controller.text_controller import api as text_ns
 from .main.controller.keywords_controller import api as keywords_ns
 from .main.controller.summary_controller import api as summary_ns
 from .main.controller.definition_controller import api as definition_ns
+from .main.controller.parse_controller import api as parse_ns
+
 
 blueprint = Blueprint("api", __name__)
 authorizations = {
@@ -30,5 +32,7 @@ api.add_namespace(text_ns, path="/text")
 api.add_namespace(keywords_ns)
 api.add_namespace(summary_ns)
 api.add_namespace(definition_ns)
+api.add_namespace(parse_ns, path="/parse")
+
 # logging.basicConfig()
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)

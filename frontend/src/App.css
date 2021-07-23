@@ -41,3 +41,19 @@ html, body, #root, .App {
     transform: rotate(360deg);
   }
 }
+
+.wrapper-class {
+  border: 1px solid black;
+  padding: 1rem;
+}
+
+.editor-class {
+  background-color:#fff;
+  border: 1px solid black;
+  padding: 1rem;
+}
+
+.toolbar-class {
+  border: 1px solid black;
+}
+
