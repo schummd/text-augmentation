@@ -51,6 +51,7 @@ const Navigation = () => {
   const token = context.token[0];
   const setUsername = context.username[1];
   const setToken = context.token[1];
+  const setSingularRead = context.singularRead[1];
 
   const btnLogout = () => {
     console.log(token);
@@ -60,37 +61,36 @@ const Navigation = () => {
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        "Authorization": `Authorization: ${token}`,
-      }
+        Authorization: `Authorization: ${token}`,
+      },
     })
       .then(() => {
         setToken(null);
         history.push('/login');
         setUsername(null);
-      })    
+        localStorage.clear();
+      })
       .catch((error) => {
-        console.log(error)
+        console.log(error);
         let errorText = '';
         error.response.data.error !== undefined
-          ? errorText = error.response.data.error
-          : errorText = 'Invalid Auth token'
-        toast.error(
-          errorText, {
-            position: 'top-right',
-            hideProgressBar: true,
-            style: {
-              backgroundColor: '#cc0000',
-              opacity: 0.8,
-              textAlign: 'center',
-              fontSize: '18px'
-            }
-          }
-        );
+          ? (errorText = error.response.data.error)
+          : (errorText = 'Invalid Auth token');
+        toast.error(errorText, {
+          position: 'top-right',
+          hideProgressBar: true,
+          style: {
+            backgroundColor: '#cc0000',
+            opacity: 0.8,
+            textAlign: 'center',
+            fontSize: '18px',
+          },
+        });
         setToken(null);
         history.push('/login');
         setUsername(null);
-      })
-  }
+      });
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -124,7 +124,7 @@ const Navigation = () => {
                     color="default"
                     className={classes.btnText}
                     onClick={() => {
-                      history.push('/home')
+                      history.push('/home');
                     }}
                   >
                     Home
@@ -138,27 +138,26 @@ const Navigation = () => {
                     color="default"
                     className={classes.btnText}
                     onClick={() => {
-                      history.push('/myreads')
+                      history.push('/myreads');
                     }}
                   >
                     My Reads
                   </Button>
                 </Tooltip>
 
-                <Tooltip title="New Article">
+                <Tooltip title="New Read">
                   <Button
                     id="new-article-button"
                     variant="contained"
                     color="primary"
                     className={classes.btnText}
                     onClick={() => {
-                      history.push('/articles/new')
+                      history.push('/articles/new');
                     }}
                   >
-                    New Article
+                    New Read
                   </Button>
                 </Tooltip>
-
               </ButtonGroup>
             </Grid>
 
@@ -169,18 +168,19 @@ const Navigation = () => {
                   variant="contained"
                   color="default"
                   className={classes.btnText}
-                  onClick={() => { btnLogout() }}
+                  onClick={() => {
+                    btnLogout();
+                  }}
                 >
                   Logout
                 </Button>
               </Tooltip>
             </Grid>
-
           </Grid>
         </Box>
       </Box>
     </ThemeProvider>
-  )
-}
+  );
+};
 
 export default Navigation;

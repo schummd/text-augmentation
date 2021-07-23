@@ -11,13 +11,13 @@ Update/delete specific text
 4 DELETE /text/{username}/{text_id}    
 
 GET specific text of the user that is not the one who is logged it, but connected   
-5 GET /text/{username}/{text_id}  
+5 GET /text/{username}/{following}/{text_id}  
 
 Return keywords for the specified text (IBM-Watson)  
 6 GET keywords/{text_id}  
 
 Return Wikipedia article relevant to the word of interest  
-7 GET/wikipedia/{word}  
+7 GET/wikipedia/{word}    
 
 Return Oxford dictionary definition for the word of interest  
 8 GET/definitions/{word}  

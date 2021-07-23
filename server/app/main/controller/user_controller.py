@@ -1,8 +1,9 @@
 from flask import request
 from flask_restx import Resource
-
+from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
-from ..util.dto import UserDto
+from ..util.dto import UserDto, AuthDto
+from app.main.service.auth_helper import Auth
 from ..service.user_service import (
     get_all_following,
     save_new_user,
@@ -13,10 +14,13 @@ from ..service.user_service import (
 )
 from typing import Dict, Tuple
 
+user_auth = AuthDto.user_auth
+
 
 api = UserDto.api
 _user = UserDto.user
 _follower = UserDto.follower
+user_auth = AuthDto.user_auth
 
 
 @api.route("/")
@@ -58,16 +62,14 @@ class User(Resource):
 class Follow(Resource):
     @api.expect(_follower, validate=True)
     @api.doc("follow a user")
+    @token_required
     def patch(self, username):
         """follow another user"""
         data = request.json
-        # TODO: add unfollow method here
-        # print(data)
         user_to_follow = data["user_to_follow"]
-        response, code = follow_a_user(username, user_to_follow)
-        # print(response, code)
-        return code
+        return follow_a_user(username, user_to_follow)
 
+      
     # GET /user/{username}/following
     @api.doc("users a user following")
     def get(self, username):

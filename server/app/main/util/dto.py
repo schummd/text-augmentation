@@ -46,3 +46,28 @@ class TextDto:
 
 class Keywords:
     api = Namespace("keywords", description="finding keywords using IBM API")
+
+
+class Summary:
+    api = Namespace("summary", description="summarising text using Meaning Cloud")
+
+
+class Definition:
+    api = Namespace("definition", description="definition related operations")
+    definition = api.model(
+        "definition",
+        {
+            "word": fields.String(required=True, description="Word"),
+            "definition": fields.String(
+                required=True, description="Definition of the word"
+            ),
+        },
+    )
+      
+class ParseDto:
+    api = Namespace("parse", description="Parsing papers")
+    pdf = api.model(
+        "pdf",
+        {"data": fields.String(required=True, description="base64 encoded PDF"),},
+
+    )

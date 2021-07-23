@@ -56,6 +56,7 @@ class TestFollowerModel(BaseTestCase):
                 data=json.dumps(dict(user_to_follow="alice")),
                 content_type="application/json",
             )
+
             # print("Test Followers", follow_request_response)
             # self.assertEqual(follow_request_response, 200)
             follow_response = json.loads(follow_request_response.data.decode())
@@ -98,6 +99,7 @@ class TestFollowerModel(BaseTestCase):
             show_all_response = json.loads(show_response.data.decode())
             self.assertTrue(show_all_response["status"] == "success")
             self.assertTrue(len(show_all_response["data"]) == 0)
+
 
 
 if __name__ == "__main__":
