@@ -57,11 +57,7 @@ class TestFollowerModel(BaseTestCase):
                 content_type="application/json",
             )
 
-            # print("Test Followers", follow_request_response)
-            # self.assertEqual(follow_request_response, 200)
-            follow_response = json.loads(follow_request_response.data.decode())
-
-            print(follow_response)
+            self.assertEqual(follow_request_response.status, "201 CREATED")
 
     def test_get_user_following_all(self):
         with self.client:
@@ -99,7 +95,6 @@ class TestFollowerModel(BaseTestCase):
             show_all_response = json.loads(show_response.data.decode())
             self.assertTrue(show_all_response["status"] == "success")
             self.assertTrue(len(show_all_response["data"]) == 0)
-
 
 
 if __name__ == "__main__":
