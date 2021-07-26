@@ -56,7 +56,7 @@ class Summary:
     api = Namespace("summary", description="summarising text using Meaning Cloud")
     summary_text = api.model(
         "summary",
-        {"text_body": fields.String(required=True, description="Text to analys"),},
+        {"text_body": fields.String(required=True, description="Text to analyse"),},
     )
 
 
@@ -84,7 +84,7 @@ class ParseDto:
 class Wiki:
     api = Namespace("wikipedia", description="summary related operations")
     synonym = api.model(
-        "summary",
+        "wiki_summary",
         {
             "title": fields.String(required=True, description="The title"),
             "summary": fields.String(
@@ -92,6 +92,7 @@ class Wiki:
             ),
         },
     )
+
 
 class HighlightDto:
     api = Namespace("highlight", description="highlight related operations")
@@ -102,9 +103,7 @@ class HighlightDto:
             "offset_start": fields.Integer(
                 description="positional start of the highlight"
             ),
-            "offset_end": fields.Integer(
-                description="positional end of the highlight"
-            ),
+            "offset_end": fields.Integer(description="positional end of the highlight"),
             "content": fields.String(
                 required=True, description="content inside the highlight"
             ),
