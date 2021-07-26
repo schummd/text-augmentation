@@ -71,7 +71,7 @@ class Follow(Resource):
 
     # GET /user/{username}/following
     @api.doc("users a user following")
-    @token_required
+    # @token_required
     def get(self, username):
         """Get all users a user following"""
         return get_all_following(username)
