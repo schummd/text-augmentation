@@ -69,9 +69,9 @@ class Follow(Resource):
         user_to_follow = data["user_to_follow"]
         return follow_a_user(username, user_to_follow)
 
-      
     # GET /user/{username}/following
     @api.doc("users a user following")
+    @token_required
     def get(self, username):
         """Get all users a user following"""
         return get_all_following(username)
