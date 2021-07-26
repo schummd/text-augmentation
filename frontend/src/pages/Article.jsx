@@ -7,9 +7,16 @@ import {
   convertFromHTML,
   ContentState,
 } from 'draft-js';
-import { createTextObject } from '../utils/utils';
+import {
+  createTextObject,
+  fetchDefinition,
+} from '../utils/utils';
 import Navigation from '../components/Navigation';
-import { Redirect, useParams, useHistory } from 'react-router-dom';
+import {
+  Redirect,
+  useParams,
+  useHistory,
+} from 'react-router-dom';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import {
@@ -27,6 +34,7 @@ import {
   FormControl,
 } from '@material-ui/core';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
+import BackspaceIcon from '@material-ui/icons/Backspace';
 import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
 import { toast } from 'react-toastify';
@@ -118,6 +126,13 @@ const useStyles = makeStyles((theme) => ({
   interactionBtnsGrid: {
     margin: theme.spacing(1),
   },
+  uiDisplayBtnsWrapper: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+    margin: theme.spacing(1),
+    paddingBottom: '2px',
+  },
   btnUiWrapper: {
     display: 'flex',
     width: '100%',
@@ -125,7 +140,8 @@ const useStyles = makeStyles((theme) => ({
   },
   btnUiDiv: {
     display: 'flex',
-    paddingRight: '8px',
+    paddingRight: '4px',
+    paddingLeft: '4px',
   },
   btnUi: {
     fontSize: '14px',
@@ -159,19 +175,43 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     color: 'black',
   },
+  backspaceIconBtn: {
+    padding: 0,
+  },
 }));
 
 const Article = () => {
   const context = React.useContext(StoreContext);
   const [token, setToken] = context.token;
+  const urlBase = context.urlBase;
   const [username, setUsername] = context.username;
   const [editorState, setEditorState] = context.editorState;
   const [singularRead, setSingularRead] = context.singularRead;
   const [myReads, setMyReads] = context.myReads;
   const { blankEditorState } = context;
 
+  React.useEffect(() => {
+    if (token === null) {
+      return <Redirect to={{ pathname: '/login' }} />;
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [uiBtn, setUiBtn] = React.useState('define');
   const [highlightMode, setHighlightMode] = React.useState(false);
+
+  const [defineQuery, setDefineQuery] = React.useState('');
+  const [definitionVal, setDefinitionVal] = React.useState('');
+  const handleChangeDefineQuery = async (event) => {
+    await setDefineQuery(event.target.value);
+  }
+  const handleDefineQuery = () => {
+    if (defineQuery !== '') {
+      fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
+    } else {
+      setDefinitionVal('');
+    }
+  }
+
   const titleRef = React.useRef();
   const notesRef = React.useRef();
 
@@ -339,12 +379,6 @@ const Article = () => {
     }
   };
 
-  React.useEffect(() => {
-    if (token === null) {
-      return <Redirect to={{ pathname: '/login' }} />;
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const classes = useStyles();
   return (
     <Container className={classes.outerWidth}>
@@ -429,119 +463,116 @@ const Article = () => {
                   inputRef={titleRef}
                 />
 
-                <CustomEditor></CustomEditor>
+                <Box className={classes.uiInputText}>
+                  <CustomEditor></CustomEditor>
+                </Box>
+              </Box>
 
-                <Grid
-                  container
-                  spacing={0}
-                  alignItems="center"
-                  justify="center"
-                  align="center"
-                  className={classes.interactionBtnsGrid}
-                >
+              {/* end UI text/button interaction section */}
+
+              <Box className={classes.uiDisplayWrapper}>
+                <Box className={classes.uiDisplayBtnsWrapper}>
                   <Grid
                     container
-                    item
-                    xs={1}
+                    spacing={0}
+                    alignItems="center"
+                    justify="center"
                     align="center"
-                    justify="flex-start"
+                    className={classes.interactionBtnsGrid}
                   >
-                    <Box className={classes.btnHighlightDiv}>
-                      <Tooltip title="Highlight">
-                        <IconButton
-                          className={
-                            highlightMode === true
-                              ? classes.btnHighlightClicked
-                              : classes.btnHighlight
-                          }
-                          variant="contained"
-                          disableFocusRipple
-                          disableRipple
-                          onClick={() => {
-                            console.log('Clicked Highlight');
-                            setHighlightMode(!highlightMode);
-                          }}
-                        >
-                          <BorderColorIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={11} align="center">
-                    <Box className={classes.btnUiWrapper}>
-                      <Box className={classes.btnUiDiv}>
-                        <Tooltip title="Define">
-                          <Button
-                            variant="outlined"
-                            className={
+                    <Grid item xs={11} align="center">
+                      <Box className={classes.btnUiWrapper}>
+                        <Box className={classes.btnUiDiv}>
+                          <Tooltip title="Read">
+                            <Button
+                              variant="outlined"
+                              className={
                               uiBtn === 'define'
-                                ? classes.btnUiClicked
-                                : classes.btnUi
-                            }
-                            onClick={() => {
-                              console.log('Clicked Define');
-                              setUiBtn('define');
-                            }}
-                          >
-                            Define
-                          </Button>
-                        </Tooltip>
+                                  ? classes.btnUiClicked
+                                  : classes.btnUi
+                              }
+                              onClick={() => {
+                                console.log('Clicked Read');
+                                setUiBtn('define');
+                              }}
+                            >
+                              Read
+                            </Button>
+                          </Tooltip>
+                        </Box>
+                        <Box className={classes.btnUiDiv}>
+                          <Tooltip title="Analyse">
+                            <Button
+                              variant="outlined"
+                              className={
+                                uiBtn === 'analyse'
+                                  ? classes.btnUiClicked
+                                  : classes.btnUi
+                              }
+                              onClick={() => {
+                                console.log('Clicked Analyse');
+                                setUiBtn('analyse');
+                              }}
+                            >
+                              Analyse
+                            </Button>
+                          </Tooltip>
+                        </Box>
+                        <Box className={classes.btnUiDiv}>
+                          <Tooltip title="Web Info">
+                            <Button
+                              variant="outlined"
+                              className={
+                                uiBtn === 'weblinks'
+                                  ? classes.btnUiClicked
+                                  : classes.btnUi
+                              }
+                              onClick={() => {
+                                console.log('Clicked Web Info');
+                                setUiBtn('weblinks');
+                              }}
+                            >
+                              Web Info
+                            </Button>
+                          </Tooltip>
+                        </Box>
                       </Box>
-                      <Box className={classes.btnUiDiv}>
-                        <Tooltip title="Analyse">
-                          <Button
-                            variant="outlined"
-                            className={
-                              uiBtn === 'analyse'
-                                ? classes.btnUiClicked
-                                : classes.btnUi
-                            }
-                            onClick={() => {
-                              console.log('Clicked Analyse');
-                              setUiBtn('analyse');
-                            }}
-                          >
-                            Analyse
-                          </Button>
-                        </Tooltip>
-                      </Box>
-                      <Box className={classes.btnUiDiv}>
-                        <Tooltip title="Web Links">
-                          <Button
-                            variant="outlined"
-                            className={
-                              uiBtn === 'weblinks'
-                                ? classes.btnUiClicked
-                                : classes.btnUi
-                            }
-                            onClick={() => {
-                              console.log('Clicked Web Links');
-                              setUiBtn('weblinks');
-                            }}
-                          >
-                            Web Links
-                          </Button>
-                        </Tooltip>
-                      </Box>
-                    </Box>
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Box>
-              {/* end UI text/button interaction section */}
-              <Box className={classes.uiDisplayWrapper}>
+                </Box>
+
                 <TextField
                   placeholder="Define"
                   variant="outlined"
                   multiline
                   fullWidth
                   maxRows={1}
+                  value={defineQuery}
+                  onKeyPress={(eventkey) => {
+                    if (eventkey.key === 'Enter') {
+                      eventkey.preventDefault();
+                      handleDefineQuery();
+                    }
+                  }}
+                  onChange={(e)=>{
+                    handleChangeDefineQuery(e);
+                  }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
                         <SearchIcon />
                       </InputAdornment>
                     ),
+                    endAdornment: (
+                      <IconButton
+                        className={classes.backspaceIconBtn}
+                        onClick={()=>{
+                          setDefineQuery('');
+                        }}
+                      >
+                        <BackspaceIcon />
+                      </IconButton>
+                    ),                    
                   }}
                   className={classes.uiInputText}
                 />
@@ -556,6 +587,7 @@ const Article = () => {
                   fullWidth
                   rows={5}
                   className={classes.displayTextfield}
+                  value={definitionVal}
                 />
 
                 <TextField

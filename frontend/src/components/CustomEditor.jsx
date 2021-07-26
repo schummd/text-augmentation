@@ -2,6 +2,11 @@ import React from 'react';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { StoreContext } from '../utils/store';
+import styled from 'styled-components';
+
+const DraftWrapper = styled.div`
+  height: 540px;
+`
 
 const CustomEditor = () => {
   const context = React.useContext(StoreContext);
@@ -17,7 +22,7 @@ const CustomEditor = () => {
   }, [editorState]);
 
   return (
-    <div className="App">
+    <DraftWrapper>
       <Editor
         editorState={editorState}
         onEditorStateChange={handleEditorChange}
@@ -25,7 +30,7 @@ const CustomEditor = () => {
         editorClassName="editor-class"
         toolbarClassName="toolbar-class"
       />
-    </div>
+    </DraftWrapper>
   );
 };
 

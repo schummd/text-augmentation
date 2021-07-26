@@ -42,18 +42,26 @@ html, body, #root, .App {
   }
 }
 
+.draft-js-wrapper {
+  height: 540px;
+}
+
 .wrapper-class {
-  border: 1px solid black;
+  border: 1px solid gray;
   padding: 1rem;
+  overflow: hidden;
+  height: 100%;
 }
 
 .editor-class {
   background-color:#fff;
-  border: 1px solid black;
+  border: 1px solid gray;
   padding: 1rem;
+  overflow: auto;
+  height: 83%;
 }
 
 .toolbar-class {
-  border: 1px solid black;
+  border: 1px solid gray;
 }
 
