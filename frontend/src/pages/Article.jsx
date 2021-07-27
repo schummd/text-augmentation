@@ -88,6 +88,10 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: '8px',
     paddingRight: '8px',
   },
+  titleDivMultipleBtn: {
+    display: 'flex',
+    // flexDirection: 'row',
+  },
   btnText: {
     fontSize: '14px',
     textTransform: 'capitalize',
@@ -178,6 +182,9 @@ const useStyles = makeStyles((theme) => ({
   backspaceIconBtn: {
     padding: 0,
   },
+  btnUploadDiv: {
+    margin: '0em 0.25em',
+  }
 }));
 
 const Article = () => {
@@ -399,41 +406,50 @@ const Article = () => {
                   </Typography>
                 </Box>
                 <Box className={classes.titleDivBtns}>
-                  <Box className={classes.titleDivSingleBtn}>
-                    <Tooltip title="Upload">
-                      <form onSubmit={handleSubmit(uploadSubmit)}>
+                  <Box className={classes.titleDivMultipleBtn}>
+                    
+                      <form 
+                        onSubmit={handleSubmit(uploadSubmit)}
+                        className={classes.titleDivMultipleBtn}
+                      >
                         <input
                           accept="application/pdf"
                           // className={classes.input}
                           style={{ display: 'none' }}
-                          id="raised-button-file"
+                          id="upload-button"
                           multiple
                           type="file"
                           name="pdfFile"
                           {...register('uploadedPDF', { required: true })}
                         />
-                        <label htmlFor="raised-button-file">
-                          <Button
-                            variant="contained"
-                            component="span"
-                            className={classes.btnText}
-                            color="secondary"
-                          >
-                            Upload
-                          </Button>
-                        </label>
-                        <FormControl>
-                          <Button
-                            className={classes.btnText}
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                          >
-                            Parse Upload
-                          </Button>
-                        </FormControl>
+                        <Box className={classes.btnUploadDiv}>
+                          <Tooltip title="Upload">
+                            <label htmlFor="upload-button">
+                              <Button
+                                variant="contained"
+                                component="span"
+                                className={classes.btnText}
+                                color="secondary"
+                              >
+                                Upload
+                              </Button>
+                            </label>
+                          </Tooltip>
+                        </Box>
+                        <Box className={classes.btnUploadDiv}>
+                          <Tooltip title="Parse Upload">
+                            <Button
+                              className={classes.btnText}
+                              variant="contained"
+                              color="primary"
+                              type="submit"
+                            >
+                              Parse Upload
+                            </Button>
+                          </Tooltip>
+                        </Box>
                       </form>
-                    </Tooltip>
+                    
                   </Box>
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Save Read">
@@ -564,14 +580,16 @@ const Article = () => {
                       </InputAdornment>
                     ),
                     endAdornment: (
-                      <IconButton
-                        className={classes.backspaceIconBtn}
-                        onClick={()=>{
-                          setDefineQuery('');
-                        }}
-                      >
-                        <BackspaceIcon />
-                      </IconButton>
+                      <Tooltip title="Clear Query">
+                        <IconButton
+                          className={classes.backspaceIconBtn}
+                          onClick={()=>{
+                            setDefineQuery('');
+                          }}
+                        >
+                          <BackspaceIcon />
+                        </IconButton>
+                      </Tooltip>
                     ),                    
                   }}
                   className={classes.uiInputText}
