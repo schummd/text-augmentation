@@ -15,19 +15,24 @@ def get_summary(word):
         + "?"
         + "redirect=true"
     )
+    r = requests.get(url)
+    #print("RESPONSE", r)
+    wiki_dict = json.loads(r.text)
+    #print(wiki_dict)
     try:
-        r = requests.get(url)
-        wiki_dict = json.loads(r.text)
-        summary = wiki_dict["extract"]
         if wiki_dict["type"] == "disambiguation":
+            relevant_link = wiki_dict["content_urls"]["desktop"]["page"]
+            type = wiki_dict["type"]
             response_object = {
-                "status": "fail",
-                "message": "Unambigous interpretation not found.",
+                "status": "success",
+                "message": {type : relevant_link}
             }
-            return response_object, 404
-        if summary:
+            return response_object, 200
+
+        if wiki_dict["extract"]:
+            summary = wiki_dict["extract"]                              
             response = {"Summary": summary}
-        return response, 200
+            return response, 200
 
     except Exception as e:
         response_object = {
