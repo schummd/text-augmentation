@@ -39,4 +39,4 @@ def get_summary(word):
             "status": "fail",
             "message": "Some error occurred. Please try again by entering the right spelling of the word.",
         }
-        return response_object, 400
+        return response_object, 404
