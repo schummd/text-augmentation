@@ -18,6 +18,8 @@ class User(db.Model):
     public_id = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(50), unique=True)
     password_hash = db.Column(db.String(100))
+    first_name = db.Column(db.String(100), unique=False)
+    last_name = db.Column(db.String(100), unique=False)
 
     @property
     def password(self):

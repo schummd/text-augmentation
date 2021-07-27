@@ -11,6 +11,7 @@ from ..service.user_service import (
     get_a_user,
     follow_a_user,
     get_all_following,
+    get_newsfeed,
 )
 from typing import Dict, Tuple
 
@@ -21,6 +22,7 @@ api = UserDto.api
 _user = UserDto.user
 _follower = UserDto.follower
 user_auth = AuthDto.user_auth
+# _news = UserDto.news
 
 
 @api.route("/")
@@ -75,3 +77,17 @@ class Follow(Resource):
     def get(self, username):
         """Get all users a user following"""
         return get_all_following(username)
+
+
+# GET /user/{username}/newsfeed
+@token_required
+@api.route("/<username>/newsfeed")
+@api.param("username", "My username")
+@api.response(404, "User not found.")
+class Newsfeed(Resource):
+    @api.doc("newsfeed")
+    # @api.marshal_with(_news)
+    def get(self, username):
+        """List all titles"""
+        return get_newsfeed(username)
+

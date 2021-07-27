@@ -9,7 +9,8 @@ class UserDto:
             "email": fields.String(required=True, description="user email address"),
             "username": fields.String(required=True, description="user username"),
             "password": fields.String(required=True, description="user password"),
-            "public_id": fields.String(description="user Identifier"),
+            "first_name": fields.String(description="user first name"),
+            "last_name": fields.String(description="user last name"),
         },
     )
     follower = api.model(
@@ -21,6 +22,7 @@ class UserDto:
         },
     )
 
+  
 
 class AuthDto:
     api = Namespace("auth", description="authentication related operations")
@@ -109,3 +111,4 @@ class HighlightDto:
             ),
         },
     )
+
