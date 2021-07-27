@@ -13,9 +13,9 @@ api = Wiki.api
 _user = UserDto.user
 
 
-@api.response(200, "Ok")
+@api.response(200, "success")
 @api.response(400, "Bad request")
-@api.response(404, "Not found")
+@api.response(404, "Unknown page title")
 @token_required
 @api.route("/<string:word>")
 class Obtain_Summary(Resource):
