@@ -1,11 +1,11 @@
 from flask import request
 from flask_restx import Resource
 from app.main.service.definition_service import get_definition
-from ..util.dto import Definition, UserDto
+from ..util.dto import DefinitionDto, UserDto
 from app.main.util.decorator import token_required
 
 
-api = Definition.api
+api = DefinitionDto.api
 _user = UserDto.user
 
 

@@ -9,7 +9,7 @@ from ibm_watson.natural_language_understanding_v1 import (
 
 from flask import request
 from flask_restx import Resource
-from ..util.dto import Keywords, UserDto
+from ..util.dto import KeywordsDto, UserDto
 from app.main.util.decorator import token_required
 from app.main.service.keywords_service import find_keywords
 
@@ -17,9 +17,9 @@ from app.main.service.keywords_service import find_keywords
 logging.basicConfig(level=logging.DEBUG)
 
 
-api = Keywords.api
+api = KeywordsDto.api
 _user = UserDto.user
-_keywords_text = Keywords.keywords_text
+_keywords_text = KeywordsDto.keywords_text
 
 
 @api.response(200, "OK")

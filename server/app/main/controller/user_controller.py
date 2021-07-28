@@ -14,13 +14,12 @@ from ..service.user_service import (
 )
 from typing import Dict, Tuple
 
-user_auth = AuthDto.user_auth
-
 
 api = UserDto.api
 _user = UserDto.user
 _follower = UserDto.follower
-user_auth = AuthDto.user_auth
+
+# user_auth = AuthDto.user_auth
 # _news = UserDto.news
 
 
