@@ -1,16 +1,9 @@
 # from app.main.controller.user_controller import Follow
 import uuid
 import datetime
-from datetime import timedelta
-
-from flask_restx.fields import Boolean
-
 from app.main import db
 from app.main.model.user import User
 from typing import Dict, Tuple
-from app.main.service.auth_helper import Auth
-from flask.globals import request
-from flask import abort
 from app.main.model.follower import Follower
 from app.main.model.text import Text
 
@@ -20,11 +13,11 @@ def save_new_user(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     try:
         fname = data["first_name"]
     except:
-        fname = ''
+        fname = ""
     try:
         lname = data["last_name"]
     except:
-        lname = ''        
+        lname = ""
 
     if not user:
         new_user = User(
@@ -173,7 +166,7 @@ def get_newsfeed(username):
                 titles.append(t)
             item["text_titles"] = titles
             newsfeed.append(item)
-        
+
         response_object = {"status": "success", "data": newsfeed}
         return response_object, 200
 

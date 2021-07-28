@@ -1,18 +1,11 @@
 from flask import request
 from flask_restx import Resource
-
-from app.main.util.decorator import admin_token_required
-from ..util.dto import Wiki, UserDto
+from ..util.dto import Wiki
 from ..service.wiki_service import get_summary
-from typing import Dict, Tuple
-import json
-import wikipedia
 from app.main.util.decorator import token_required
 
 api = Wiki.api
-_user = UserDto.user
-
-
+# _user = UserDto.user
 @api.response(200, "success")
 @api.response(400, "Bad request")
 @api.response(404, "Unknown page title")
