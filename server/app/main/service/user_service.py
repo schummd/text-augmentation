@@ -67,51 +67,66 @@ def generate_token(user: User) -> Tuple[Dict[str, str], int]:
 
 
 def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], int]:
-    session = db.session()
-    fail_response_object = {
-        "status": "fail",
-        "message": "Some error occurred. Please try again.",
-    }
-    # print(f"Follow request by {username} to follow {user_to_follow}")
     # Checking if the user tries to follow himself
     if user_to_follow == username:
-        return fail_response_object, 400
 
-    # Checking if the connection already exists
-    if (
-        Follower.query.filter_by(user_name=username)
-        .filter_by(following=user_to_follow)
-        .count()
-        > 0
-    ):
+        response_object = {
+            "status": "fail",
+            "message": "You cannot follow yourself.",
+        }
 
-        try:
-            session.query(Follower).filter(
+        return response_object, 400
+
+    # check if the user we try to follow exists
+    exist = User.query.filter_by(username=user_to_follow).first()
+
+    if exist:
+        # Checking if the connection already exists
+        connection_exist = (
+            Follower.query.filter_by(user_name=username)
+            .filter_by(following=user_to_follow)
+            .count()
+        )
+
+        # if more than 0, then connection exists -> unfollow
+        if connection_exist > 0:
+
+            db.session.query(Follower).filter(
                 (Follower.user_name == username)
                 & (Follower.following == user_to_follow)
             ).delete()
-            session.commit()
+
+            db.session.commit()
+
             response_object = {
                 "status": "success",
                 "message": "Successfully disconnected.",
             }
             return response_object, 201
-        except Exception as e:
-            print("Follower update unsucessful", e)
-            return fail_response_object, 401
-    else:
-        try:
+
+        # if 0, then no connection -> follow
+        else:
+
             new_following = Follower(user_name=username, following=user_to_follow)
-            session.add(new_following)
-            session.commit()
+
+            db.session.add(new_following)
+            db.session.commit()
+
             response_object = {
                 "status": "success",
                 "message": "Successfully connected.",
             }
+
             return response_object, 201
-        except Exception as e:
-            print("Follower update unsucessful", e)
-            return fail_response_object, 401
+
+    else:
+
+        response_object = {
+            "status": "fail",
+            "message": "The user you try to follow does not exist.",
+        }
+
+        return response_object, 404
 
 
 def get_all_following(username):
@@ -131,14 +146,31 @@ def get_all_following(username):
 
 
 def get_newsfeed(username):
-    try:
-        following = Follower.query.filter_by(user_name=username).all()
+    # check if user exists
+    exists = User.query.filter_by(username=username).first()
+
+    if not exists:
+
+        response_object = {
+            "status": "fail",
+            "message": "The user does not exist.",
+        }
+
+        return response_object, 404
+
+    following = Follower.query.filter_by(user_name=username).all()
+
+    # user follower someone
+    if len(following) != 0:
+
         newsfeed = []
         for user in following:
+            print("USER", user)
             item = {}
             titles = []
             followee_username = user.following
             followee = User.query.filter_by(username=followee_username).first()
+
             followee_first_name = followee.first_name
             followee_last_name = followee.last_name
             followee_id = followee.public_id
@@ -168,11 +200,18 @@ def get_newsfeed(username):
             newsfeed.append(item)
 
         response_object = {"status": "success", "data": newsfeed}
+
         return response_object, 200
 
-    except Exception as e:
-        response_object = {"status": "fail", "data": ""}
-        return response_object, 404
+    # user does not follow anyone, data empty, nothing to display
+    else:
+
+        response_object = {
+            "status": "success",
+            "data": "",
+        }
+
+        return response_object, 200
 
 
 def save_changes(data: User) -> None:

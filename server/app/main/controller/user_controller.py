@@ -18,9 +18,7 @@ from typing import Dict, Tuple
 api = UserDto.api
 _user = UserDto.user
 _follower = UserDto.follower
-
-# user_auth = AuthDto.user_auth
-# _news = UserDto.news
+_newsfeed = UserDto.newsfeed
 
 
 @api.route("/")
@@ -84,7 +82,7 @@ class Follow(Resource):
 @api.response(404, "User not found.")
 class Newsfeed(Resource):
     @api.doc("newsfeed")
-    # @api.marshal_with(_news)
+    # @api.marshal_with(_newsfeed)
     def get(self, username):
         """List all titles"""
         return get_newsfeed(username)
