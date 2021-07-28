@@ -22,22 +22,6 @@ class UserDto:
         },
     )
 
-    newsfeed = api.model(
-        "newsfeed",
-        {
-            "followee_username": fields.String(
-                required=True, description="Following username"
-            ),
-            "followee_last_name": fields.String(
-                required=True, description="Following last name"
-            ),
-            "followee_first_name": fields.String(
-                required=True, description="Following first name"
-            ),
-            "text_titles": fields.String(required=False, description="text title"),
-        },
-    )
-
 
 class AuthDto:
     api = Namespace("auth", description="authentication related operations")
