@@ -7,16 +7,9 @@ import {
   convertFromHTML,
   ContentState,
 } from 'draft-js';
-import {
-  createTextObject,
-  fetchDefinition,
-} from '../utils/utils';
+import { createTextObject, fetchDefinition } from '../utils/utils';
 import Navigation from '../components/Navigation';
-import {
-  Redirect,
-  useParams,
-  useHistory,
-} from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import {
@@ -184,7 +177,7 @@ const useStyles = makeStyles((theme) => ({
   },
   btnUploadDiv: {
     margin: '0em 0.25em',
-  }
+  },
 }));
 
 const Article = () => {
@@ -210,14 +203,14 @@ const Article = () => {
   const [definitionVal, setDefinitionVal] = React.useState('');
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
-  }
+  };
   const handleDefineQuery = () => {
     if (defineQuery !== '') {
       fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
     } else {
       setDefinitionVal('');
     }
-  }
+  };
 
   const titleRef = React.useRef();
   const notesRef = React.useRef();
@@ -361,6 +354,27 @@ const Article = () => {
     }
   };
 
+  const getSummary = async (textToAnalyse) => {
+    try {
+      const payload = {
+        method: 'POST',
+        url: `/summary/`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+        },
+        data: { text_body: textToAnalyse },
+      };
+      console.log(payload);
+      const res = await axios(payload);
+      const resData = res.data;
+      const { summary } = resData;
+      return summary;
+    } catch (error) {
+      toast.error('Error summarising selected text.');
+    }
+  };
+
   const getArticles = async () => {
     try {
       const payload = {
@@ -407,49 +421,47 @@ const Article = () => {
                 </Box>
                 <Box className={classes.titleDivBtns}>
                   <Box className={classes.titleDivMultipleBtn}>
-                    
-                      <form 
-                        onSubmit={handleSubmit(uploadSubmit)}
-                        className={classes.titleDivMultipleBtn}
-                      >
-                        <input
-                          accept="application/pdf"
-                          // className={classes.input}
-                          style={{ display: 'none' }}
-                          id="upload-button"
-                          multiple
-                          type="file"
-                          name="pdfFile"
-                          {...register('uploadedPDF', { required: true })}
-                        />
-                        <Box className={classes.btnUploadDiv}>
-                          <Tooltip title="Upload">
-                            <label htmlFor="upload-button">
-                              <Button
-                                variant="contained"
-                                component="span"
-                                className={classes.btnText}
-                                color="secondary"
-                              >
-                                Upload
-                              </Button>
-                            </label>
-                          </Tooltip>
-                        </Box>
-                        <Box className={classes.btnUploadDiv}>
-                          <Tooltip title="Parse Upload">
+                    <form
+                      onSubmit={handleSubmit(uploadSubmit)}
+                      className={classes.titleDivMultipleBtn}
+                    >
+                      <input
+                        accept="application/pdf"
+                        // className={classes.input}
+                        style={{ display: 'none' }}
+                        id="upload-button"
+                        multiple
+                        type="file"
+                        name="pdfFile"
+                        {...register('uploadedPDF', { required: true })}
+                      />
+                      <Box className={classes.btnUploadDiv}>
+                        <Tooltip title="Upload">
+                          <label htmlFor="upload-button">
                             <Button
-                              className={classes.btnText}
                               variant="contained"
-                              color="primary"
-                              type="submit"
+                              component="span"
+                              className={classes.btnText}
+                              color="secondary"
                             >
-                              Parse Upload
+                              Upload
                             </Button>
-                          </Tooltip>
-                        </Box>
-                      </form>
-                    
+                          </label>
+                        </Tooltip>
+                      </Box>
+                      <Box className={classes.btnUploadDiv}>
+                        <Tooltip title="Parse Upload">
+                          <Button
+                            className={classes.btnText}
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                          >
+                            Parse Upload
+                          </Button>
+                        </Tooltip>
+                      </Box>
+                    </form>
                   </Box>
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Save Read">
@@ -503,7 +515,7 @@ const Article = () => {
                             <Button
                               variant="outlined"
                               className={
-                              uiBtn === 'define'
+                                uiBtn === 'define'
                                   ? classes.btnUiClicked
                                   : classes.btnUi
                               }
@@ -525,8 +537,13 @@ const Article = () => {
                                   ? classes.btnUiClicked
                                   : classes.btnUi
                               }
-                              onClick={() => {
-                                console.log('Clicked Analyse');
+                              onMouseDown={async () => {
+                                const selectedText = document
+                                  .getSelection()
+                                  .toString();
+                                const summary = await getSummary(selectedText);
+                                console.log(summary);
+                                notesRef.current.value = summary;
                                 setUiBtn('analyse');
                               }}
                             >
@@ -570,7 +587,7 @@ const Article = () => {
                       handleDefineQuery();
                     }
                   }}
-                  onChange={(e)=>{
+                  onChange={(e) => {
                     handleChangeDefineQuery(e);
                   }}
                   InputProps={{
@@ -583,14 +600,14 @@ const Article = () => {
                       <Tooltip title="Clear Query">
                         <IconButton
                           className={classes.backspaceIconBtn}
-                          onClick={()=>{
+                          onClick={() => {
                             setDefineQuery('');
                           }}
                         >
                           <BackspaceIcon />
                         </IconButton>
                       </Tooltip>
-                    ),                    
+                    ),
                   }}
                   className={classes.uiInputText}
                 />
