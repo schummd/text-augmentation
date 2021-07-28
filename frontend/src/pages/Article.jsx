@@ -24,13 +24,14 @@ import {
   IconButton,
   Grid,
   InputAdornment,
-  FormControl,
 } from '@material-ui/core';
-import BorderColorIcon from '@material-ui/icons/BorderColor';
 import BackspaceIcon from '@material-ui/icons/Backspace';
 import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
+import Skeleton from '@material-ui/lab/Skeleton';
+
 import { toast } from 'react-toastify';
+import UploadDialog from '../components/Dialog';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -197,7 +198,6 @@ const Article = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [uiBtn, setUiBtn] = React.useState('define');
-  const [highlightMode, setHighlightMode] = React.useState(false);
 
   const [defineQuery, setDefineQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
@@ -218,32 +218,65 @@ const Article = () => {
   const { id } = useParams();
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
+  const [parseLoad, setParseLoad] = React.useState('done');
+
   const [update, setUpdate] = React.useState(false);
 
-  const parsedPdfToHtml = (data) => {
+  const [formState, setFormState] = React.useState({
+    title: true,
+    abstract: true,
+    authors: true,
+    body: true,
+    references: true,
+  });
+
+  const parsedPdfToHtml = (data, formState) => {
     const { abstractText, authors, references, sections, title, year } = data;
+
+    const parsedTitleAndYear = formState.title
+      ? `<h2>${title} (${year})</h2>`
+      : '';
+
+    const parsedAbstract = formState.abstract
+      ? `<h3>Abstract</h3><p>${abstractText}</p>`
+      : '';
+
+    const parsedAuthors = formState.authors
+      ? `<h3>Authors</h3><p>${authors
+          .map((author) => author.name)
+          .join(', ')}</p>`
+      : '';
 
     const sectionsOfInterest = sections.filter((section) =>
       section.hasOwnProperty('heading')
     );
-    const parsedTitleAndYear = `<h2>${title} (${year})</h2>`;
-    const parsedAbstract = `<h3>Abstract</h3><p>${abstractText}</p>`;
-    const parsedAuthors = `<h3>Authors</h3><p>${authors
-      .map((author) => author.name)
-      .join(', ')}</p>`;
-    const parsedSections = sectionsOfInterest
-      .map((section) => `<h3>${section.heading}</h3><p>${section.text}</p>`)
-      .join('');
 
-    const parsedReferences = `<h3>References</h3>${references
+    const parsedSections = formState.body
+      ? sectionsOfInterest
+          .map((section) => `<h3>${section.heading}</h3><p>${section.text}</p>`)
+          .join('')
+      : '';
+
+    const parsedReferences = formState.references
+      ? `<h3>References</h3>
+    ${references
       .map(
         (reference) =>
-          `<p>${reference.authors.join(', ')}, ${reference.year}, ${
-            reference.title
-          }, ${reference.venue}</p>`
+          `<p>
+          ${reference.authors.join(', ')}, 
+          ${reference.year}, 
+          ${reference.title}, 
+          ${reference.venue}
+          </p>`
       )
-      .join('')}`;
-    return `${parsedAuthors}${parsedTitleAndYear}${parsedAbstract}${parsedSections}${parsedReferences}`;
+      .join('')}`
+      : '';
+
+    return `${parsedTitleAndYear}
+            ${parsedAuthors}
+            ${parsedAbstract}
+            ${parsedSections}
+            ${parsedReferences}`;
   };
 
   React.useEffect(() => {
@@ -288,6 +321,7 @@ const Article = () => {
   };
 
   const uploadSubmit = async (d) => {
+    setParseLoad('load');
     const uploadedFile = d.uploadedPDF[0];
     const dataUrl = await readFile(uploadedFile);
     const rawBase64Data = dataUrl.split(',')[1];
@@ -312,21 +346,19 @@ const Article = () => {
       } else {
         toast.warn(`${resData.message}`);
       }
-      const markup = parsedPdfToHtml(resData.data);
+      const markup = parsedPdfToHtml(resData.data, formState);
       const blocksFromHTML = convertFromHTML(markup);
       const state = ContentState.createFromBlockArray(
         blocksFromHTML.contentBlocks,
         blocksFromHTML.entityMap
       );
       const newState = EditorState.createWithContent(state);
-      // console.log(newState);
       setEditorState(newState);
     } catch (error) {
       console.log(error);
       toast.error('error parsing PDF');
     }
-
-    // console.log(file);
+    setParseLoad('done');
   };
 
   const saveArticle = async (editorState) => {
@@ -445,47 +477,13 @@ const Article = () => {
                 </Box>
                 <Box className={classes.titleDivBtns}>
                   <Box className={classes.titleDivMultipleBtn}>
-                    <form
-                      onSubmit={handleSubmit(uploadSubmit)}
-                      className={classes.titleDivMultipleBtn}
-                    >
-                      <input
-                        accept="application/pdf"
-                        // className={classes.input}
-                        style={{ display: 'none' }}
-                        id="upload-button"
-                        multiple
-                        type="file"
-                        name="pdfFile"
-                        {...register('uploadedPDF', { required: true })}
-                      />
-                      <Box className={classes.btnUploadDiv}>
-                        <Tooltip title="Upload">
-                          <label htmlFor="upload-button">
-                            <Button
-                              variant="contained"
-                              component="span"
-                              className={classes.btnText}
-                              color="secondary"
-                            >
-                              Upload
-                            </Button>
-                          </label>
-                        </Tooltip>
-                      </Box>
-                      <Box className={classes.btnUploadDiv}>
-                        <Tooltip title="Parse Upload">
-                          <Button
-                            className={classes.btnText}
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                          >
-                            Parse Upload
-                          </Button>
-                        </Tooltip>
-                      </Box>
-                    </form>
+                    <UploadDialog
+                      handleSubmit={handleSubmit}
+                      uploadSubmit={uploadSubmit}
+                      register={register}
+                      formState={formState}
+                      setFormState={setFormState}
+                    ></UploadDialog>
                   </Box>
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Save Read">
@@ -516,7 +514,13 @@ const Article = () => {
                 />
 
                 <Box className={classes.uiInputText}>
-                  <CustomEditor></CustomEditor>
+                  {parseLoad === 'load' ? (
+                    <Skeleton animation="wave" variant="rectangle">
+                      <CustomEditor />
+                    </Skeleton>
+                  ) : (
+                    <CustomEditor></CustomEditor>
+                  )}
                 </Box>
               </Box>
 

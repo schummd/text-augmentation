@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 const DraftWrapper = styled.div`
   height: 545px;
-`
+`;
 
 const CustomEditor = () => {
   const context = React.useContext(StoreContext);
