@@ -221,13 +221,29 @@ const Article = () => {
   const [update, setUpdate] = React.useState(false);
 
   const parsedPdfToHtml = (data) => {
-    const { sections } = data;
+    const { abstractText, authors, references, sections, title, year } = data;
+
     const sectionsOfInterest = sections.filter((section) =>
       section.hasOwnProperty('heading')
     );
-    return sectionsOfInterest
+    const parsedTitleAndYear = `<h2>${title} (${year})</h2>`;
+    const parsedAbstract = `<h3>Abstract</h3><p>${abstractText}</p>`;
+    const parsedAuthors = `<h3>Authors</h3><p>${authors
+      .map((author) => author.name)
+      .join(', ')}</p>`;
+    const parsedSections = sectionsOfInterest
       .map((section) => `<h3>${section.heading}</h3><p>${section.text}</p>`)
       .join('');
+
+    const parsedReferences = `<h3>References</h3>${references
+      .map(
+        (reference) =>
+          `<p>${reference.authors.join(', ')}, ${reference.year}, ${
+            reference.title
+          }, ${reference.venue}</p>`
+      )
+      .join('')}`;
+    return `${parsedAuthors}${parsedTitleAndYear}${parsedAbstract}${parsedSections}${parsedReferences}`;
   };
 
   React.useEffect(() => {
@@ -345,6 +361,14 @@ const Article = () => {
         setUpdate(!update);
         const updatedReads = await getArticles();
         setMyReads(updatedReads);
+
+        // Update title
+        if (titleRef.current.value !== '') {
+          setSingularRead({
+            ...singularRead,
+            text_title: titleRef.current.value,
+          });
+        }
         titleRef.current.value = '';
       } else {
         toast.warn(`${resData.message}`);
@@ -541,9 +565,15 @@ const Article = () => {
                                 const selectedText = document
                                   .getSelection()
                                   .toString();
-                                const summary = await getSummary(selectedText);
-                                console.log(summary);
-                                notesRef.current.value = summary;
+                                if (selectedText) {
+                                  const summary = await getSummary(
+                                    selectedText
+                                  );
+                                  console.log(summary);
+                                  notesRef.current.value = summary;
+                                } else {
+                                  toast.warn('No text selected for analysis.');
+                                }
                                 setUiBtn('analyse');
                               }}
                             >
