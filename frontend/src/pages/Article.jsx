@@ -453,7 +453,8 @@ const Article = () => {
       const resData = res.data;
       console.log(resData);
       if (resData.status === 'success') {
-        toast.success(`Retrieved Reads from server.`);
+        // toast.success(`Retrieved Reads from server.`);
+        console.log('success');
       } else {
         toast.warn(`${resData.message}`);
       }
