@@ -9,7 +9,7 @@ import {
 } from 'draft-js';
 import { createTextObject, fetchDefinition } from '../utils/utils';
 import Navigation from '../components/Navigation';
-import { Redirect, useParams, useHistory } from 'react-router-dom';
+import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import {
@@ -29,6 +29,8 @@ import BackspaceIcon from '@material-ui/icons/Backspace';
 import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
 import Skeleton from '@material-ui/lab/Skeleton';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
@@ -176,6 +178,9 @@ const useStyles = makeStyles((theme) => ({
   backspaceIconBtn: {
     padding: 0,
   },
+  twitterIconBtn: {
+    padding: 0,
+  },
   btnUploadDiv: {
     margin: '0em 0.25em',
   },
@@ -197,12 +202,16 @@ const Article = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [uiBtn, setUiBtn] = React.useState('define');
+  const [uiBtn, setUiBtn] = React.useState('analyse');
 
   const [defineQuery, setDefineQuery] = React.useState('');
+  const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
+  };
+  const handleChangeTwitterQuery = async (event) => {
+    await setTwitterQuery(event.target.value);
   };
   const handleDefineQuery = () => {
     if (defineQuery !== '') {
@@ -263,10 +272,9 @@ const Article = () => {
       .map(
         (reference) =>
           `<p>
-          ${reference.authors.join(', ')}, 
-          ${reference.year}, 
-          ${reference.title}, 
-          ${reference.venue}
+          ${reference.authors.join(', ')}, ${reference.year}, ${
+            reference.title
+          }, ${reference.venue}
           </p>`
       )
       .join('')}`
@@ -660,13 +668,57 @@ const Article = () => {
                 />
 
                 <TextField
-                  placeholder="Notes"
+                  placeholder="Text Analysis"
                   variant="outlined"
                   multiline
                   fullWidth
                   rows={15}
                   className={classes.uiInputText}
                   inputRef={notesRef}
+                />
+                <TextField
+                  placeholder="Ask a question"
+                  variant="outlined"
+                  multiline
+                  fullWidth
+                  maxRows={1}
+                  value={twitterQuery}
+                  onKeyPress={(eventkey) => {
+                    if (eventkey.key === 'Enter') {
+                      eventkey.preventDefault();
+                      // handleDefineQuery();
+                    }
+                  }}
+                  onChange={(e) => {
+                    handleChangeTwitterQuery(e);
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <HelpOutlineIcon />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <Tooltip title="Ask on Twitter">
+                        <IconButton
+                          className={classes.twitterIconBtn}
+                          onClick={() => {
+                            const formatedText = twitterQuery.replace(
+                              / /g,
+                              '+'
+                            );
+                            window.open(
+                              `http://twitter.com//intent/tweet?text=${formatedText}`,
+                              '_blank'
+                            );
+                          }}
+                        >
+                          <TwitterIcon />
+                        </IconButton>
+                      </Tooltip>
+                    ),
+                  }}
+                  className={classes.uiInputText}
                 />
               </Box>
               {/* end UI display section */}
