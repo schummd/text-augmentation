@@ -31,7 +31,6 @@ class SummaryTest(BaseTestCase):
             register_user(self, "bob")
             bob_login_response = login_user(self, "bob")
             data = json.loads(bob_login_response.data.decode())
-            # self.assertTrue(data["status"] == "success")
 
             wiki_request_response = self.client.get(
                 "/wikipedia/ape",
@@ -41,4 +40,45 @@ class SummaryTest(BaseTestCase):
                     ]
                 ),
             )
+            response = json.loads(wiki_request_response.data.decode())
             self.assertEqual(200, wiki_request_response.status_code)
+            self.assertEqual(response["Summary"].split(" ")[0], "Apes")
+
+    def test_malformed_word(self):
+        with self.client:
+            register_user(self, "bob")
+            bob_login_response = login_user(self, "bob")
+            data = json.loads(bob_login_response.data.decode())
+
+            wiki_request_response = self.client.get(
+                "/wikipedia/hdhgmdhgddmh",
+                headers=dict(
+                    Authorization=json.loads(bob_login_response.data.decode())[
+                        "Authorization"
+                    ]
+                ),
+            )
+            response = json.loads(wiki_request_response.data.decode())
+            self.assertEqual(404, wiki_request_response.status_code)
+
+    def test_ambigous_word(self):
+        with self.client:
+            register_user(self, "bob")
+            bob_login_response = login_user(self, "bob")
+            data = json.loads(bob_login_response.data.decode())
+
+            wiki_request_response = self.client.get(
+                "/wikipedia/plate",
+                headers=dict(
+                    Authorization=json.loads(bob_login_response.data.decode())[
+                        "Authorization"
+                    ]
+                ),
+            )
+            response = json.loads(wiki_request_response.data.decode())
+            self.assertEqual(200, wiki_request_response.status_code)
+            self.assertEqual(
+                response["message"]["disambiguation"],
+                "https://en.wikipedia.org/wiki/Plate",
+            )
+
