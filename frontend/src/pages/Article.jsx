@@ -7,7 +7,15 @@ import {
   convertFromHTML,
   ContentState,
 } from 'draft-js';
-import { createTextObject, fetchDefinition } from '../utils/utils';
+import {
+  createTextObject,
+  fetchDefinition,
+  getSummary,
+  getArticles,
+  readFile,
+  parsedPdfToHtml,
+  postToScienceParse,
+} from '../utils/utils';
 import Navigation from '../components/Navigation';
 import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -210,9 +218,6 @@ const Article = () => {
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
   };
-  const handleChangeTwitterQuery = async (event) => {
-    await setTwitterQuery(event.target.value);
-  };
   const handleDefineQuery = () => {
     if (defineQuery !== '') {
       fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
@@ -238,54 +243,6 @@ const Article = () => {
     body: true,
     references: true,
   });
-
-  const parsedPdfToHtml = (data, formState) => {
-    const { abstractText, authors, references, sections, title, year } = data;
-
-    const parsedTitleAndYear = formState.title
-      ? `<h2>${title} (${year})</h2>`
-      : '';
-
-    const parsedAbstract = formState.abstract
-      ? `<h3>Abstract</h3><p>${abstractText}</p>`
-      : '';
-
-    const parsedAuthors = formState.authors
-      ? `<h3>Authors</h3><p>${authors
-          .map((author) => author.name)
-          .join(', ')}</p>`
-      : '';
-
-    const sectionsOfInterest = sections.filter((section) =>
-      section.hasOwnProperty('heading')
-    );
-
-    const parsedSections = formState.body
-      ? sectionsOfInterest
-          .map((section) => `<h3>${section.heading}</h3><p>${section.text}</p>`)
-          .join('')
-      : '';
-
-    const parsedReferences = formState.references
-      ? `<h3>References</h3>
-    ${references
-      .map(
-        (reference) =>
-          `<p>
-          ${reference.authors.join(', ')}, ${reference.year}, ${
-            reference.title
-          }, ${reference.venue}
-          </p>`
-      )
-      .join('')}`
-      : '';
-
-    return `${parsedTitleAndYear}
-            ${parsedAuthors}
-            ${parsedAbstract}
-            ${parsedSections}
-            ${parsedReferences}`;
-  };
 
   React.useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -317,55 +274,25 @@ const Article = () => {
 
   const { register, handleSubmit } = useForm();
 
-  const readFile = async (file) => {
-    return new Promise((resolve, reject) => {
-      const fr = new FileReader();
-      fr.onload = () => {
-        resolve(fr.result);
-      };
-      fr.onerror = reject;
-      fr.readAsDataURL(file);
-    });
-  };
-
   const uploadSubmit = async (d) => {
     setParseLoad('load');
     const uploadedFile = d.uploadedPDF[0];
     const dataUrl = await readFile(uploadedFile);
     const rawBase64Data = dataUrl.split(',')[1];
-
-    try {
-      const payload = {
-        method: `POST`,
-        url: `/parse/`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        data: rawBase64Data,
-      };
-
-      const res = await axios(payload);
-      const resData = res.data;
-      console.log(resData);
-      if (resData.status === 'success') {
-        toast.success(`${resData.message}`);
-      } else {
-        toast.warn(`${resData.message}`);
-      }
-      const markup = parsedPdfToHtml(resData.data, formState);
-      const blocksFromHTML = convertFromHTML(markup);
-      const state = ContentState.createFromBlockArray(
-        blocksFromHTML.contentBlocks,
-        blocksFromHTML.entityMap
-      );
-      const newState = EditorState.createWithContent(state);
-      setEditorState(newState);
-    } catch (error) {
-      console.log(error);
-      toast.error('error parsing PDF');
+    const res = await postToScienceParse(rawBase64Data);
+    if (!res) {
+      setParseLoad('done');
+      return;
     }
+    const { data } = res;
+    const markup = parsedPdfToHtml(data, formState);
+    const blocksFromHTML = convertFromHTML(markup);
+    const contentStateFromBlocks = ContentState.createFromBlockArray(
+      blocksFromHTML.contentBlocks,
+      blocksFromHTML.entityMap
+    );
+    const newState = EditorState.createWithContent(contentStateFromBlocks);
+    setEditorState(newState);
     setParseLoad('done');
   };
 
@@ -399,7 +326,7 @@ const Article = () => {
           history.push(`/articles/${resData.text_id}`);
         }
         setUpdate(!update);
-        const updatedReads = await getArticles();
+        const updatedReads = await getArticles(username);
         setMyReads(updatedReads);
 
         // Update title
@@ -418,51 +345,16 @@ const Article = () => {
     }
   };
 
-  const getSummary = async (textToAnalyse) => {
-    try {
-      const payload = {
-        method: 'POST',
-        url: `/summary/`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `${token}`,
-        },
-        data: { text_body: textToAnalyse },
-      };
-      console.log(payload);
-      const res = await axios(payload);
-      const resData = res.data;
-      const { summary } = resData;
-      return summary;
-    } catch (error) {
-      toast.error('Error summarising selected text.');
+  const handleGetSumary = async () => {
+    const selectedText = document.getSelection().toString();
+    if (selectedText) {
+      const summary = await getSummary(selectedText, token);
+      console.log(summary);
+      notesRef.current.value = summary;
+    } else {
+      toast.warn('No text selected for analysis.');
     }
-  };
-
-  const getArticles = async () => {
-    try {
-      const payload = {
-        method: 'GET',
-        url: `/text/${username}`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      console.log(payload);
-      const res = await axios(payload);
-      const resData = res.data;
-      console.log(resData);
-      if (resData.status === 'success') {
-        // toast.success(`Retrieved Reads from server.`);
-        console.log('success');
-      } else {
-        toast.warn(`${resData.message}`);
-      }
-      const { data } = resData;
-      return data;
-    } catch (error) {
-      toast.error('Error retrieving Reads from server.');
-    }
+    setUiBtn('analyse');
   };
 
   const classes = useStyles();
@@ -575,19 +467,7 @@ const Article = () => {
                                   : classes.btnUi
                               }
                               onMouseDown={async () => {
-                                const selectedText = document
-                                  .getSelection()
-                                  .toString();
-                                if (selectedText) {
-                                  const summary = await getSummary(
-                                    selectedText
-                                  );
-                                  console.log(summary);
-                                  notesRef.current.value = summary;
-                                } else {
-                                  toast.warn('No text selected for analysis.');
-                                }
-                                setUiBtn('analyse');
+                                await handleGetSumary();
                               }}
                             >
                               Analyse
@@ -691,7 +571,7 @@ const Article = () => {
                     }
                   }}
                   onChange={(e) => {
-                    handleChangeTwitterQuery(e);
+                    setTwitterQuery(e.target.value);
                   }}
                   InputProps={{
                     startAdornment: (
