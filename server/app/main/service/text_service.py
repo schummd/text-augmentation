@@ -2,15 +2,11 @@ import uuid
 import datetime
 
 from flask.globals import request
-from flask import abort
 
 from app.main import db
 from app.main.model.text import Text
 from app.main.model.user import User
-from app.main.model.follower import Follower
 from app.main.service.auth_helper import Auth
-
-
 from typing import Dict
 
 

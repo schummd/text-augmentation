@@ -3,7 +3,6 @@ from flask_restx import Resource
 from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
 from ..util.dto import UserDto, AuthDto
-from app.main.service.auth_helper import Auth
 from ..service.user_service import (
     get_all_following,
     save_new_user,
@@ -11,16 +10,14 @@ from ..service.user_service import (
     get_a_user,
     follow_a_user,
     get_all_following,
+    get_newsfeed,
 )
 from typing import Dict, Tuple
-
-user_auth = AuthDto.user_auth
 
 
 api = UserDto.api
 _user = UserDto.user
 _follower = UserDto.follower
-user_auth = AuthDto.user_auth
 
 
 @api.route("/")
@@ -69,9 +66,21 @@ class Follow(Resource):
         user_to_follow = data["user_to_follow"]
         return follow_a_user(username, user_to_follow)
 
-      
     # GET /user/{username}/following
     @api.doc("users a user following")
     def get(self, username):
         """Get all users a user following"""
         return get_all_following(username)
+
+
+# GET /user/{username}/newsfeed
+@token_required
+@api.route("/<username>/newsfeed")
+@api.param("username", "My username")
+@api.response(404, "User not found.")
+class Newsfeed(Resource):
+    @api.doc("newsfeed")
+    def get(self, username):
+        """List all titles"""
+        return get_newsfeed(username)
+
