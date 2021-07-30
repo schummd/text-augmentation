@@ -9,7 +9,8 @@ class UserDto:
             "email": fields.String(required=True, description="user email address"),
             "username": fields.String(required=True, description="user username"),
             "password": fields.String(required=True, description="user password"),
-            "public_id": fields.String(description="user Identifier"),
+            "first_name": fields.String(description="user first name"),
+            "last_name": fields.String(description="user last name"),
         },
     )
     follower = api.model(
@@ -44,7 +45,7 @@ class TextDto:
     )
 
 
-class Keywords:
+class KeywordsDto:
     api = Namespace("keywords", description="finding keywords using IBM API")
     keywords_text = api.model(
         "keywords",
@@ -52,7 +53,7 @@ class Keywords:
     )
 
 
-class Summary:
+class SummaryDto:
     api = Namespace("summary", description="summarising text using Meaning Cloud")
     summary_text = api.model(
         "summary",
@@ -60,7 +61,7 @@ class Summary:
     )
 
 
-class Definition:
+class DefinitionDto:
     api = Namespace("definition", description="definition related operations")
     definition = api.model(
         "definition",
@@ -81,7 +82,7 @@ class ParseDto:
     )
 
 
-class Wiki:
+class WikiDto:
     api = Namespace("wikipedia", description="summary related operations")
     synonym = api.model(
         "wiki_summary",
@@ -109,3 +110,4 @@ class HighlightDto:
             ),
         },
     )
+

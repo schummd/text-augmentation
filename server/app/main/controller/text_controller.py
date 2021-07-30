@@ -1,7 +1,5 @@
 from flask import request
-from flask_restx import Resource, fields
-from flask_restx.reqparse import RequestParser
-import flask
+from flask_restx import Resource
 from app.main.util.decorator import token_required
 from ..util.dto import TextDto
 from ..service.text_service import (
