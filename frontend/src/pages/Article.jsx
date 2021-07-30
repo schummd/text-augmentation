@@ -202,7 +202,7 @@ const Article = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [uiBtn, setUiBtn] = React.useState('analyse');
+  const [uiBtn, setUiBtn] = React.useState('define');
 
   const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
