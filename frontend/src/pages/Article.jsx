@@ -1,17 +1,12 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
-import {
-  convertToRaw,
-  convertFromRaw,
-  EditorState,
-  convertFromHTML,
-  ContentState,
-} from 'draft-js';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
 import {
   createTextObject,
   fetchDefinition,
   getSummary,
   getArticles,
+  dataUrlToFile,
 } from '../utils/utils';
 import Navigation from '../components/Navigation';
 import PdfModal from '../components/PdfModal';
@@ -92,7 +87,6 @@ const useStyles = makeStyles((theme) => ({
   },
   titleDivMultipleBtn: {
     display: 'flex',
-    // flexDirection: 'row',
   },
   btnText: {
     fontSize: '14px',
@@ -215,6 +209,7 @@ const Article = () => {
   const [definitionVal, setDefinitionVal] = React.useState('');
 
   const [rawPdf, setRawPdf] = React.useState(null);
+  const [rawDataUrl, setRawDataUrl] = React.useState(null);
 
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
@@ -254,8 +249,13 @@ const Article = () => {
       const rawEditorState = convertFromRaw(
         JSON.parse(thisRead.text_body).editorState
       );
-      const originalPdfUploaded = JSON.parse(thisRead.text_body).rawPdf;
-      setRawPdf(originalPdfUploaded);
+      const originalPdfDataUrl = JSON.parse(
+        thisRead.text_body
+      ).uploadedPdfDataUrl;
+      dataUrlToFile(originalPdfDataUrl).then((res) => {
+        setRawPdf(res);
+      });
+
       setEditorState(EditorState.createWithContent(rawEditorState));
     }
     setLoadingState('done');
@@ -266,17 +266,18 @@ const Article = () => {
       setEditorState(blankEditorState());
       setSingularRead('');
       setRawPdf(null);
+      setRawDataUrl(null);
     }
   }, [id]);
 
-  const saveArticle = async (editorState, rawPdf = null) => {
+  const saveArticle = async (editorState, rawPdf = null, rawDataUrl = null) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());
     const textObject = createTextObject(
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
         notes: notesRef.current.value,
-        rawPdf,
+        uploadedPdfDataUrl: rawDataUrl,
       })
     );
 
@@ -363,6 +364,7 @@ const Article = () => {
                     <UploadDialog
                       setParseLoad={setParseLoad}
                       setRawPdf={setRawPdf}
+                      setRawDataUrl={setRawDataUrl}
                     ></UploadDialog>
                   </Box>
 
@@ -378,7 +380,9 @@ const Article = () => {
                         variant="contained"
                         color="primary"
                         className={classes.btnText}
-                        onClick={() => saveArticle(editorState, rawPdf)}
+                        onClick={() =>
+                          saveArticle(editorState, rawPdf, rawDataUrl)
+                        }
                       >
                         {id === 'new' ? 'Save New Read' : 'Update Read'}
                       </Button>

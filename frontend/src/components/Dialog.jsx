@@ -50,7 +50,7 @@ const createEditorStateFromScienceParse = (data, formState) => {
   return newState;
 };
 
-const UploadDialog = ({ setParseLoad, setRawPdf }) => {
+const UploadDialog = ({ setParseLoad, setRawPdf, setRawDataUrl }) => {
   // Checkboxes
   /////////////////////////////////////////////////////////////////////////////
   const classes = useStyles();
@@ -75,8 +75,6 @@ const UploadDialog = ({ setParseLoad, setRawPdf }) => {
     setParseLoad('load');
     const uploadedFile = d.uploadedPDF[0];
 
-    const pdfDataUrl = URL.createObjectURL(uploadedFile);
-
     const dataUrl = await readFile(uploadedFile);
     const rawBase64Data = dataUrl.split(',')[1];
 
@@ -88,8 +86,9 @@ const UploadDialog = ({ setParseLoad, setRawPdf }) => {
     const { data } = res;
     const newState = createEditorStateFromScienceParse(data, formState);
     setEditorState(newState);
+    setRawPdf(uploadedFile);
+    setRawDataUrl(dataUrl);
     setParseLoad('done');
-    setRawPdf(pdfDataUrl);
   };
 
   const handleChange = (event) => {

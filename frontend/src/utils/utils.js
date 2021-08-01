@@ -88,6 +88,15 @@ export const readFile = async (file) => {
   });
 };
 
+export const dataUrlToFile = async (dataUrl) => {
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  const file = new File([blob], 'original_pdf.pdf', {
+    type: 'application/pdf',
+  });
+  return file;
+};
+
 export const getSummary = async (textToAnalyse, token) => {
   try {
     const payload = {

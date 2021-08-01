@@ -69,7 +69,7 @@ const PdfModal = ({ rawPdf }) => {
           <iframe
             className={classes.root}
             title="pdf-viewer"
-            src={rawPdf}
+            src={URL.createObjectURL(rawPdf)}
             frameborder="0"
           ></iframe>
         </DialogContent>
