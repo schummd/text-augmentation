@@ -12,6 +12,12 @@ import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import { useForm } from 'react-hook-form';
+
+import { readFile, parsedPdfToHtml, postToScienceParse } from '../utils/utils';
+import { EditorState, convertFromHTML, ContentState } from 'draft-js';
+
+import { StoreContext } from '../utils/store';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function PaperComponent(props) {
+const PaperComponent = (props) => {
   return (
     <Draggable
       handle="#draggable-dialog-title"
@@ -31,11 +37,20 @@ function PaperComponent(props) {
       <Paper {...props} />
     </Draggable>
   );
-}
+};
 
-const UploadDialog = ({ ...children }) => {
-  const { handleSubmit, uploadSubmit, register, formState, setFormState } =
-    children;
+const createEditorStateFromScienceParse = (data, formState) => {
+  const markup = parsedPdfToHtml(data, formState);
+  const blocksFromHTML = convertFromHTML(markup);
+  const contentStateFromBlocks = ContentState.createFromBlockArray(
+    blocksFromHTML.contentBlocks,
+    blocksFromHTML.entityMap
+  );
+  const newState = EditorState.createWithContent(contentStateFromBlocks);
+  return newState;
+};
+
+const UploadDialog = ({ setParseLoad }) => {
   // Checkboxes
   /////////////////////////////////////////////////////////////////////////////
   const classes = useStyles();
@@ -43,12 +58,40 @@ const UploadDialog = ({ ...children }) => {
   const fileRef = React.useRef();
   const [pdf, setPdf] = React.useState(false);
 
+  const [formState, setFormState] = React.useState({
+    title: true,
+    abstract: true,
+    authors: true,
+    body: true,
+    references: true,
+  });
+  /////////////////////////////////////////////////////////////////////////////
+
+  const context = React.useContext(StoreContext);
+  const [, setEditorState] = context.editorState;
+  const { register, handleSubmit } = useForm();
+
+  const uploadSubmit = async (d) => {
+    setParseLoad('load');
+    const uploadedFile = d.uploadedPDF[0];
+    const dataUrl = await readFile(uploadedFile);
+    const rawBase64Data = dataUrl.split(',')[1];
+    const res = await postToScienceParse(rawBase64Data);
+    if (!res) {
+      setParseLoad('done');
+      return;
+    }
+    const { data } = res;
+    const newState = createEditorStateFromScienceParse(data, formState);
+    setEditorState(newState);
+    setParseLoad('done');
+  };
+
   const handleChange = (event) => {
     setFormState({ ...formState, [event.target.name]: event.target.checked });
   };
 
   const { title, abstract, authors, body, references } = formState;
-  /////////////////////////////////////////////////////////////////////////////
 
   const [open, setOpen] = React.useState(false);
 
@@ -59,10 +102,6 @@ const UploadDialog = ({ ...children }) => {
   const handleClose = () => {
     setOpen(false);
   };
-
-  React.useEffect(() => {
-    console.log(pdf);
-  }, [pdf]);
 
   return (
     <div>
@@ -133,7 +172,7 @@ const UploadDialog = ({ ...children }) => {
                       name="references"
                     />
                   }
-                  label="references"
+                  label="References"
                 />
               </FormGroup>
             </FormControl>
@@ -149,7 +188,6 @@ const UploadDialog = ({ ...children }) => {
           >
             <input
               accept="application/pdf"
-              //   style={{ display: 'none' }}
               id="upload-button"
               multiple
               type="file"

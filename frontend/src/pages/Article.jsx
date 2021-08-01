@@ -12,14 +12,10 @@ import {
   fetchDefinition,
   getSummary,
   getArticles,
-  readFile,
-  parsedPdfToHtml,
-  postToScienceParse,
 } from '../utils/utils';
 import Navigation from '../components/Navigation';
 import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useForm } from 'react-hook-form';
 import {
   makeStyles,
   Box,
@@ -215,9 +211,11 @@ const Article = () => {
   const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
+
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
   };
+
   const handleDefineQuery = () => {
     if (defineQuery !== '') {
       fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
@@ -235,14 +233,6 @@ const Article = () => {
   const [parseLoad, setParseLoad] = React.useState('done');
 
   const [update, setUpdate] = React.useState(false);
-
-  const [formState, setFormState] = React.useState({
-    title: true,
-    abstract: true,
-    authors: true,
-    body: true,
-    references: true,
-  });
 
   React.useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -271,30 +261,6 @@ const Article = () => {
       setSingularRead('');
     }
   }, [id]);
-
-  const { register, handleSubmit } = useForm();
-
-  const uploadSubmit = async (d) => {
-    setParseLoad('load');
-    const uploadedFile = d.uploadedPDF[0];
-    const dataUrl = await readFile(uploadedFile);
-    const rawBase64Data = dataUrl.split(',')[1];
-    const res = await postToScienceParse(rawBase64Data);
-    if (!res) {
-      setParseLoad('done');
-      return;
-    }
-    const { data } = res;
-    const markup = parsedPdfToHtml(data, formState);
-    const blocksFromHTML = convertFromHTML(markup);
-    const contentStateFromBlocks = ContentState.createFromBlockArray(
-      blocksFromHTML.contentBlocks,
-      blocksFromHTML.entityMap
-    );
-    const newState = EditorState.createWithContent(contentStateFromBlocks);
-    setEditorState(newState);
-    setParseLoad('done');
-  };
 
   const saveArticle = async (editorState) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());
@@ -357,6 +323,14 @@ const Article = () => {
     setUiBtn('analyse');
   };
 
+  const handleTwitterQuery = () => {
+    const formatedText = twitterQuery.replace(/ /g, '+');
+    window.open(
+      `http://twitter.com//intent/tweet?text=${formatedText}`,
+      '_blank'
+    );
+  };
+
   const classes = useStyles();
   return (
     <Container className={classes.outerWidth}>
@@ -378,13 +352,7 @@ const Article = () => {
                 </Box>
                 <Box className={classes.titleDivBtns}>
                   <Box className={classes.titleDivMultipleBtn}>
-                    <UploadDialog
-                      handleSubmit={handleSubmit}
-                      uploadSubmit={uploadSubmit}
-                      register={register}
-                      formState={formState}
-                      setFormState={setFormState}
-                    ></UploadDialog>
+                    <UploadDialog setParseLoad={setParseLoad}></UploadDialog>
                   </Box>
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Save Read">
@@ -584,14 +552,7 @@ const Article = () => {
                         <IconButton
                           className={classes.twitterIconBtn}
                           onClick={() => {
-                            const formatedText = twitterQuery.replace(
-                              / /g,
-                              '+'
-                            );
-                            window.open(
-                              `http://twitter.com//intent/tweet?text=${formatedText}`,
-                              '_blank'
-                            );
+                            handleTwitterQuery();
                           }}
                         >
                           <TwitterIcon />
