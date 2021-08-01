@@ -1,15 +1,13 @@
 import os
 import requests
 from flask import request
+import flask
 from flask_restx import Resource
 from dotenv import load_dotenv, find_dotenv
 from typing import Dict
 
 
 def summarize(data: Dict[str, str]):
-    # print(Auth.get_logged_in_user(request)[0])
-    # logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    # text_title=data["text_title"],
     text_body = data["text_body"]
 
     load_dotenv(find_dotenv("server.env"))

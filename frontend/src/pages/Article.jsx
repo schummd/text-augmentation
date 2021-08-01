@@ -1,17 +1,18 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
 import {
-  convertToRaw,
-  convertFromRaw,
-  EditorState,
-  convertFromHTML,
-  ContentState,
-} from 'draft-js';
-import { createTextObject, fetchDefinition } from '../utils/utils';
+  createTextObject,
+  fetchDefinition,
+  getSummary,
+  getArticles,
+  dataUrlToFile,
+} from '../utils/utils';
 import Navigation from '../components/Navigation';
-import { Redirect, useParams, useHistory } from 'react-router-dom';
+import PdfModal from '../components/PdfModal';
+
+import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useForm } from 'react-hook-form';
 import {
   makeStyles,
   Box,
@@ -24,13 +25,16 @@ import {
   IconButton,
   Grid,
   InputAdornment,
-  FormControl,
 } from '@material-ui/core';
-import BorderColorIcon from '@material-ui/icons/BorderColor';
 import BackspaceIcon from '@material-ui/icons/Backspace';
 import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
+import Skeleton from '@material-ui/lab/Skeleton';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+
 import { toast } from 'react-toastify';
+import UploadDialog from '../components/Dialog';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -83,7 +87,6 @@ const useStyles = makeStyles((theme) => ({
   },
   titleDivMultipleBtn: {
     display: 'flex',
-    // flexDirection: 'row',
   },
   btnText: {
     fontSize: '14px',
@@ -175,6 +178,9 @@ const useStyles = makeStyles((theme) => ({
   backspaceIconBtn: {
     padding: 0,
   },
+  twitterIconBtn: {
+    padding: 0,
+  },
   btnUploadDiv: {
     margin: '0em 0.25em',
   },
@@ -197,13 +203,18 @@ const Article = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [uiBtn, setUiBtn] = React.useState('define');
-  const [highlightMode, setHighlightMode] = React.useState(false);
 
   const [defineQuery, setDefineQuery] = React.useState('');
+  const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
+
+  const [rawPdf, setRawPdf] = React.useState(null);
+  const [rawDataUrl, setRawDataUrl] = React.useState(null);
+
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
   };
+
   const handleDefineQuery = () => {
     if (defineQuery !== '') {
       fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
@@ -218,17 +229,9 @@ const Article = () => {
   const { id } = useParams();
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
-  const [update, setUpdate] = React.useState(false);
+  const [parseLoad, setParseLoad] = React.useState('done');
 
-  const parsedPdfToHtml = (data) => {
-    const { sections } = data;
-    const sectionsOfInterest = sections.filter((section) =>
-      section.hasOwnProperty('heading')
-    );
-    return sectionsOfInterest
-      .map((section) => `<h3>${section.heading}</h3><p>${section.text}</p>`)
-      .join('');
-  };
+  const [update, setUpdate] = React.useState(false);
 
   React.useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -246,6 +249,13 @@ const Article = () => {
       const rawEditorState = convertFromRaw(
         JSON.parse(thisRead.text_body).editorState
       );
+      const originalPdfDataUrl = JSON.parse(
+        thisRead.text_body
+      ).uploadedPdfDataUrl;
+      dataUrlToFile(originalPdfDataUrl).then((res) => {
+        setRawPdf(res);
+      });
+
       setEditorState(EditorState.createWithContent(rawEditorState));
     }
     setLoadingState('done');
@@ -255,71 +265,19 @@ const Article = () => {
     if (id === 'new') {
       setEditorState(blankEditorState());
       setSingularRead('');
+      setRawPdf(null);
+      setRawDataUrl(null);
     }
   }, [id]);
 
-  const { register, handleSubmit } = useForm();
-
-  const readFile = async (file) => {
-    return new Promise((resolve, reject) => {
-      const fr = new FileReader();
-      fr.onload = () => {
-        resolve(fr.result);
-      };
-      fr.onerror = reject;
-      fr.readAsDataURL(file);
-    });
-  };
-
-  const uploadSubmit = async (d) => {
-    const uploadedFile = d.uploadedPDF[0];
-    const dataUrl = await readFile(uploadedFile);
-    const rawBase64Data = dataUrl.split(',')[1];
-
-    try {
-      const payload = {
-        method: `POST`,
-        url: `/parse/`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        data: rawBase64Data,
-      };
-
-      const res = await axios(payload);
-      const resData = res.data;
-      console.log(resData);
-      if (resData.status === 'success') {
-        toast.success(`${resData.message}`);
-      } else {
-        toast.warn(`${resData.message}`);
-      }
-      const markup = parsedPdfToHtml(resData.data);
-      const blocksFromHTML = convertFromHTML(markup);
-      const state = ContentState.createFromBlockArray(
-        blocksFromHTML.contentBlocks,
-        blocksFromHTML.entityMap
-      );
-      const newState = EditorState.createWithContent(state);
-      // console.log(newState);
-      setEditorState(newState);
-    } catch (error) {
-      console.log(error);
-      toast.error('error parsing PDF');
-    }
-
-    // console.log(file);
-  };
-
-  const saveArticle = async (editorState) => {
+  const saveArticle = async (editorState, rawPdf = null, rawDataUrl = null) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());
     const textObject = createTextObject(
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
         notes: notesRef.current.value,
+        uploadedPdfDataUrl: rawDataUrl,
       })
     );
 
@@ -343,8 +301,16 @@ const Article = () => {
           history.push(`/articles/${resData.text_id}`);
         }
         setUpdate(!update);
-        const updatedReads = await getArticles();
+        const updatedReads = await getArticles(username);
         setMyReads(updatedReads);
+
+        // Update title
+        if (titleRef.current.value !== '') {
+          setSingularRead({
+            ...singularRead,
+            text_title: titleRef.current.value,
+          });
+        }
         titleRef.current.value = '';
       } else {
         toast.warn(`${resData.message}`);
@@ -354,50 +320,24 @@ const Article = () => {
     }
   };
 
-  const getSummary = async (textToAnalyse) => {
-    try {
-      const payload = {
-        method: 'POST',
-        url: `/summary/`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `${token}`,
-        },
-        data: { text_body: textToAnalyse },
-      };
-      console.log(payload);
-      const res = await axios(payload);
-      const resData = res.data;
-      const { summary } = resData;
-      return summary;
-    } catch (error) {
-      toast.error('Error summarising selected text.');
+  const handleGetSumary = async () => {
+    const selectedText = document.getSelection().toString();
+    if (selectedText) {
+      const summary = await getSummary(selectedText, token);
+      console.log(summary);
+      notesRef.current.value = summary;
+    } else {
+      toast.warn('No text selected for analysis.');
     }
+    setUiBtn('analyse');
   };
 
-  const getArticles = async () => {
-    try {
-      const payload = {
-        method: 'GET',
-        url: `/text/${username}`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      console.log(payload);
-      const res = await axios(payload);
-      const resData = res.data;
-      console.log(resData);
-      if (resData.status === 'success') {
-        toast.success(`Retrieved Reads from server.`);
-      } else {
-        toast.warn(`${resData.message}`);
-      }
-      const { data } = resData;
-      return data;
-    } catch (error) {
-      toast.error('Error retrieving Reads from server.');
-    }
+  const handleTwitterQuery = () => {
+    const formatedText = twitterQuery.replace(/ /g, '+');
+    window.open(
+      `http://twitter.com//intent/tweet?text=${formatedText}`,
+      '_blank'
+    );
   };
 
   const classes = useStyles();
@@ -421,55 +361,28 @@ const Article = () => {
                 </Box>
                 <Box className={classes.titleDivBtns}>
                   <Box className={classes.titleDivMultipleBtn}>
-                    <form
-                      onSubmit={handleSubmit(uploadSubmit)}
-                      className={classes.titleDivMultipleBtn}
-                    >
-                      <input
-                        accept="application/pdf"
-                        // className={classes.input}
-                        style={{ display: 'none' }}
-                        id="upload-button"
-                        multiple
-                        type="file"
-                        name="pdfFile"
-                        {...register('uploadedPDF', { required: true })}
-                      />
-                      <Box className={classes.btnUploadDiv}>
-                        <Tooltip title="Upload">
-                          <label htmlFor="upload-button">
-                            <Button
-                              variant="contained"
-                              component="span"
-                              className={classes.btnText}
-                              color="secondary"
-                            >
-                              Upload
-                            </Button>
-                          </label>
-                        </Tooltip>
-                      </Box>
-                      <Box className={classes.btnUploadDiv}>
-                        <Tooltip title="Parse Upload">
-                          <Button
-                            className={classes.btnText}
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                          >
-                            Parse Upload
-                          </Button>
-                        </Tooltip>
-                      </Box>
-                    </form>
+                    <UploadDialog
+                      setParseLoad={setParseLoad}
+                      setRawPdf={setRawPdf}
+                      setRawDataUrl={setRawDataUrl}
+                    ></UploadDialog>
                   </Box>
+
+                  {rawPdf && (
+                    <Box className={classes.titleDivMultipleBtn}>
+                      <PdfModal rawPdf={rawPdf} />
+                    </Box>
+                  )}
+
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Save Read">
                       <Button
                         variant="contained"
                         color="primary"
                         className={classes.btnText}
-                        onClick={() => saveArticle(editorState)}
+                        onClick={() =>
+                          saveArticle(editorState, rawPdf, rawDataUrl)
+                        }
                       >
                         {id === 'new' ? 'Save New Read' : 'Update Read'}
                       </Button>
@@ -492,7 +405,13 @@ const Article = () => {
                 />
 
                 <Box className={classes.uiInputText}>
-                  <CustomEditor></CustomEditor>
+                  {parseLoad === 'load' ? (
+                    <Skeleton animation="wave" variant="rectangle">
+                      <CustomEditor />
+                    </Skeleton>
+                  ) : (
+                    <CustomEditor></CustomEditor>
+                  )}
                 </Box>
               </Box>
 
@@ -538,13 +457,7 @@ const Article = () => {
                                   : classes.btnUi
                               }
                               onMouseDown={async () => {
-                                const selectedText = document
-                                  .getSelection()
-                                  .toString();
-                                const summary = await getSummary(selectedText);
-                                console.log(summary);
-                                notesRef.current.value = summary;
-                                setUiBtn('analyse');
+                                await handleGetSumary();
                               }}
                             >
                               Analyse
@@ -626,13 +539,50 @@ const Article = () => {
                 />
 
                 <TextField
-                  placeholder="Notes"
+                  placeholder="Text Analysis"
                   variant="outlined"
                   multiline
                   fullWidth
                   rows={15}
                   className={classes.uiInputText}
                   inputRef={notesRef}
+                />
+                <TextField
+                  placeholder="Ask a question"
+                  variant="outlined"
+                  multiline
+                  fullWidth
+                  maxRows={1}
+                  value={twitterQuery}
+                  onKeyPress={(eventkey) => {
+                    if (eventkey.key === 'Enter') {
+                      eventkey.preventDefault();
+                      // handleDefineQuery();
+                    }
+                  }}
+                  onChange={(e) => {
+                    setTwitterQuery(e.target.value);
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <HelpOutlineIcon />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <Tooltip title="Ask on Twitter">
+                        <IconButton
+                          className={classes.twitterIconBtn}
+                          onClick={() => {
+                            handleTwitterQuery();
+                          }}
+                        >
+                          <TwitterIcon />
+                        </IconButton>
+                      </Tooltip>
+                    ),
+                  }}
+                  className={classes.uiInputText}
                 />
               </Box>
               {/* end UI display section */}
