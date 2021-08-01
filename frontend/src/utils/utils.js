@@ -11,7 +11,6 @@ export const fetchDefinition = async (urlBase, token, word, setFunc) => {
     const payload = {
       method: `GET`,
       url: `${urlBase}/definition/${word}`,
-      // url: `/definition/${word}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `${token}`,
@@ -106,7 +105,7 @@ export const getSummary = async (textToAnalyse, token) => {
     const { summary } = resData;
     return summary;
   } catch (error) {
-    throw new Error({ message: 'Error summarising selected text.', error });
+    return;
   }
 };
 
@@ -124,7 +123,6 @@ export const getArticles = async (username) => {
     const resData = res.data;
     console.log(resData);
     if (resData.status === 'success') {
-      // toast.success(`Retrieved Reads from server.`);
       console.log('success');
     } else {
       toast.warn(`${resData.message}`);
