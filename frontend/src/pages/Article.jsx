@@ -14,6 +14,8 @@ import {
   getArticles,
 } from '../utils/utils';
 import Navigation from '../components/Navigation';
+import PdfModal from '../components/PdfModal';
+
 import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -212,6 +214,8 @@ const Article = () => {
   const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
 
+  const [rawPdf, setRawPdf] = React.useState(null);
+
   const handleChangeDefineQuery = async (event) => {
     await setDefineQuery(event.target.value);
   };
@@ -250,6 +254,8 @@ const Article = () => {
       const rawEditorState = convertFromRaw(
         JSON.parse(thisRead.text_body).editorState
       );
+      const originalPdfUploaded = JSON.parse(thisRead.text_body).rawPdf;
+      setRawPdf(originalPdfUploaded);
       setEditorState(EditorState.createWithContent(rawEditorState));
     }
     setLoadingState('done');
@@ -259,16 +265,18 @@ const Article = () => {
     if (id === 'new') {
       setEditorState(blankEditorState());
       setSingularRead('');
+      setRawPdf(null);
     }
   }, [id]);
 
-  const saveArticle = async (editorState) => {
+  const saveArticle = async (editorState, rawPdf = null) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());
     const textObject = createTextObject(
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
         notes: notesRef.current.value,
+        rawPdf,
       })
     );
 
@@ -352,15 +360,25 @@ const Article = () => {
                 </Box>
                 <Box className={classes.titleDivBtns}>
                   <Box className={classes.titleDivMultipleBtn}>
-                    <UploadDialog setParseLoad={setParseLoad}></UploadDialog>
+                    <UploadDialog
+                      setParseLoad={setParseLoad}
+                      setRawPdf={setRawPdf}
+                    ></UploadDialog>
                   </Box>
+
+                  {rawPdf && (
+                    <Box className={classes.titleDivMultipleBtn}>
+                      <PdfModal rawPdf={rawPdf} />
+                    </Box>
+                  )}
+
                   <Box className={classes.titleDivSingleBtn}>
                     <Tooltip title="Save Read">
                       <Button
                         variant="contained"
                         color="primary"
                         className={classes.btnText}
-                        onClick={() => saveArticle(editorState)}
+                        onClick={() => saveArticle(editorState, rawPdf)}
                       >
                         {id === 'new' ? 'Save New Read' : 'Update Read'}
                       </Button>
