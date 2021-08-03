@@ -12,6 +12,7 @@ from ..service.user_service import (
     follow_a_user,
     get_all_following,
     get_newsfeed,
+    get_all_users_with_connection_status,
 )
 from typing import Dict, Tuple
 
@@ -28,7 +29,7 @@ user_auth = AuthDto.user_auth
 @api.route("/")
 class UserList(Resource):
     @api.doc("list_of_registered_users")
-    @admin_token_required
+    @token_required
     @api.marshal_list_with(_user, envelope="data")
     def get(self):
         """List all registered users"""
@@ -43,15 +44,14 @@ class UserList(Resource):
         return save_new_user(data=data)
 
 
-@api.route("/<public_id>")
-@api.param("public_id", "The User identifier")
+@api.route("/<username>")
 @api.response(404, "User not found.")
 class User(Resource):
     @api.doc("get a user")
     @api.marshal_with(_user)
-    def get(self, public_id):
+    def get(self, username):
         """get a user given its identifier"""
-        user = get_a_user(public_id)
+        user = get_a_user(username)
         if not user:
             api.abort(404)
         else:
@@ -91,3 +91,15 @@ class Newsfeed(Resource):
         """List all titles"""
         return get_newsfeed(username)
 
+
+# GET /user/{username}/network
+@token_required
+@api.route("/<username>/network")
+@api.param("username", "My username")
+@api.response(404, "User not found.")
+class Network(Resource):
+    @api.doc("network")
+    @api.marshal_list_with(_user, envelope="data")
+    def get(self, username):
+        """List all users"""
+        return get_all_users_with_connection_status(username)

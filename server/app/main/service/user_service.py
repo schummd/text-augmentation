@@ -2,7 +2,7 @@
 import uuid
 import datetime
 from datetime import timedelta
-
+import flask
 from flask_restx.fields import Boolean
 
 from app.main import db
@@ -50,8 +50,28 @@ def get_all_users():
     return User.query.all()
 
 
-def get_a_user(public_id):
-    return User.query.filter_by(public_id=public_id).first()
+def get_all_users_with_connection_status(username):
+    following_list = Follower.query.filter_by(user_name=username).all()
+    followees = set()
+    for followee in following_list:
+        followees.add(followee.following)
+    all_users = User.query.filter(User.username != username).all()
+    print(all_users)
+    for user in all_users:
+        if user.username in followees:
+            user.following = True
+    return all_users
+
+
+def get_a_user(username):
+    #TODO: modify frontend to accept this object
+    # query_result = User.query.filter_by(username=username).first()
+    # response_object = {
+    #     "status": "success",
+    #     "message": "Successfully retrieved.",
+    #     "data": query_result,
+    # }
+    return User.query.filter_by(username=username).first()
 
 
 def generate_token(user: User) -> Tuple[Dict[str, str], int]:
@@ -138,14 +158,32 @@ def get_all_following(username):
 
 
 def get_newsfeed(username):
-    try:
-        following = Follower.query.filter_by(user_name=username).all()
+    NUMBER_OF_DAYS_BACK = 3
+    # check if user exists
+    exists = User.query.filter_by(username=username).first()
+
+    if not exists:
+
+        response_object = {
+            "status": "fail",
+            "message": "The user does not exist.",
+        }
+
+        return response_object, 404
+
+    following = Follower.query.filter_by(user_name=username).all()
+
+    # user follower someone
+    if len(following) != 0:
+
         newsfeed = []
         for user in following:
+            print("USER", user)
             item = {}
             titles = []
             followee_username = user.following
             followee = User.query.filter_by(username=followee_username).first()
+
             followee_first_name = followee.first_name
             followee_last_name = followee.last_name
             followee_id = followee.public_id
@@ -155,7 +193,7 @@ def get_newsfeed(username):
 
             today = datetime.datetime.utcnow()
             current = datetime.datetime(today.year, today.month, today.day)
-            days_ago = current - datetime.timedelta(days=3)
+            days_ago = current - datetime.timedelta(days=NUMBER_OF_DAYS_BACK)
             n_days_ago = datetime.datetime(days_ago.year, days_ago.month, days_ago.day)
 
             text_ids = (
@@ -163,6 +201,7 @@ def get_newsfeed(username):
                 .join(User, Text.user_id == User.id)
                 .filter(User.username == followee_username)
                 .filter(Text.created_on >= n_days_ago)
+                .order_by(Text.created_on)
                 .all()
             )
 
@@ -173,14 +212,20 @@ def get_newsfeed(username):
                 titles.append(t)
             item["text_titles"] = titles
             newsfeed.append(item)
-        
+
         response_object = {"status": "success", "data": newsfeed}
+
         return response_object, 200
 
-    except Exception as e:
-        response_object = {"status": "fail", "data": ""}
-        return response_object, 404
+    # user does not follow anyone, data empty, nothing to display
+    else:
 
+        response_object = {
+            "status": "success",
+            "data": "",
+        }
+
+        return response_object, 200
 
 def save_changes(data: User) -> None:
     db.session.add(data)
