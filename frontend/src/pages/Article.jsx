@@ -10,6 +10,7 @@ import {
 } from '../utils/utils';
 import Navigation from '../components/Navigation';
 import PdfModal from '../components/PdfModal';
+import MyAccordian from '../components/MyAccordian';
 
 import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -226,6 +227,10 @@ const Article = () => {
   const titleRef = React.useRef();
   const notesRef = React.useRef();
 
+  // POPOVER
+
+  ////////
+
   const { id } = useParams();
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
@@ -293,8 +298,10 @@ const Article = () => {
       };
       console.log(payload);
       const res = await axios(payload);
+      console.log('RES', res);
       const resData = res.data;
-      console.log(resData);
+      console.log('RESDATA', resData);
+
       if (resData.status === 'success') {
         toast.success(`${resData.message}`);
         if (payload.method === 'POST') {
@@ -375,7 +382,7 @@ const Article = () => {
                   )}
 
                   <Box className={classes.titleDivSingleBtn}>
-                    <Tooltip title="Save Read">
+                    <Tooltip>
                       <Button
                         variant="contained"
                         color="primary"
@@ -407,10 +414,16 @@ const Article = () => {
                 <Box className={classes.uiInputText}>
                   {parseLoad === 'load' ? (
                     <Skeleton animation="wave" variant="rectangle">
-                      <CustomEditor />
+                      <CustomEditor
+                        notesRef={notesRef}
+                        token={token}
+                      ></CustomEditor>
                     </Skeleton>
                   ) : (
-                    <CustomEditor></CustomEditor>
+                    <CustomEditor
+                      notesRef={notesRef}
+                      token={token}
+                    ></CustomEditor>
                   )}
                 </Box>
               </Box>
@@ -486,6 +499,8 @@ const Article = () => {
                     </Grid>
                   </Grid>
                 </Box>
+
+                <MyAccordian></MyAccordian>
 
                 <TextField
                   placeholder="Define"
