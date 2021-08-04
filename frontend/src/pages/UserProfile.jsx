@@ -62,19 +62,12 @@ const useStyles = makeStyles((theme) => ({
 
 const UserProfile = () => {
   const context = React.useContext(StoreContext);
-  // const [username] = context.username;
-  const [myReads, setMyReads] = context.myReads;
-  // console.log("Usename in myReads is", context)
-  // const history = useHistory();
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  // console.log('Stored username', storedUsername)
-
-  // const context = React.useContext(StoreContext);
   const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);
   // const username = context.username;
   // console.log("Context data", token, username)
-  // const [firstName, setFirstName] = context.myReads;
+
 
   React.useEffect(() => {
     if (token === null) {
@@ -140,9 +133,7 @@ const UserProfile = () => {
         } else {
           toast.warn(`${resData.message}`);
         }
-        // const { data } = resData;
-        // setMyProfile(data);
-        // console.log('Data', data);
+
         setFirstName(resData.first_name);
         setLastName(resData.last_name);
         setEmail(resData.email);
@@ -181,7 +172,8 @@ const UserProfile = () => {
     setupHome();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // handling buttons
+  // TODO: add button actions to search for users and edit profile
+ 
   const [openEditProfile, setEditProfileOpen] = React.useState(false);
   const [openSearchUsers, setEditSearchUsers] = React.useState(false);
 
@@ -196,8 +188,8 @@ const UserProfile = () => {
   const HandleCellClick = async (param, event) => {
 
     const networkUsername = param.row.username;
-    // console.log('Scoop from the cell', networkUsername);
-        // sending backend followers status update
+
+    // sending backend 'followers' status update
     const payload = {
       method: 'PATCH',
       url: '/user/' + username + '/following',
@@ -213,32 +205,12 @@ const UserProfile = () => {
     if (response.status === 201) {
       toast.success(`Changed connection status.`);
       console.log("Params", param)
-      //  const id = param.id
-      //  const field = param.field
-      //  const value = param.value
-      //  HandleCellClick(id, field, value);
-    
+   
     } else {
       toast.error('Error retrieving response from server.');
     }
   };
-  // const HandleCellEditCommit = React.useCallback(
-  //   ({ id, field, value }) => {
-  //     if (field === 'following') {
-  //       const updatedRows = rows.map((row) => {
-  //         let follow = !value;
 
-  //         if (row.id === id) {
-  //           return { ...row, follow };
-  //         } else {
-  //           return row;
-  //         }
-  //       });
-  //       React.setRows(updatedRows);
-  //     }
-  //   },
-  //   [rows]
-  // );
 
   const classes = useStyles();
   return (

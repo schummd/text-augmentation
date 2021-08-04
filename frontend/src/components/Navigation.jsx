@@ -91,7 +91,7 @@ const Navigation = () => {
         setUsername(null);
       });
   };
-
+  
   return (
     <ThemeProvider theme={theme}>
       <Box className={classes.box}>
@@ -128,6 +128,20 @@ const Navigation = () => {
                     }}
                   >
                     Home
+                  </Button>
+                </Tooltip>
+
+                <Tooltip title="profile">
+                  <Button
+                    id="profile-button"
+                    variant="contained"
+                    color="default"
+                    className={classes.btnText}
+                    onClick={() => {
+                      history.push('/user/'+ context.username[0]);
+                    }}
+                  >
+                    Social 
                   </Button>
                 </Tooltip>
 
