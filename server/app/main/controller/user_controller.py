@@ -23,7 +23,7 @@ api = UserDto.api
 _user = UserDto.user
 _follower = UserDto.follower
 user_auth = AuthDto.user_auth
-# _news = UserDto.news
+_network_user = UserDto.netuser
 
 
 @api.route("/")
@@ -99,7 +99,7 @@ class Newsfeed(Resource):
 @api.response(404, "User not found.")
 class Network(Resource):
     @api.doc("network")
-    @api.marshal_list_with(_user, envelope="data")
+    @api.marshal_list_with(_network_user, envelope="data")
     def get(self, username):
         """List all users"""
         return get_all_users_with_connection_status(username)

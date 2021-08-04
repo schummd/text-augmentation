@@ -148,7 +148,7 @@ const UserProfile = () => {
       try {
         const payload = {
           method: 'GET',
-          url: `/user`,
+          url: '/user/'+username+'/network',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Authorization: ${token}`,
@@ -157,7 +157,7 @@ const UserProfile = () => {
         console.log('Payload', payload);
         const ulist = await axios(payload);
         const userlist = ulist.data;
-        console.log('User List', userlist.data.length);
+        console.log('User List', userlist.data);
         // if (resData.status === 'success') {
         if (userlist.data.length > 0) {
           toast.success(`Retrieved User information from server.`);
