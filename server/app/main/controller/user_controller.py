@@ -68,8 +68,10 @@ class Follow(Resource):
     def patch(self, username):
         """follow another user"""
         data = request.json
+        print(data)
         user_to_follow = data["user_to_follow"]
         return follow_a_user(username, user_to_follow)
+
 
     # GET /user/{username}/following
     @api.doc("users a user following")
@@ -102,4 +104,7 @@ class Network(Resource):
     @api.marshal_list_with(_network_user, envelope="data")
     def get(self, username):
         """List all users"""
+        response, status = Auth.get_logged_in_user(request)
+        # user_id =response['data']['user_id']
+        print("Response to request", status)
         return get_all_users_with_connection_status(username)

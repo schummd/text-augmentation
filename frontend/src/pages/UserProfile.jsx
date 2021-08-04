@@ -22,6 +22,12 @@ import { DataGrid } from '@material-ui/data-grid';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import Icon from '@material-ui/core/Icon';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import TextField from '@material-ui/core/TextField';
+import { FormControl } from '@material-ui/core/';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -64,8 +70,8 @@ const UserProfile = () => {
   // console.log('Stored username', storedUsername)
 
   // const context = React.useContext(StoreContext);
-  const token = storedUser.token;
-  const username = storedUser.username;
+  const [token, setToken] = React.useState(storedUser.token);
+  const [username, setUsername] = React.useState(storedUser.username);
   // const username = context.username;
   // console.log("Context data", token, username)
   // const [firstName, setFirstName] = context.myReads;
@@ -93,13 +99,14 @@ const UserProfile = () => {
   const columns = [
     { field: 'id', headerName: 'id', width: 150, hide: true },
     { field: 'first_name', headerName: 'First Name', width: 150 },
-    { field: 'last_name', headerName: 'Last Name', width: 220 },
+    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'username', headerName: 'Username', width: 150 },
     {
       field: 'following',
       headerName: 'Following',
       width: 150,
-      renderCell: (params) => (
-        params.value) ? (
+      renderCell: (params) =>
+        params.value ? (
           <CheckCircleIcon color="primary" />
         ) : (
           <CheckCircleOutlineIcon color="primary" />
@@ -148,7 +155,7 @@ const UserProfile = () => {
       try {
         const payload = {
           method: 'GET',
-          url: '/user/'+username+'/network',
+          url: '/user/' + username + '/network',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Authorization: ${token}`,
@@ -174,6 +181,65 @@ const UserProfile = () => {
     setupHome();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // handling buttons
+  const [openEditProfile, setEditProfileOpen] = React.useState(false);
+  const [openSearchUsers, setEditSearchUsers] = React.useState(false);
+
+  const [searchUsersOperate, setSearchUsersOperate] = React.useState();
+  const handleUserSearch = async () => {
+    React.setOpenSearchUsers(true);
+    // React.setSearchUsersOperate(<SearchUsersButton />);
+    // return searchUsersOperate;
+  };
+
+  // handling change in following status
+  const HandleCellClick = async (param, event) => {
+
+    const networkUsername = param.row.username;
+    // console.log('Scoop from the cell', networkUsername);
+        // sending backend followers status update
+    const payload = {
+      method: 'PATCH',
+      url: '/user/' + username + '/following',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token,
+      },
+      data: { 'user_to_follow': networkUsername },
+    };
+    console.log('Payload', payload);
+    const response = await axios(payload);
+    console.log("Response", response);
+    if (response.status === 201) {
+      toast.success(`Changed connection status.`);
+      console.log("Params", param)
+      //  const id = param.id
+      //  const field = param.field
+      //  const value = param.value
+      //  HandleCellClick(id, field, value);
+    
+    } else {
+      toast.error('Error retrieving response from server.');
+    }
+  };
+  // const HandleCellEditCommit = React.useCallback(
+  //   ({ id, field, value }) => {
+  //     if (field === 'following') {
+  //       const updatedRows = rows.map((row) => {
+  //         let follow = !value;
+
+  //         if (row.id === id) {
+  //           return { ...row, follow };
+  //         } else {
+  //           return row;
+  //         }
+  //       });
+  //       React.setRows(updatedRows);
+  //     }
+  //   },
+  //   [rows]
+  // );
+
   const classes = useStyles();
   return (
     <Container>
@@ -191,21 +257,12 @@ const UserProfile = () => {
                 <Typography paragraph align="left" variant="h4">
                   My Profile
                   <Box className={classes.btnUiDiv}>
-                    {/* <Tooltip title="Edit Profile"> */}
                     <Button
                       variant="outlined"
-                      // className={
-                      //   uiBtn === 'analyse'
-                      //     ? classes.btnUiClicked
-                      //     : classes.btnUi
-                      // }
-                      // onMouseDown={async () => {
-                      //   await handleGetSumary();
-                      // }}
+                      // onClick={ () => handleEditProfile()}
                     >
                       Edit Profile
                     </Button>
-                    {/* </Tooltip> */}
                   </Box>
                 </Typography>
               </Box>
@@ -255,6 +312,19 @@ const UserProfile = () => {
                         {email}
                       </TableCell>
                     </TableRow>
+                    <TableRow key={3}>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{ width: '175px' }}
+                      >
+                        {' '}
+                        <b>Username</b>{' '}
+                      </TableCell>
+                      <TableCell align="left" style={{ maxWidth: '304px' }}>
+                        {username}
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -267,21 +337,12 @@ const UserProfile = () => {
                 <Typography paragraph align="left" variant="h4">
                   Users
                   <Box className={classes.btnUiDiv}>
-                    {/* <Tooltip title="Edit Profile"> */}
                     <Button
                       variant="outlined"
-                      // className={
-                      //   uiBtn === 'analyse'
-                      //     ? classes.btnUiClicked
-                      //     : classes.btnUi
-                      // }
-                      // onMouseDown={async () => {
-                      //   await handleGetSumary();
-                      // }}
+                      //  onClick={() => handleUserSearch()};
                     >
                       Search Users
                     </Button>
-                    {/* </Tooltip> */}
                   </Box>
                 </Typography>
               </Box>
@@ -293,7 +354,7 @@ const UserProfile = () => {
                       onPageChange={(params) => {
                         setPageNumber(params.pageNumber);
                       }}
-                      // onRowClick={handleRowClick}
+                      onCellClick={HandleCellClick}
                       // autoHeight
                       rows={rows}
                       columns={columns}
