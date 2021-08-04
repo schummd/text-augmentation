@@ -1,11 +1,13 @@
 # from app.main.controller.user_controller import Follow
 import uuid
 import datetime
+from typing import Dict, Tuple
 from app.main import db
 from app.main.model.user import User
-from typing import Dict, Tuple
 from app.main.model.follower import Follower
 from app.main.model.text import Text
+from app.main.service.auth_helper import Auth
+from flask.globals import request
 
 
 def save_new_user(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
@@ -45,6 +47,50 @@ def get_all_users():
 
 def get_a_user(public_id):
     return User.query.filter_by(public_id=public_id).first()
+
+
+def update_user_name(name):
+    first_name, last_name = name.split(" ", 1)
+    # Get user from provided auth token
+    logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
+    # get row to delete
+    row = User.query.filter_by(id=logged_in_user["user_id"]).first()
+
+    if bool(row):
+
+        row.first_name = first_name
+        row.last_name = last_name
+
+        db.session.commit()
+
+        response_object = {
+            "status": "success",
+            "message": "Successfully updated user's last name.",
+        }
+        return response_object, 200
+
+    else:
+        response_object = {"status": "fail", "message": "User does not exist."}
+        return response_object, 404
+
+
+def delete_a_user():
+    # Get user from provided auth token
+    logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
+    # get row to delete
+    row = User.query.filter_by(id=logged_in_user["user_id"]).first()
+    # if exists
+    if bool(row):
+
+        db.session.delete(row)
+        db.session.commit()
+
+        response_object = {"status": "success", "message": "Successfully deleted user."}
+        return response_object, 200
+
+    else:
+        response_object = {"status": "fail", "message": "User does not exist."}
+        return response_object, 404
 
 
 def generate_token(user: User) -> Tuple[Dict[str, str], int]:

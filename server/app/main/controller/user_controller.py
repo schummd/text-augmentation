@@ -2,12 +2,15 @@ from flask import request
 from flask_restx import Resource
 from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
+from app.main.service.auth_helper import Auth
 from ..util.dto import UserDto, AuthDto
 from ..service.user_service import (
     get_all_following,
     save_new_user,
     get_all_users,
     get_a_user,
+    update_user_name,
+    delete_a_user,
     follow_a_user,
     get_all_following,
     get_newsfeed,
@@ -37,6 +40,13 @@ class UserList(Resource):
         data = request.json
         return save_new_user(data=data)
 
+    @api.doc("delete a user")
+    @token_required
+    @api.response(404, "User not found.")
+    def delete(self):
+        """Delete a user profile"""
+        return delete_a_user()
+
 
 @api.route("/<public_id>")
 @api.param("public_id", "The User identifier")
@@ -51,6 +61,16 @@ class User(Resource):
             api.abort(404)
         else:
             return user
+
+
+# PUT /user/{name}
+@api.route("/<name>")
+@api.param("name", "User's first and last name")
+@api.response(404, "User not found")
+class UserUpdate(Resource):
+    @api.doc("Update user's first and last name")
+    def put(self, name):
+        return update_user_name(name)
 
 
 @api.route("/<username>/following")
