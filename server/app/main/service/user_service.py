@@ -49,8 +49,7 @@ def get_a_user(public_id):
     return User.query.filter_by(public_id=public_id).first()
 
 
-def update_user_name(name):
-    first_name, last_name = name.split(" ", 1)
+def update_user_name(data: Dict[str, str]):
     # Get user from provided auth token
     logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
     # get row to delete
@@ -58,8 +57,18 @@ def update_user_name(name):
 
     if bool(row):
 
-        row.first_name = first_name
-        row.last_name = last_name
+        # check if fields are not empty
+        if data["email"] != "string" and len(data["email"]) != 0:
+            row.email = data["email"]
+
+        if data["username"] != "string" and len(data["username"]) != 0:
+            row.username = data["username"]
+
+        if data["first_name"] != "string" and len(data["first_name"]) != 0:
+            row.first_name = data["first_name"]
+
+        if data["last_name"] != "string" and len(data["last_name"]) != 0:
+            row.last_name = data["last_name"]
 
         db.session.commit()
 

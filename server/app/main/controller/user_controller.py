@@ -20,6 +20,7 @@ from typing import Dict, Tuple
 
 api = UserDto.api
 _user = UserDto.user
+_update = UserDto.update
 _follower = UserDto.follower
 
 
@@ -47,6 +48,15 @@ class UserList(Resource):
         """Delete a user profile"""
         return delete_a_user()
 
+    @api.doc("update a user")
+    @token_required
+    @api.expect(_update, validate=True)
+    @api.response(404, "User not found.")
+    def put(self):
+        """Update a user name"""
+        data = request.json
+        return update_user_name(data=data)
+
 
 @api.route("/<public_id>")
 @api.param("public_id", "The User identifier")
@@ -61,16 +71,6 @@ class User(Resource):
             api.abort(404)
         else:
             return user
-
-
-# PUT /user/{name}
-@api.route("/<name>")
-@api.param("name", "User's first and last name")
-@api.response(404, "User not found")
-class UserUpdate(Resource):
-    @api.doc("Update user's first and last name")
-    def put(self, name):
-        return update_user_name(name)
 
 
 @api.route("/<username>/following")

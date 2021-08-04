@@ -55,14 +55,16 @@ class TestUserModel(BaseTestCase):
         response_login = login_user(self, "daria")
         # username = json.loads(response_login.data.decode())["username"]
         # row = User.query.filter_by(username=username).first()
-        new_name = "Dasha Schumm"
+        # new_name = "Dasha Schumm"
 
         response_update_name = self.client.put(
-            f"/user/{new_name}",
+            "/user/",
             headers=dict(
                 Authorization=json.loads(response_login.data.decode())["Authorization"]
             ),
-            data=json.dumps(dict(name="Dasha Schumm")),
+            data=json.dumps(
+                dict(email="", username="", first_name="Dasha", last_name="Schumm")
+            ),
             content_type="application/json",
         )
 
@@ -78,6 +80,7 @@ class TestUserModel(BaseTestCase):
         updated_name = User.query.filter_by(
             first_name="Dasha", last_name="Schumm"
         ).first()
+        self.assertTrue(updated_name.username == "daria")
         self.assertTrue(updated_name.first_name == "Dasha")
         self.assertTrue(updated_name.last_name == "Schumm")
 
