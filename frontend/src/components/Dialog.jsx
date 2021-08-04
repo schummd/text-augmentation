@@ -12,6 +12,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Tooltip from '@material-ui/core/Tooltip';
 import { useForm } from 'react-hook-form';
 
 import { readFile, parsedPdfToHtml, postToScienceParse } from '../utils/utils';
@@ -25,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     margin: theme.spacing(3),
+  },
+  btnUploadPdf: {
+    fontSize: '14px',
+    textTransform: 'capitalize',
+    borderRadius: 16,
   },
 }));
 
@@ -109,9 +115,16 @@ const UploadDialog = ({ setParseLoad, setRawPdf, setRawDataUrl }) => {
 
   return (
     <div>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Upload PDF
-      </Button>
+      <Tooltip title="Upload PDF">
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleClickOpen}
+          className={classes.btnUploadPdf}
+        >
+          Upload PDF
+        </Button>
+      </Tooltip>
       <Dialog
         open={open}
         onClose={handleClose}

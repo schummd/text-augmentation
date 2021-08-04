@@ -33,10 +33,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DraftWrapper = styled.div`
-  height: 545px;
-`;
-
 const useFocus = () => {
   const htmlElRef = React.useRef(null);
   const setFocus = () => {
@@ -47,7 +43,7 @@ const useFocus = () => {
 };
 
 const CustomEditor = ({ ...children }) => {
-  const { notesRef, token } = children;
+  const { notesRef, token, fullScreen } = children;
   const context = React.useContext(StoreContext);
 
   const [editorState, setEditorState] = context.editorState;
@@ -103,9 +99,29 @@ const CustomEditor = ({ ...children }) => {
     }
   };
 
+  const DraftOuterWrapper = fullScreen !== true
+    ? styled.div`
+        height: 550px;
+      `
+    : styled.div`
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 85vh;
+      `;
+
+  const DraftInnerWrapper = fullScreen !== true
+    ? styled.div`
+        height: 550px;
+      `
+    : styled.div`
+        width: 1200px;
+        height: 100%;
+      `;
+
   return (
-    <div>
-      <DraftWrapper>
+    <DraftOuterWrapper>
+      <DraftInnerWrapper>
         <Popper
           id={id}
           open={popoverOpen}
@@ -128,19 +144,29 @@ const CustomEditor = ({ ...children }) => {
             overflow: 'hidden',
             height: '100%',
           }}
-          editorStyle={{
-            backgroundColor: '#fff',
-            border: '1px solid gray',
-            padding: '1rem',
-            overflow: 'auto',
-            height: '83%',
-          }}
+          editorStyle={
+            fullScreen !== true
+              ? {
+                backgroundColor: '#fff',
+                border: '1px solid gray',
+                padding: '1rem',
+                overflow: 'auto',
+                height: '84%',
+              }
+              : {
+                backgroundColor: '#fff',
+                border: '1px solid gray',
+                padding: '0.75rem',
+                overflow: 'auto',
+                height: '89%',
+              }
+          }
           toolbarStyle={{
             border: '1px solid gray',
           }}
         />
-      </DraftWrapper>
-    </div>
+      </DraftInnerWrapper>
+    </DraftOuterWrapper>
   );
 };
 
