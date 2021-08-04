@@ -65,7 +65,7 @@ def update_user_name(name):
 
         response_object = {
             "status": "success",
-            "message": "Successfully updated user's last name.",
+            "message": "Successfully updated user's first and last name.",
         }
         return response_object, 200
 
