@@ -9,7 +9,7 @@ from ..service.user_service import (
     save_new_user,
     get_all_users,
     get_a_user,
-    update_user_name,
+    update_user_details,
     delete_a_user,
     follow_a_user,
     get_all_following,
@@ -55,7 +55,7 @@ class UserList(Resource):
     def put(self):
         """Update a user name"""
         data = request.json
-        return update_user_name(data=data)
+        return update_user_details(data=data)
 
 
 @api.route("/<public_id>")

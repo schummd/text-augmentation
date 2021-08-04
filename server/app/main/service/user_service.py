@@ -49,7 +49,7 @@ def get_a_user(public_id):
     return User.query.filter_by(public_id=public_id).first()
 
 
-def update_user_name(data: Dict[str, str]):
+def update_user_details(data: Dict[str, str]):
     # Get user from provided auth token
     logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
     # get row to delete

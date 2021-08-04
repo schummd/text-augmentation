@@ -53,9 +53,6 @@ class TestUserModel(BaseTestCase):
     def test_valid_user_update_name(self):
         register_user(self, "daria")
         response_login = login_user(self, "daria")
-        # username = json.loads(response_login.data.decode())["username"]
-        # row = User.query.filter_by(username=username).first()
-        # new_name = "Dasha Schumm"
 
         response_update_name = self.client.put(
             "/user/",
