@@ -91,9 +91,11 @@ const Navigation = () => {
         setUsername(null);
       });
   };
-  
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const [usersname, setUsersname] = React.useState(storedUser.username);
+
   const btnProfile = () => {
-    const profileUrl = '/user/' + context.username
+    const profileUrl = "/user/" + usersname
     history.push(profileUrl);
   }
 
@@ -144,7 +146,7 @@ const Navigation = () => {
                     color="default"
                     className={classes.btnText}
                     onClick={() => {
-                      history.push('/user/'+ context.username[0]);
+                      history.push('/user/network');
                     }}
                   >
                     Social 

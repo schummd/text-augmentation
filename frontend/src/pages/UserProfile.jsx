@@ -64,7 +64,6 @@ const useStyles = makeStyles((theme) => ({
 
 const UserProfile = () => {
   const context = React.useContext(StoreContext);
-  console.log('');
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);

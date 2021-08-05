@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import MyReads from './pages/MyReads';
 import Article from './pages/Article';
+import UserNetwork from './pages/Network';
 import UserProfile from './pages/UserProfile';
 import {
   BrowserRouter as Router,
@@ -58,6 +59,9 @@ function App() {
               </Route>
               <Route exact path="/articles/:id">
                 <Article />
+              </Route>
+              <Route exact path="/user/network">
+                <UserNetwork />
               </Route>
               <Route exact path="/user/:username">
                 <UserProfile />

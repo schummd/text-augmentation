@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const UserProfile = () => {
+const UserNetwork = () => {
   const context = React.useContext(StoreContext);
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [token, setToken] = React.useState(storedUser.token);
@@ -114,34 +114,6 @@ const UserProfile = () => {
       setLoadingState('loading');
       console.log('Profile page', username, token);
 
-      // getting logged-in user information
-      try {
-        const payload = {
-          method: 'GET',
-          url: `/user/${username}`,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Authorization: ${token}`,
-          },
-        };
-        console.log('Payload', payload);
-        const res = await axios(payload);
-        const resData = res.data;
-        console.log('ResData', resData);
-        // if (resData.status === 'success') {
-        if (resData.username === username) {
-          toast.success(`Retrieved User information from server.`);
-        } else {
-          toast.warn(`${resData.message}`);
-        }
-
-        setFirstName(resData.first_name);
-        setLastName(resData.last_name);
-        setEmail(resData.email);
-        setLoadingState('done');
-      } catch (error) {
-        toast.error('Error retrieving User data from server.');
-      }
 
       // getting all users information
       try {
@@ -157,6 +129,7 @@ const UserProfile = () => {
         const ulist = await axios(payload);
         const userlist = ulist.data;
         console.log('User List', userlist.data);
+        setLoadingState('done');
         // if (resData.status === 'success') {
         if (userlist.data.length > 0) {
           toast.success(`Retrieved User information from server.`);
@@ -187,7 +160,7 @@ const UserProfile = () => {
   };
 
   // handling change in following status
-  const HandleCellClick = async (param, event) => {
+  const HandleRowClick = async (param, event) => {
 
     const networkUsername = param.row.username;
 
@@ -227,98 +200,18 @@ const UserProfile = () => {
         )}
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
-            <Box className={classes.titleDiv}>
-              <Box>
-                <Typography paragraph align="left" variant="h4">
-                  My Profile
-                  <Box className={classes.btnUiDiv}>
-                    <Button
-                      variant="outlined"
-                      // onClick={ () => handleEditProfile()}
-                    >
-                      Edit Profile
-                    </Button>
-                  </Box>
-                </Typography>
-              </Box>
-
-              <TableContainer>
-                <Table
-                  aria-label="profile-table"
-                  style={{ maxHeight: 'auto', wordWrap: 'break-word' }}
-                >
-                  <TableBody>
-                    <TableRow key={0}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        style={{ width: '175px' }}
-                      >
-                        {' '}
-                        <b>First Name</b>{' '}
-                      </TableCell>
-                      <TableCell align="left" style={{ maxWidth: '304px' }}>
-                        {firstName}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow key={1}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        style={{ width: '175px' }}
-                      >
-                        {' '}
-                        <b>Last Name</b>{' '}
-                      </TableCell>
-                      <TableCell align="left" style={{ maxWidth: '304px' }}>
-                        {lastName}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow key={2}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        style={{ width: '175px' }}
-                      >
-                        {' '}
-                        <b>Email</b>{' '}
-                      </TableCell>
-                      <TableCell align="left" style={{ maxWidth: '304px' }}>
-                        {email}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow key={3}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        style={{ width: '175px' }}
-                      >
-                        {' '}
-                        <b>Username</b>{' '}
-                      </TableCell>
-                      <TableCell align="left" style={{ maxWidth: '304px' }}>
-                        {username}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
-            <br />
-            <br />
-
-            <Box className={classes.titleDiv}>
+             <Box className={classes.titleDiv}>
               <Box>
                 <Typography paragraph align="left" variant="h4">
                   Users
-                  <Box className={classes.btnUiDiv}>
+                  {/* <Box className={classes.btnUiDiv}>
                     <Button
                       variant="outlined"
                       //  onClick={() => handleUserSearch()};
                     >
                       Search Users
-                    </Button>
-                  </Box>
+                    </Button> 
+                  </Box>*/}
                 </Typography>
               </Box>
               <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
@@ -329,7 +222,7 @@ const UserProfile = () => {
                       onPageChange={(params) => {
                         setPageNumber(params.pageNumber);
                       }}
-                      onCellClick={HandleCellClick}
+                      onRowClick={HandleRowClick}
                       // autoHeight
                       rows={rows}
                       columns={columns}
@@ -352,4 +245,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default UserNetwork;
