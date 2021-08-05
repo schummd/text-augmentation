@@ -13,11 +13,15 @@ import { toast } from 'react-toastify';
 import { getSummary, fetchDefinition } from '../utils/utils';
 
 const DraftOuterWrapper = styled.div`
-  height: 550px;
+display: flex;
+justify-content: center;
+width: 100%;
+height: 85vh;
 `;
 
 const DraftInnerWrapper = styled.div`
-  height: 550px;
+width: 1200px;
+height: 100%;
 `;
 
 const useStyles = makeStyles((theme) => ({
@@ -37,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   popper: { zIndex: 9999 },
 }));
 
-const CustomEditor = ({ ...children }) => {
+const CustomEditorFullScreen = ({ ...children }) => {
   const {
     analysisSummaryRef,
     analysisKeywordsRef,
@@ -45,7 +49,7 @@ const CustomEditor = ({ ...children }) => {
     defineRef,
     setUiBtn,
     token,
-    fullScreen,
+    darkMode,
   } = children;
 
   const context = React.useContext(StoreContext);
@@ -106,6 +110,7 @@ const CustomEditor = ({ ...children }) => {
       getBoundingClientRect,
     });
   }, [editorState]);
+
 
 
   return (
@@ -187,16 +192,35 @@ const CustomEditor = ({ ...children }) => {
               overflow: 'hidden',
               height: '100%',
             }}
-            editorStyle={{
-              backgroundColor: '#fff',
-              border: '1px solid gray',
-              padding: '1rem',
-              overflow: 'auto',
-              height: '84%',
-            }}
-            toolbarStyle={{
-              border: '1px solid gray',
-            }}
+            editorStyle={
+              darkMode !== true
+              ? {
+                  backgroundColor: '#fff',
+                  border: '1px solid gray',
+                  padding: '0.75rem',
+                  overflow: 'auto',
+                  height: '89%',
+                }
+              : {
+                  backgroundColor: 'gray',
+                  border: '1px solid gray',
+                  padding: '0.75rem',
+                  overflow: 'auto',
+                  height: '89%',
+                  color: 'white',
+                }
+            }
+            toolbarStyle={
+              darkMode !== true
+              ? {
+                  backgroundColor: '#fff',
+                  border: '1px solid gray',
+                }
+              : {
+                  backgroundColor: 'gray',
+                  border: '1px solid gray',
+                }
+            }
           />
         </DraftInnerWrapper>
       </DraftOuterWrapper>
@@ -204,4 +228,4 @@ const CustomEditor = ({ ...children }) => {
   );
 };
 
-export default CustomEditor;
+export default CustomEditorFullScreen;
