@@ -1,10 +1,6 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
-import {
-  convertToRaw,
-  convertFromRaw,
-  EditorState
-} from 'draft-js';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
 import {
   createTextObject,
   fetchDefinition,
@@ -15,12 +11,7 @@ import {
 import Navigation from '../components/Navigation';
 import PdfModal from '../components/PdfModal';
 import MyAccordian from '../components/MyAccordian';
-import {
-  Redirect,
-  useParams,
-  useHistory,
-  Link
-} from 'react-router-dom';
+import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
   makeStyles,
@@ -253,7 +244,7 @@ const a11yProps = (index) => {
     id: `analyse-tab-panel-${index}`,
     'aria-controls': `analyse-tab-panel-${index}`,
   };
-}
+};
 
 const FullScreenTransition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -297,11 +288,9 @@ const Article = () => {
   };
 
   const titleRef = React.useRef();
-  const notesRef = React.useRef();
-
-  // POPOVER
-
-  ////////
+  const analysisSummaryRef = React.useRef();
+  const analysisKeywordsRef = React.useRef();
+  const defineRef = React.useRef();
 
   const { id } = useParams();
   const history = useHistory();
@@ -353,7 +342,7 @@ const Article = () => {
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
-        notes: notesRef.current.value,
+        // notes: notesRef.current.value,
         uploadedPdfDataUrl: rawDataUrl,
       })
     );
@@ -399,18 +388,6 @@ const Article = () => {
     }
   };
 
-  const handleGetSumary = async () => {
-    const selectedText = document.getSelection().toString();
-    if (selectedText) {
-      const summary = await getSummary(selectedText, token);
-      console.log(summary);
-      notesRef.current.value = summary;
-    } else {
-      toast.warn('No text selected for analysis.');
-    }
-    setUiBtn('analyse');
-  };
-
   const handleTwitterQuery = () => {
     const formatedText = twitterQuery.replace(/ /g, '+');
     window.open(
@@ -419,12 +396,13 @@ const Article = () => {
     );
   };
 
-  const [analyseTabValue, setAnalyseTabValue] = React.useState(0)
+  const [analyseTabValue, setAnalyseTabValue] = React.useState(0);
   const handleAnalyseTabChange = (event, newValue) => {
+    console.log('NEW VALUE: ', newValue);
     setAnalyseTabValue(newValue);
   };
 
-  const [openFullScreen, setOpenFullScreen] = React.useState(false)
+  const [openFullScreen, setOpenFullScreen] = React.useState(false);
   const handleClickOpenFullScreen = () => {
     setOpenFullScreen(true);
   };
@@ -496,27 +474,34 @@ const Article = () => {
                   className={classes.uiInputText}
                   inputRef={titleRef}
                 />
-                {
-                  openFullScreen !== true &&
+                {openFullScreen !== true && (
                   <Box className={classes.uiInputText}>
-
                     {parseLoad === 'load' ? (
                       <Skeleton animation="wave" variant="rectangle">
                         <CustomEditor
-                          notesRef={notesRef}
+                          analysisSummaryRef={analysisSummaryRef}
+                          analysisKeywordsRef={analysisKeywordsRef}
+                          defineRef={defineRef}
+                          setUiBtn={setUiBtn}
+                          analyseTabValue={analyseTabValue}
+                          setAnalyseTabValue={setAnalyseTabValue}
                           token={token}
                           fullScreen={openFullScreen}
                         />
                       </Skeleton>
                     ) : (
                       <CustomEditor
-                        notesRef={notesRef}
+                        analysisSummaryRef={analysisSummaryRef}
+                        analysisKeywordsRef={analysisKeywordsRef}
+                        defineRef={defineRef}
+                        setUiBtn={setUiBtn}
+                        setAnalyseTabValue={setAnalyseTabValue}
                         token={token}
                         fullScreen={openFullScreen}
                       />
                     )}
                   </Box>
-                }
+                )}
                 <Box>
                   <Dialog
                     fullScreen
@@ -532,7 +517,6 @@ const Article = () => {
                       <Toolbar>
                         <Box className={classes.fullScreenCloseDiv}>
                           <Tooltip title="Exit Full Screen">
-                            
                             <Button
                               variant="contained"
                               onClick={handleClickCloseFullScreen}
@@ -544,27 +528,30 @@ const Article = () => {
                         </Box>
                       </Toolbar>
                     </AppBar>
-                    <DialogContent className={classes.fullScreenUiDialogContent}>
-                      {
-                        openFullScreen === true &&
+                    <DialogContent
+                      className={classes.fullScreenUiDialogContent}
+                    >
+                      {openFullScreen === true && (
                         <Box className={classes.fullScreenUiInputTextDiv}>
                           {parseLoad === 'load' ? (
                             <Skeleton animation="wave" variant="rectangle">
                               <CustomEditor
-                                notesRef={notesRef}
+                                analysisKeywordsRef={analysisKeywordsRef}
+                                analysisSummaryRef={analysisSummaryRef}
                                 token={token}
                                 fullScreen={openFullScreen}
                               />
                             </Skeleton>
                           ) : (
                             <CustomEditor
-                              notesRef={notesRef}
+                              analysisKeywordsRef={analysisKeywordsRef}
+                              analysisSummaryRef={analysisSummaryRef}
                               token={token}
                               fullScreen={openFullScreen}
                             />
                           )}
                         </Box>
-                      }
+                      )}
                     </DialogContent>
                   </Dialog>
                 </Box>
@@ -612,7 +599,8 @@ const Article = () => {
                                   : classes.btnUi
                               }
                               onMouseDown={async () => {
-                                await handleGetSumary();
+                                // await handleGetSumary();
+                                setUiBtn('analyse');
                               }}
                             >
                               Analyse
@@ -643,177 +631,141 @@ const Article = () => {
                 </Box>
                 {
                   // Read (default) tab
-                  uiBtn === 'define' &&
-                  <Box className={classes.uiDisplayDiv}>
-                    <Box
-                      className={classes.btnFullScreenReaderDiv}
-                    >
-                      <Tooltip title="Read in Full Screen">
-                        <Button
-                          variant="contained"
-                          color="default"
-                          className={classes.btnFullScreenReader}
-                          endIcon={<FullscreenIcon />}
-                          onClick={() => {
-                            handleClickOpenFullScreen();
-                          }}
-                        >
-                          Full Screen Mode
-                        </Button>
-                      </Tooltip>
+                  uiBtn === 'define' && (
+                    <Box className={classes.uiDisplayDiv}>
+                      <Box className={classes.btnFullScreenReaderDiv}>
+                        <Tooltip title="Read in Full Screen">
+                          <Button
+                            variant="contained"
+                            color="default"
+                            className={classes.btnFullScreenReader}
+                            endIcon={<FullscreenIcon />}
+                            onClick={() => {
+                              handleClickOpenFullScreen();
+                            }}
+                          >
+                            Full Screen Mode
+                          </Button>
+                        </Tooltip>
+                      </Box>
+
+                      <TextField
+                        inputRef={defineRef}
+                        placeholder="Definition"
+                        variant="outlined"
+                        multiline
+                        inputProps={{
+                          readOnly: true,
+                        }}
+                        fullWidth
+                        rows={5}
+                        className={classes.displayTextfield}
+                      />
+
+                      <TextField
+                        placeholder="Ask a question"
+                        variant="outlined"
+                        multiline
+                        fullWidth
+                        maxRows={1}
+                        value={twitterQuery}
+                        onKeyPress={(eventkey) => {
+                          if (eventkey.key === 'Enter') {
+                            eventkey.preventDefault();
+                            // handleDefineQuery();
+                          }
+                        }}
+                        onChange={(e) => {
+                          setTwitterQuery(e.target.value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <HelpOutlineIcon />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <Tooltip title="Ask on Twitter">
+                              <IconButton
+                                className={classes.twitterIconBtn}
+                                onClick={() => {
+                                  handleTwitterQuery();
+                                }}
+                              >
+                                <TwitterIcon />
+                              </IconButton>
+                            </Tooltip>
+                          ),
+                        }}
+                        className={classes.uiDisplayTextfield}
+                      />
                     </Box>
-                    <TextField
-                      placeholder="Define"
-                      variant="outlined"
-                      multiline
-                      fullWidth
-                      maxRows={1}
-                      value={defineQuery}
-                      onKeyPress={(eventkey) => {
-                        if (eventkey.key === 'Enter') {
-                          eventkey.preventDefault();
-                          handleDefineQuery();
-                        }
-                      }}
-                      onChange={(e) => {
-                        handleChangeDefineQuery(e);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <Tooltip title="Clear Query">
-                            <IconButton
-                              className={classes.backspaceIconBtn}
-                              onClick={() => {
-                                setDefineQuery('');
-                              }}
-                            >
-                              <BackspaceIcon />
-                            </IconButton>
-                          </Tooltip>
-                        ),
-                      }}
-                      className={classes.uiDisplayTextfield}
-                    />
-
-                    <TextField
-                      placeholder="Definition"
-                      variant="outlined"
-                      multiline
-                      inputProps={{
-                        readOnly: true,
-                      }}
-                      fullWidth
-                      rows={5}
-                      className={classes.displayTextfield}
-                      value={definitionVal}
-                    />
-
-                    <TextField
-                      placeholder="Ask a question"
-                      variant="outlined"
-                      multiline
-                      fullWidth
-                      maxRows={1}
-                      value={twitterQuery}
-                      onKeyPress={(eventkey) => {
-                        if (eventkey.key === 'Enter') {
-                          eventkey.preventDefault();
-                          // handleDefineQuery();
-                        }
-                      }}
-                      onChange={(e) => {
-                        setTwitterQuery(e.target.value);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <HelpOutlineIcon />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <Tooltip title="Ask on Twitter">
-                            <IconButton
-                              className={classes.twitterIconBtn}
-                              onClick={() => {
-                                handleTwitterQuery();
-                              }}
-                            >
-                              <TwitterIcon />
-                            </IconButton>
-                          </Tooltip>
-                        ),
-                      }}
-                      className={classes.uiDisplayTextfield}
-                    />
-                  </Box>
+                  )
                 }
                 {
                   // Analyse tab
-                  uiBtn === 'analyse' &&
-                  <Box className={classes.uiDisplayDiv}>
-                    <AppBar
-                      position="static"
-                      className={classes.analyseTabAppBar}
-                    >
-                      <Tabs
-                        value={analyseTabValue}
-                        onChange={handleAnalyseTabChange}
-                        variant="fullWidth"
-                        indicatorColor="primary"
+                  uiBtn === 'analyse' && (
+                    <Box className={classes.uiDisplayDiv}>
+                      <AppBar
+                        position="static"
+                        className={classes.analyseTabAppBar}
                       >
-                        <Tab label="Summary" {...a11yProps(0)} />
-                        <Tab label="Keywords" {...a11yProps(1)} />
-                      </Tabs>
-                    </AppBar>
-                    <div
-                      hidden={analyseTabValue !== 0}
-                      id={`analyse-tab-panel-0`}
-                      aria-labelledby={`analyse-tab-panel-0`}
-                    >
-                      <TextField
-                        placeholder="Text Analysis Summary"
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        rows={25}
-                        className={classes.uiDisplayTextfield}
-                        inputRef={notesRef}
-                        inputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                    </div>
-                    <div
-                      hidden={analyseTabValue !== 1}
-                      id={`analyse-tab-panel-1`}
-                      aria-labelledby={`analyse-tab-panel-1`}
-                    >
-                      <TextField
-                        placeholder="Text Analysis Keywords"
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        rows={25}
-                        className={classes.uiDisplayTextfield}
-                        inputRef={notesRef}
-                        inputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                    </div>                    
-                  </Box>
+                        <Tabs
+                          value={analyseTabValue}
+                          onChange={handleAnalyseTabChange}
+                          variant="fullWidth"
+                          indicatorColor="primary"
+                        >
+                          <Tab label="Summary" {...a11yProps(0)} />
+                          <Tab label="Keywords" {...a11yProps(1)} />
+                        </Tabs>
+                      </AppBar>
+                      <div
+                        hidden={analyseTabValue !== 0}
+                        id={`analyse-tab-panel-0`}
+                        aria-labelledby={`analyse-tab-panel-0`}
+                      >
+                        <TextField
+                          placeholder="Text Analysis Summary"
+                          variant="outlined"
+                          multiline
+                          fullWidth
+                          rows={25}
+                          className={classes.uiDisplayTextfield}
+                          inputRef={analysisSummaryRef}
+                          inputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </div>
+                      <div
+                        hidden={analyseTabValue !== 1}
+                        id={`analyse-tab-panel-1`}
+                        aria-labelledby={`analyse-tab-panel-1`}
+                      >
+                        <TextField
+                          placeholder="Text Analysis Keywords"
+                          variant="outlined"
+                          multiline
+                          fullWidth
+                          rows={25}
+                          className={classes.uiDisplayTextfield}
+                          inputRef={analysisKeywordsRef}
+                          inputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </div>
+                    </Box>
+                  )
                 }
                 {
                   // Web Info tab
-                  uiBtn === 'weblinks' &&
-                  <Box className={classes.uiDisplayDiv}>
-                    <MyAccordian></MyAccordian>
-                  </Box>
+                  uiBtn === 'weblinks' && (
+                    <Box className={classes.uiDisplayDiv}>
+                      <MyAccordian></MyAccordian>
+                    </Box>
+                  )
                 }
                 {/* end UI display section */}
               </Box>

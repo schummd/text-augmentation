@@ -7,15 +7,11 @@ import styled from 'styled-components';
 //POPPER
 import { makeStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
-import Typography from '@material-ui/core/Typography';
 import Fade from '@material-ui/core/Fade';
-import Paper from '@material-ui/core/Paper';
-import { Box, Button, IconButton, Tooltip } from '@material-ui/core';
+import { Box, Button } from '@material-ui/core';
 import { toast } from 'react-toastify';
-import DeleteIcon from '@material-ui/icons/Delete';
 
-import { getSummary } from '../utils/utils';
-import { ref } from 'yup';
+import { getSummary, fetchDefinition } from '../utils/utils';
 
 const useStyles = makeStyles((theme) => ({
   typography: {
@@ -31,31 +27,57 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(3),
     },
   },
+  popper: { zIndex: 9999 },
 }));
 
-const useFocus = () => {
-  const htmlElRef = React.useRef(null);
-  const setFocus = () => {
-    htmlElRef.current && htmlElRef.current.focus();
-  };
-
-  return [htmlElRef, setFocus];
-};
-
 const CustomEditor = ({ ...children }) => {
-  const { notesRef, token, fullScreen } = children;
+  const {
+    analysisSummaryRef,
+    analysisKeywordsRef,
+    setAnalyseTabValue,
+    defineRef,
+    setUiBtn,
+    token,
+    fullScreen,
+  } = children;
+
   const context = React.useContext(StoreContext);
+  const urlBase = context.urlBase;
 
   const [editorState, setEditorState] = context.editorState;
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const buttonRef = React.useRef(false);
 
   const handleEditorChange = (state) => {
     setEditorState(state);
   };
 
   const classes = useStyles();
+
+  const handleGetSumary = async () => {
+    const selectedText = window.getSelection().toString();
+    console.log('ST: ', selectedText);
+    if (selectedText) {
+      const summary = await getSummary(selectedText, token);
+      console.log(summary);
+      analysisSummaryRef.current.value = summary;
+      setPopoverOpen(false);
+    } else {
+      toast.warn('No text selected for analysis.');
+    }
+  };
+
+  const handleDefineQuery = async (defineQuery) => {
+    const selectedText = window.getSelection().toString();
+    if (selectedText) {
+      const definition = await fetchDefinition(urlBase, token, selectedText);
+      console.log(definition);
+      defineRef.current.value = definition;
+      setPopoverOpen(false);
+    } else {
+      toast.warn('No text selected for definition.');
+    }
+  };
 
   React.useEffect(() => {
     const selection = window.getSelection();
@@ -78,95 +100,131 @@ const CustomEditor = ({ ...children }) => {
     });
   }, [editorState]);
 
-  React.useLayoutEffect(() => {
-    console.log('BR', buttonRef);
-    if (buttonRef.current) {
-      console.log('FX');
-      buttonRef.current.focus();
-    }
-  }, [buttonRef]);
+  const DraftOuterWrapper =
+    fullScreen !== true
+      ? styled.div`
+          height: 550px;
+        `
+      : styled.div`
+          display: flex;
+          justify-content: center;
+          width: 100%;
+          height: 85vh;
+        `;
 
-  const id = popoverOpen ? 'faked-reference-popper' : undefined;
-
-  const handleGetSumary = async () => {
-    const selectedText = document.getSelection().toString();
-    if (selectedText) {
-      const summary = await getSummary(selectedText, token);
-      console.log(summary);
-      notesRef.current.value = summary;
-    } else {
-      toast.warn('No text selected for analysis.');
-    }
-  };
-
-  const DraftOuterWrapper = fullScreen !== true
-    ? styled.div`
-        height: 550px;
-      `
-    : styled.div`
-        display: flex;
-        justify-content: center;
-        width: 100%;
-        height: 85vh;
-      `;
-
-  const DraftInnerWrapper = fullScreen !== true
-    ? styled.div`
-        height: 550px;
-      `
-    : styled.div`
-        width: 1200px;
-        height: 100%;
-      `;
+  const DraftInnerWrapper =
+    fullScreen !== true
+      ? styled.div`
+          height: 550px;
+        `
+      : styled.div`
+          width: 1200px;
+          height: 100%;
+        `;
 
   return (
-    <DraftOuterWrapper>
-      <DraftInnerWrapper>
-        <Popper
-          id={id}
-          open={popoverOpen}
-          anchorEl={anchorEl}
-          transition
-          placement="bottom-start"
-        >
-          <div className="divWithButton" tabindex="-1" ref={buttonRef}>
-            <Button variant="contained" color="primary">
-              {id === 'new' ? 'Save New Read' : 'Analyse'}
-            </Button>
-          </div>
-        </Popper>
-        <Editor
-          editorState={editorState}
-          onEditorStateChange={handleEditorChange}
-          wrapperStyle={{
-            border: '1px solid gray',
-            padding: '1rem',
-            overflow: 'hidden',
-            height: '100%',
-          }}
-          editorStyle={
-            fullScreen !== true
-              ? {
-                backgroundColor: '#fff',
-                border: '1px solid gray',
-                padding: '1rem',
-                overflow: 'auto',
-                height: '84%',
-              }
-              : {
-                backgroundColor: '#fff',
-                border: '1px solid gray',
-                padding: '0.75rem',
-                overflow: 'auto',
-                height: '89%',
-              }
-          }
-          toolbarStyle={{
-            border: '1px solid gray',
-          }}
-        />
-      </DraftInnerWrapper>
-    </DraftOuterWrapper>
+    <div>
+      <Popper
+        className={classes.popper}
+        placement="bottom-start"
+        open={popoverOpen}
+        anchorEl={anchorEl}
+        transition
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={600}>
+            <div>
+              <Box className={classes.btnUiWrapper}>
+                <Button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setUiBtn('analyse');
+                    setAnalyseTabValue(0);
+                    handleGetSumary();
+                  }}
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                >
+                  {'SUMMARY'}
+                </Button>
+                <Button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setUiBtn('analyse');
+                    setAnalyseTabValue(1);
+                    // handleGetSumary();
+                  }}
+                  variant="contained"
+                  color="secondary"
+                  size="small"
+                >
+                  {'KEYWORDS'}
+                </Button>
+                <Button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setUiBtn('define');
+                    handleDefineQuery();
+                  }}
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                >
+                  {'DEFINE'}
+                </Button>
+
+                <Button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setUiBtn('weblinks');
+                  }}
+                  variant="contained"
+                  color="secondary"
+                  size="small"
+                >
+                  {'WEB INFO'}
+                </Button>
+              </Box>
+            </div>
+          </Fade>
+        )}
+      </Popper>
+      <DraftOuterWrapper>
+        <DraftInnerWrapper>
+          <Editor
+            editorState={editorState}
+            onEditorStateChange={handleEditorChange}
+            wrapperStyle={{
+              border: '1px solid gray',
+              padding: '1rem',
+              overflow: 'hidden',
+              height: '100%',
+            }}
+            editorStyle={
+              fullScreen !== true
+                ? {
+                    backgroundColor: '#fff',
+                    border: '1px solid gray',
+                    padding: '1rem',
+                    overflow: 'auto',
+                    height: '84%',
+                  }
+                : {
+                    backgroundColor: '#fff',
+                    border: '1px solid gray',
+                    padding: '0.75rem',
+                    overflow: 'auto',
+                    height: '89%',
+                  }
+            }
+            toolbarStyle={{
+              border: '1px solid gray',
+            }}
+          />
+        </DraftInnerWrapper>
+      </DraftOuterWrapper>
+    </div>
   );
 };
 
