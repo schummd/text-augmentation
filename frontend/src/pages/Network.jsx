@@ -28,7 +28,6 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContentText from '@material-ui/core/DialogContentText';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -63,12 +62,12 @@ const useStyles = makeStyles((theme) => ({
 
 const UserProfile = () => {
   const context = React.useContext(StoreContext);
-  console.log('');
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);
   // const username = context.username;
   // console.log("Context data", token, username)
+
 
   React.useEffect(() => {
     if (token === null) {
@@ -81,8 +80,33 @@ const UserProfile = () => {
   const [firstName, setFirstName] = React.useState('not provided');
   const [lastName, setLastName] = React.useState('not provided');
   const [email, setEmail] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+  const [rows, setRows] = React.useState([]);
+  const [gridPage, setGridPage] = React.useState(0);
+  const [pageSize, setPageSize] = React.useState(10);
+  const [pageNumber, setPageNumber] = React.useState(0);
+  const [requestToFollow, setRequestToFollow] = React.useState(false);
 
+  const handlePageSizeChange = (params) => {
+    setPageSize(params.pageSize);
+  };
+
+  const columns = [
+    { field: 'id', headerName: 'id', width: 150, hide: true },
+    { field: 'first_name', headerName: 'First Name', width: 150 },
+    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'username', headerName: 'Username', width: 150 },
+    {
+      field: 'following',
+      headerName: 'Following',
+      width: 150,
+      renderCell: (params) =>
+        params.value ? (
+          <CheckCircleIcon color="primary" />
+        ) : (
+          <CheckCircleOutlineIcon color="primary" />
+        ),
+    },
+  ];
 
   React.useEffect(() => {
     setPage('/user');
@@ -118,12 +142,40 @@ const UserProfile = () => {
       } catch (error) {
         toast.error('Error retrieving User data from server.');
       }
+
+      // getting all users information
+      try {
+        const payload = {
+          method: 'GET',
+          url: '/user/' + username + '/network',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Authorization: ${token}`,
+          },
+        };
+        console.log('Payload', payload);
+        const ulist = await axios(payload);
+        const userlist = ulist.data;
+        console.log('User List', userlist.data);
+        // if (resData.status === 'success') {
+        if (userlist.data.length > 0) {
+          toast.success(`Retrieved User information from server.`);
+          setRows(userlist.data);
+          console.log('User List', rows);
+          setRequestToFollow(false)
+        } else {
+          toast.warn(`${userlist.message}`);
+        }
+      } catch (error) {
+        toast.error('Error retrieving User data from server.');
+      }
     }
+
     setupHome();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [requestToFollow]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // TODO: add button actions to search for users and edit profile
-
+ 
   const [openEditProfile, setEditProfileOpen] = React.useState(false);
   const [openSearchUsers, setEditSearchUsers] = React.useState(false);
 
@@ -136,6 +188,7 @@ const UserProfile = () => {
 
   // handling change in following status
   const HandleCellClick = async (param, event) => {
+
     const networkUsername = param.row.username;
 
     // sending backend 'followers' status update
@@ -146,51 +199,20 @@ const UserProfile = () => {
         'Content-Type': 'application/json',
         Authorization: token,
       },
-      data: { user_to_follow: networkUsername },
+      data: { 'user_to_follow': networkUsername },
     };
     console.log('Payload', payload);
     const response = await axios(payload);
-    console.log('Response', response);
+    console.log("Response", response);
     if (response.status === 201) {
       toast.success(`Changed connection status.`);
-      console.log('Params', param);
+      setRequestToFollow(true);
+      console.log("Params", param)
+   
     } else {
       toast.error('Error retrieving response from server.');
     }
   };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
-  };
-
-  const handleSave = async () => {
-    setOpen(false)
-    const profilePayload = {
-      method: 'PUT',
-      url: '/user/',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      data: { email: email,
-              username: username,
-              first_name: firstName,
-              last_name: lastName,  
-      },
-    };
-    const response = await axios(profilePayload);
-    console.log('Response', response);
-    if (response.status === 200) {
-      toast.success(`Changed user profile.`);
-    } else {
-      toast.error('Error retrieving response from server.');
-    }
-  }
-
 
 
   const classes = useStyles();
@@ -207,45 +229,15 @@ const UserProfile = () => {
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
               <Box>
-                <br></br>
                 <Typography paragraph align="left" variant="h4">
                   My Profile
                   <Box className={classes.btnUiDiv}>
-                    <Button variant="outlined" onClick={handleClickOpen}>
+                    <Button
+                      variant="outlined"
+                      // onClick={ () => handleEditProfile()}
+                    >
                       Edit Profile
                     </Button>
-
-                    <Dialog open={open} onClose={handleSave}>
-                      <DialogTitle>Edit Profile</DialogTitle>
-                      <DialogContent>
-                        <TextField
-                          autoFocus
-                          margin="dense"
-                          id="name"
-                          label="First Name"
-                          type="name"
-                          fullWidth
-                          variant="standard"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                        />
-
-                        <TextField
-                          margin="dense"
-                          id="name"
-                          label="Last Name"
-                          type="name"
-                          fullWidth
-                          variant="standard"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                        />
-                      </DialogContent>
-                      <DialogActions>
-                        {/* <Button onClick={handleCancel}>Cancel</Button> */}
-                        <Button onClick={handleSave}>Save</Button>
-                      </DialogActions>
-                    </Dialog>
                   </Box>
                 </Typography>
               </Box>
@@ -312,6 +304,47 @@ const UserProfile = () => {
                 </Table>
               </TableContainer>
             </Box>
+            <br />
+            <br />
+
+            <Box className={classes.titleDiv}>
+              <Box>
+                <Typography paragraph align="left" variant="h4">
+                  Users
+                  <Box className={classes.btnUiDiv}>
+                    <Button
+                      variant="outlined"
+                      //  onClick={() => handleUserSearch()};
+                    >
+                      Search Users
+                    </Button>
+                  </Box>
+                </Typography>
+              </Box>
+              <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
+                <div style={{ display: 'flex', height: '100%' }}>
+                  <div style={{ flexGrow: 1 }}>
+                    <DataGrid
+                      page={pageNumber}
+                      onPageChange={(params) => {
+                        setPageNumber(params.pageNumber);
+                      }}
+                      onCellClick={HandleCellClick}
+                      // autoHeight
+                      rows={rows}
+                      columns={columns}
+                      pagination
+                      pageSize={pageSize}
+                      onPageSizeChange={handlePageSizeChange}
+                      rowsPerPageOptions={[5, 10, 20]}
+                      rowCount={rows.length}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Box>
+            <br />
+            <br />
           </Box>
         )}
       </Container>

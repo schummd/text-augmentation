@@ -31,6 +31,7 @@ __pycache__
 /frontend/env-config.js
 /frontend/.env
 *.env
+/frontend/node_modules
 
 # BACKEND
 
@@ -81,3 +82,4 @@ science-parse/EvalErrors.log
 science-parse/cdk/cdk.out/
 science-parse/cdk/node_modules
 science-parse/Dockerfile
+paper.pdf

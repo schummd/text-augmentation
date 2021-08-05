@@ -353,7 +353,7 @@ const Article = () => {
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
-        notes: notesRef.current.value,
+        // notes: notesRef.current.value,
         uploadedPdfDataUrl: rawDataUrl,
       })
     );
