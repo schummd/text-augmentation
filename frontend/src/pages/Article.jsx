@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { StoreContext } from '../utils/store';
-import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import { convertToRaw, convertFromRaw, EditorState, Modifier } from 'draft-js';
 import {
   createTextObject,
   fetchDefinition,
@@ -33,8 +33,6 @@ import {
   Toolbar,
   Slide,
 } from '@material-ui/core';
-import BackspaceIcon from '@material-ui/icons/Backspace';
-import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
 import Skeleton from '@material-ui/lab/Skeleton';
 import TwitterIcon from '@material-ui/icons/Twitter';
@@ -208,7 +206,7 @@ const useStyles = makeStyles((theme) => ({
   btnFullScreenReaderDiv: {
     display: 'flex',
     marginBottom: '0.5em',
-    justifyContent: 'center',
+    justifyContent: 'left',
     alignItems: 'center',
     // backgroundColor: '#D0D0D0',
     width: '100%',
@@ -266,7 +264,7 @@ const Article = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [uiBtn, setUiBtn] = React.useState('define');
+  const [uiBtn, setUiBtn] = React.useState('analyse');
 
   const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
@@ -274,18 +272,6 @@ const Article = () => {
 
   const [rawPdf, setRawPdf] = React.useState(null);
   const [rawDataUrl, setRawDataUrl] = React.useState(null);
-
-  const handleChangeDefineQuery = async (event) => {
-    await setDefineQuery(event.target.value);
-  };
-
-  const handleDefineQuery = () => {
-    if (defineQuery !== '') {
-      fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
-    } else {
-      setDefinitionVal('');
-    }
-  };
 
   const titleRef = React.useRef();
   const analysisSummaryRef = React.useRef();
@@ -410,6 +396,26 @@ const Article = () => {
     setOpenFullScreen(false);
   };
 
+  const FullscreenBtn = () => {
+    return (
+      <Box className={classes.btnFullScreenReaderDiv}>
+        <Tooltip title="Read in Full Screen">
+          <Button
+            variant="contained"
+            color="default"
+            className={classes.btnFullScreenReader}
+            endIcon={<FullscreenIcon />}
+            onClick={() => {
+              handleClickOpenFullScreen();
+            }}
+          >
+            Full Screen Mode
+          </Button>
+        </Tooltip>
+      </Box>
+    );
+  };
+
   const classes = useStyles();
 
   return (
@@ -487,6 +493,8 @@ const Article = () => {
                           setAnalyseTabValue={setAnalyseTabValue}
                           token={token}
                           fullScreen={openFullScreen}
+                          fullscreenBtn={FullscreenBtn()}
+                          toolbarCustomButtons={[<FullscreenBtn />]}
                         />
                       </Skeleton>
                     ) : (
@@ -498,6 +506,7 @@ const Article = () => {
                         setAnalyseTabValue={setAnalyseTabValue}
                         token={token}
                         fullScreen={openFullScreen}
+                        toolbarCustomButtons={[<FullscreenBtn />]}
                       />
                     )}
                   </Box>
@@ -572,24 +581,6 @@ const Article = () => {
                     <Grid item xs={11} align="center">
                       <Box className={classes.btnUiWrapper}>
                         <Box className={classes.btnUiDiv}>
-                          <Tooltip title="Read">
-                            <Button
-                              variant="outlined"
-                              className={
-                                uiBtn === 'define'
-                                  ? classes.btnUiClicked
-                                  : classes.btnUi
-                              }
-                              onClick={() => {
-                                console.log('Clicked Read');
-                                setUiBtn('define');
-                              }}
-                            >
-                              Read
-                            </Button>
-                          </Tooltip>
-                        </Box>
-                        <Box className={classes.btnUiDiv}>
                           <Tooltip title="Analyse">
                             <Button
                               variant="outlined"
@@ -629,79 +620,6 @@ const Article = () => {
                     </Grid>
                   </Grid>
                 </Box>
-                {
-                  // Read (default) tab
-                  uiBtn === 'define' && (
-                    <Box className={classes.uiDisplayDiv}>
-                      <Box className={classes.btnFullScreenReaderDiv}>
-                        <Tooltip title="Read in Full Screen">
-                          <Button
-                            variant="contained"
-                            color="default"
-                            className={classes.btnFullScreenReader}
-                            endIcon={<FullscreenIcon />}
-                            onClick={() => {
-                              handleClickOpenFullScreen();
-                            }}
-                          >
-                            Full Screen Mode
-                          </Button>
-                        </Tooltip>
-                      </Box>
-
-                      <TextField
-                        inputRef={defineRef}
-                        placeholder="Definition"
-                        variant="outlined"
-                        multiline
-                        inputProps={{
-                          readOnly: true,
-                        }}
-                        fullWidth
-                        rows={5}
-                        className={classes.displayTextfield}
-                      />
-
-                      <TextField
-                        placeholder="Ask a question"
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        maxRows={1}
-                        value={twitterQuery}
-                        onKeyPress={(eventkey) => {
-                          if (eventkey.key === 'Enter') {
-                            eventkey.preventDefault();
-                            // handleDefineQuery();
-                          }
-                        }}
-                        onChange={(e) => {
-                          setTwitterQuery(e.target.value);
-                        }}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <HelpOutlineIcon />
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <Tooltip title="Ask on Twitter">
-                              <IconButton
-                                className={classes.twitterIconBtn}
-                                onClick={() => {
-                                  handleTwitterQuery();
-                                }}
-                              >
-                                <TwitterIcon />
-                              </IconButton>
-                            </Tooltip>
-                          ),
-                        }}
-                        className={classes.uiDisplayTextfield}
-                      />
-                    </Box>
-                  )
-                }
                 {
                   // Analyse tab
                   uiBtn === 'analyse' && (
@@ -763,6 +681,43 @@ const Article = () => {
                   // Web Info tab
                   uiBtn === 'weblinks' && (
                     <Box className={classes.uiDisplayDiv}>
+                      <TextField
+                        placeholder="Ask a question"
+                        variant="outlined"
+                        multiline
+                        fullWidth
+                        maxRows={1}
+                        value={twitterQuery}
+                        onKeyPress={(eventkey) => {
+                          if (eventkey.key === 'Enter') {
+                            eventkey.preventDefault();
+                            // handleDefineQuery();
+                          }
+                        }}
+                        onChange={(e) => {
+                          setTwitterQuery(e.target.value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <HelpOutlineIcon />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <Tooltip title="Ask on Twitter">
+                              <IconButton
+                                className={classes.twitterIconBtn}
+                                onClick={() => {
+                                  handleTwitterQuery();
+                                }}
+                              >
+                                <TwitterIcon />
+                              </IconButton>
+                            </Tooltip>
+                          ),
+                        }}
+                        className={classes.uiDisplayTextfield}
+                      />
                       <MyAccordian></MyAccordian>
                     </Box>
                   )

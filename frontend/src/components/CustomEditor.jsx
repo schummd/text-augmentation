@@ -8,14 +8,16 @@ import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
-import { Box, Button } from '@material-ui/core';
+import { Box, Button, Paper, Typography } from '@material-ui/core';
 import { toast } from 'react-toastify';
 
-import { getSummary, fetchDefinition } from '../utils/utils';
+import { getSummary, fetchDefinition, getKeywords } from '../utils/utils';
 
 const useStyles = makeStyles((theme) => ({
   typography: {
     padding: theme.spacing(2),
+    backgroundColor: '#5461AA',
+    color: '#fff',
   },
   paper: {
     opacity: 1,
@@ -39,6 +41,7 @@ const CustomEditor = ({ ...children }) => {
     setUiBtn,
     token,
     fullScreen,
+    toolbarCustomButtons,
   } = children;
 
   const context = React.useContext(StoreContext);
@@ -47,6 +50,8 @@ const CustomEditor = ({ ...children }) => {
   const [editorState, setEditorState] = context.editorState;
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [defineOpen, setDefineOpen] = React.useState(false);
+  const [definition, setDefinition] = React.useState('');
 
   const handleEditorChange = (state) => {
     setEditorState(state);
@@ -67,13 +72,31 @@ const CustomEditor = ({ ...children }) => {
     }
   };
 
+  const handleGetKeywords = async (text) => {
+    const selectedText = window.getSelection().toString();
+    console.log('ST: ', selectedText);
+    if (selectedText) {
+      const keywords = await getKeywords(selectedText, token);
+      console.log(keywords);
+      analysisKeywordsRef.current.value = keywords;
+      setPopoverOpen(false);
+    } else {
+      toast.warn('No text selected for analysis.');
+    }
+  };
+
   const handleDefineQuery = async (defineQuery) => {
     const selectedText = window.getSelection().toString();
     if (selectedText) {
-      const definition = await fetchDefinition(urlBase, token, selectedText);
+      const definitionResponse = await fetchDefinition(
+        urlBase,
+        token,
+        selectedText
+      );
       console.log(definition);
-      defineRef.current.value = definition;
+      setDefinition(definitionResponse);
       setPopoverOpen(false);
+      setDefineOpen(true);
     } else {
       toast.warn('No text selected for definition.');
     }
@@ -126,6 +149,26 @@ const CustomEditor = ({ ...children }) => {
     <div>
       <Popper
         className={classes.popper}
+        placement="bottom-right"
+        open={defineOpen}
+        anchorEl={anchorEl}
+        transition
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={600}>
+            <Paper>
+              <Typography
+                onMouseLeave={() => setDefineOpen(false)}
+                className={classes.typography}
+              >
+                {definition}
+              </Typography>
+            </Paper>
+          </Fade>
+        )}
+      </Popper>
+      <Popper
+        className={classes.popper}
         placement="bottom-start"
         open={popoverOpen}
         anchorEl={anchorEl}
@@ -153,7 +196,7 @@ const CustomEditor = ({ ...children }) => {
                     e.preventDefault();
                     setUiBtn('analyse');
                     setAnalyseTabValue(1);
-                    // handleGetSumary();
+                    handleGetKeywords();
                   }}
                   variant="contained"
                   color="secondary"
@@ -164,7 +207,6 @@ const CustomEditor = ({ ...children }) => {
                 <Button
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    setUiBtn('define');
                     handleDefineQuery();
                   }}
                   variant="contained"
@@ -193,6 +235,7 @@ const CustomEditor = ({ ...children }) => {
       <DraftOuterWrapper>
         <DraftInnerWrapper>
           <Editor
+            toolbarCustomButtons={toolbarCustomButtons}
             editorState={editorState}
             onEditorStateChange={handleEditorChange}
             wrapperStyle={{
