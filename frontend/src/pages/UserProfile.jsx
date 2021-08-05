@@ -33,26 +33,27 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 const useStyles = makeStyles((theme) => ({
   container: {
     textAlign: 'center',
-    display: 'flex',
+    display: 'inline-block',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     color: 'gray',
     minHeight: '100vh',
-    width: '100%',
+    width: '50%',
     backgroundColor: '#F0F0F0',
   },
   containerDiv: {
-    display: 'flex',
+    display: 'inline-block',
     flexDirection: 'column',
     alignSelf: 'flex-start',
     width: '100%',
   },
   titleDiv: {
-    display: 'flex',
+    display: 'inline-block',
     flexDirection: 'column',
     width: '100%',
     margin: theme.spacing(2),
+    float: 'left',
   },
   btnUiDiv: {
     display: 'inline',
@@ -82,7 +83,6 @@ const UserProfile = () => {
   const [lastName, setLastName] = React.useState('not provided');
   const [email, setEmail] = React.useState('');
   const [open, setOpen] = React.useState(false);
-
 
   React.useEffect(() => {
     setPage('/user');
@@ -168,7 +168,7 @@ const UserProfile = () => {
   };
 
   const handleSave = async () => {
-    setOpen(false)
+    setOpen(false);
     const profilePayload = {
       method: 'PUT',
       url: '/user/',
@@ -176,10 +176,11 @@ const UserProfile = () => {
         'Content-Type': 'application/json',
         Authorization: token,
       },
-      data: { email: email,
-              username: username,
-              first_name: firstName,
-              last_name: lastName,  
+      data: {
+        email: email,
+        username: username,
+        first_name: firstName,
+        last_name: lastName,
       },
     };
     const response = await axios(profilePayload);
@@ -189,9 +190,7 @@ const UserProfile = () => {
     } else {
       toast.error('Error retrieving response from server.');
     }
-  }
-
-
+  };
 
   const classes = useStyles();
   return (
