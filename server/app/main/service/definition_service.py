@@ -1,5 +1,3 @@
-from app.main import db
-from typing import Dict, Tuple
 import json
 import requests
 import os

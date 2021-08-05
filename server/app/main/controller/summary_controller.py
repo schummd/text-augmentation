@@ -1,14 +1,7 @@
-import flask
-from flask_restx import Resource
 import logging
 from flask import request
 from flask_restx import Resource
-import os
-from dotenv import load_dotenv, find_dotenv
-from ..util.decorator import admin_token_required
-from ..util.dto import Keywords, Summary, UserDto, TextDto
-from ..service.user_service import save_new_user, get_all_users, get_a_user
-from typing import Dict, Tuple
+from ..util.dto import SummaryDto, UserDto
 from app.main.util.decorator import token_required
 from app.main.service.summary_service import summarize
 
@@ -16,9 +9,9 @@ from app.main.service.summary_service import summarize
 logging.basicConfig(level=logging.DEBUG)
 
 
-api = Summary.api
+api = SummaryDto.api
 _user = UserDto.user
-_summary_text = Summary.summary_text
+_summary_text = SummaryDto.summary_text
 
 
 @api.response(200, "OK")

@@ -1,15 +1,4 @@
-import uuid
-import datetime
-
-from flask.globals import request
-from flask import abort
-
-from app.main import db
-from app.main.model.text import Text
-from app.main.model.user import User
-from app.main.model.follower import Follower
-from app.main.service.auth_helper import Auth
-import flask
+import os
 from flask_restx import Resource
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
@@ -18,10 +7,7 @@ from ibm_watson.natural_language_understanding_v1 import (
     ConceptsOptions,
     KeywordsOptions,
 )
-import logging
-from flask import request
 from flask_restx import Resource
-import os
 from dotenv import load_dotenv, find_dotenv
 from typing import Dict
 

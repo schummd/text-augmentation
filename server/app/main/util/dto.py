@@ -24,6 +24,7 @@ class UserDto:
             ),
         },
     )
+
     netuser = api.model(
         "netuser",
         {
@@ -38,6 +39,19 @@ class UserDto:
         },
     )
   
+
+    update = api.model(
+        "update",
+        {
+            "email": fields.String(required=False, description="update email address"),
+            "username": fields.String(required=False, description="update username"),
+            "first_name": fields.String(
+                required=False, description="update first name"
+            ),
+            "last_name": fields.String(required=False, description="update last name"),
+        },
+    )
+
 
 class AuthDto:
     api = Namespace("auth", description="authentication related operations")
@@ -61,7 +75,7 @@ class TextDto:
     )
 
 
-class Keywords:
+class KeywordsDto:
     api = Namespace("keywords", description="finding keywords using IBM API")
     keywords_text = api.model(
         "keywords",
@@ -69,7 +83,7 @@ class Keywords:
     )
 
 
-class Summary:
+class SummaryDto:
     api = Namespace("summary", description="summarising text using Meaning Cloud")
     summary_text = api.model(
         "summary",
@@ -77,7 +91,7 @@ class Summary:
     )
 
 
-class Definition:
+class DefinitionDto:
     api = Namespace("definition", description="definition related operations")
     definition = api.model(
         "definition",
@@ -98,7 +112,7 @@ class ParseDto:
     )
 
 
-class Wiki:
+class WikiDto:
     api = Namespace("wikipedia", description="summary related operations")
     synonym = api.model(
         "wiki_summary",

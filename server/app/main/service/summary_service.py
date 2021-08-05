@@ -1,29 +1,13 @@
-from flask.globals import request
-from flask import abort
-from app.main import db
-from app.main.model.text import Text
-from app.main.model.user import User
-from app.main.model.follower import Follower
-from app.main.service.auth_helper import Auth
+import os
+import requests
+from flask import request
 import flask
 from flask_restx import Resource
-import logging
-from flask import request
-from flask_restx import Resource
-import os
 from dotenv import load_dotenv, find_dotenv
 from typing import Dict
-import logging
-
-
-import requests
-from requests.structures import CaseInsensitiveDict
 
 
 def summarize(data: Dict[str, str]):
-    # print(Auth.get_logged_in_user(request)[0])
-    # logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    # text_title=data["text_title"],
     text_body = data["text_body"]
 
     load_dotenv(find_dotenv("server.env"))
