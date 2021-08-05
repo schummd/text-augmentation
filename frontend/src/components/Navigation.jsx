@@ -92,6 +92,12 @@ const Navigation = () => {
       });
   };
   
+  const btnProfile = () => {
+    const profileUrl = '/user/' + context.username
+    history.push(profileUrl);
+  }
+
+
   return (
     <ThemeProvider theme={theme}>
       <Box className={classes.box}>
@@ -176,6 +182,19 @@ const Navigation = () => {
             </Grid>
 
             <Grid container item xs={4} align="flex-end" justify="flex-end">
+            <Tooltip title="Profile">
+                <Button
+                  id="profile-button"
+                  variant="contained"
+                  color="default"
+                  className={classes.btnText}
+                  onClick={() => {
+                    btnProfile();
+                  }}
+                >
+                  My Profile
+                </Button>
+              </Tooltip>             
               <Tooltip title="Logout">
                 <Button
                   id="logout-button"
