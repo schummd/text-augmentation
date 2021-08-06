@@ -78,7 +78,7 @@ const MyReads = () => {
         }
         const { data } = resData;
         setMyReads(data);
-        console.log(data);
+        console.log("Retrieved from backend", data);
         setLoadingState('done');
       } catch (error) {
         toast.error('Error retrieving Reads from server.');
