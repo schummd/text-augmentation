@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReadMoreLogo from '../assets/readmore-logo.png';
 import { StoreContext } from '../utils/store';
 import { convertToRaw, convertFromRaw, EditorState, Modifier } from 'draft-js';
 import {
@@ -32,8 +33,11 @@ import {
   DialogContent,
   Toolbar,
   Slide,
+  FormControlLabel,
+  Switch,
 } from '@material-ui/core';
 import CustomEditor from '../components/CustomEditor';
+import CustomEditorFullScreen from '../components/CustomEditorFullScreen';
 import Skeleton from '@material-ui/lab/Skeleton';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
@@ -217,14 +221,21 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     height: '34px',
   },
-  fullScreenDialogTopDiv: {
+  fullScreenDialog: {
+    backgroundColor: '#F0F0F0',
+  },
+  fullScreenDialogTopDivLight: {
     color: 'black',
     backgroundColor: '#D0D0D0',
+  },
+  fullScreenDialogTopDivDark: {
+    color: 'black',
+    backgroundColor: '#383F4E',
   },
   fullScreenCloseDiv: {
     display: 'flex',
     width: '100%',
-    justifyContent: 'flex-end',
+    // justifyContent: 'flex-end',
     alignItems: 'center',
   },
   fullScreenUiInputTextDiv: {
@@ -232,8 +243,27 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     margin: theme.spacing(1),
   },
-  fullScreenUiDialogContent: {
+  fullScreenUiDialogContentLight: {
     overflow: 'hidden',
+    backgroundColor: '#F0F0F0',
+  },
+  fullScreenUiDialogContentDark: {
+    overflow: 'hidden',
+    backgroundColor: '#282c34',
+  },
+  readMoreLogo: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'flex-start',
+    paddingLeft: '24px',
+  },
+  img: {
+    maxWidth: '64px',
+  },
+  lightModeLabel: {},
+  darkModeLabel: {
+    color: 'white',
   },
 }));
 
@@ -395,7 +425,7 @@ const Article = () => {
   const handleClickCloseFullScreen = () => {
     setOpenFullScreen(false);
   };
-
+  const [darkMode, setDarkMode] = React.useState(false);
   const FullscreenBtn = () => {
     return (
       <Box className={classes.btnFullScreenReaderDiv}>
@@ -518,47 +548,108 @@ const Article = () => {
                     onClose={handleClickCloseFullScreen}
                     TransitionComponent={FullScreenTransition}
                     keepMounted
+                    className={classes.fullScreenDialog}
                   >
                     <AppBar
                       position="relative"
-                      className={classes.fullScreenDialogTopDiv}
+                      className={
+                        darkMode !== true
+                          ? classes.fullScreenDialogTopDivLight
+                          : classes.fullScreenDialogTopDivDark
+                      }
                     >
                       <Toolbar>
                         <Box className={classes.fullScreenCloseDiv}>
-                          <Tooltip title="Exit Full Screen">
-                            <Button
-                              variant="contained"
-                              onClick={handleClickCloseFullScreen}
-                              endIcon={<FullscreenExitIcon />}
+                          <Grid
+                            container
+                            spacing={0}
+                            alignItems="center"
+                            justify="center"
+                            align="center"
+                          >
+                            <Grid
+                              container
+                              item
+                              xs={4}
+                              align="flex-start"
+                              justify="flex-start"
                             >
-                              Exit
-                            </Button>
-                          </Tooltip>
+                              <Box className={classes.readMoreLogo}>
+                                <Tooltip title="ReadMore">
+                                  <img
+                                    className={classes.img}
+                                    src={ReadMoreLogo}
+                                    alt="ReadMore logo"
+                                  />
+                                </Tooltip>
+                              </Box>
+                            </Grid>
+
+                            <Grid item xs={4} align="center">
+                              <Tooltip title="Dark Theme">
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={darkMode}
+                                      onChange={() => {
+                                        setDarkMode(!darkMode);
+                                      }}
+                                      name="dark mode"
+                                      color="primary"
+                                    />
+                                  }
+                                  label={
+                                    <Typography
+                                      className={
+                                        darkMode !== true
+                                          ? classes.lightModeLabel
+                                          : classes.darkModeLabel
+                                      }
+                                    >
+                                      Dark Mode
+                                    </Typography>
+                                  }
+                                  labelPlacement="start"
+                                />
+                              </Tooltip>
+                            </Grid>
+
+                            <Grid
+                              container
+                              item
+                              xs={4}
+                              align="flex-end"
+                              justify="flex-end"
+                            >
+                              <Tooltip title="Exit Full Screen">
+                                <Button
+                                  variant="contained"
+                                  onClick={handleClickCloseFullScreen}
+                                  endIcon={<FullscreenExitIcon />}
+                                >
+                                  Exit
+                                </Button>
+                              </Tooltip>
+                            </Grid>
+                          </Grid>
                         </Box>
                       </Toolbar>
                     </AppBar>
                     <DialogContent
-                      className={classes.fullScreenUiDialogContent}
+                      className={
+                        darkMode !== true
+                          ? classes.fullScreenUiDialogContentLight
+                          : classes.fullScreenUiDialogContentDark
+                      }
                     >
                       {openFullScreen === true && (
                         <Box className={classes.fullScreenUiInputTextDiv}>
-                          {parseLoad === 'load' ? (
-                            <Skeleton animation="wave" variant="rectangle">
-                              <CustomEditor
-                                analysisKeywordsRef={analysisKeywordsRef}
-                                analysisSummaryRef={analysisSummaryRef}
-                                token={token}
-                                fullScreen={openFullScreen}
-                              />
-                            </Skeleton>
-                          ) : (
-                            <CustomEditor
-                              analysisKeywordsRef={analysisKeywordsRef}
-                              analysisSummaryRef={analysisSummaryRef}
-                              token={token}
-                              fullScreen={openFullScreen}
-                            />
-                          )}
+                          <CustomEditorFullScreen
+                            analysisKeywordsRef={analysisKeywordsRef}
+                            analysisSummaryRef={analysisSummaryRef}
+                            token={token}
+                            darkMode={darkMode}
+                          />
                         </Box>
                       )}
                     </DialogContent>

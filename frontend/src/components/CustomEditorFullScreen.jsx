@@ -8,24 +8,25 @@ import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
-import { Box, Button, Paper, Typography } from '@material-ui/core';
+import { Box, Button } from '@material-ui/core';
 import { toast } from 'react-toastify';
-
-import { getSummary, fetchDefinition, getKeywords } from '../utils/utils';
+import { getSummary, fetchDefinition } from '../utils/utils';
 
 const DraftOuterWrapper = styled.div`
-  height: 550px;
+display: flex;
+justify-content: center;
+width: 100%;
+height: 85vh;
 `;
 
 const DraftInnerWrapper = styled.div`
-  height: 550px;
+width: 1200px;
+height: 100%;
 `;
 
 const useStyles = makeStyles((theme) => ({
   typography: {
     padding: theme.spacing(2),
-    backgroundColor: '#5461AA',
-    color: '#fff',
   },
   paper: {
     opacity: 1,
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   popper: { zIndex: 9999 },
 }));
 
-const CustomEditor = ({ ...children }) => {
+const CustomEditorFullScreen = ({ ...children }) => {
   const {
     analysisSummaryRef,
     analysisKeywordsRef,
@@ -48,8 +49,7 @@ const CustomEditor = ({ ...children }) => {
     defineRef,
     setUiBtn,
     token,
-    fullScreen,
-    toolbarCustomButtons,
+    darkMode,
   } = children;
 
   const context = React.useContext(StoreContext);
@@ -58,8 +58,6 @@ const CustomEditor = ({ ...children }) => {
   const [editorState, setEditorState] = context.editorState;
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [defineOpen, setDefineOpen] = React.useState(false);
-  const [definition, setDefinition] = React.useState('');
 
   const handleEditorChange = (state) => {
     setEditorState(state);
@@ -80,31 +78,13 @@ const CustomEditor = ({ ...children }) => {
     }
   };
 
-  const handleGetKeywords = async (text) => {
-    const selectedText = window.getSelection().toString();
-    console.log('ST: ', selectedText);
-    if (selectedText) {
-      const keywords = await getKeywords(selectedText, token);
-      console.log(keywords);
-      analysisKeywordsRef.current.value = keywords;
-      setPopoverOpen(false);
-    } else {
-      toast.warn('No text selected for analysis.');
-    }
-  };
-
   const handleDefineQuery = async (defineQuery) => {
     const selectedText = window.getSelection().toString();
     if (selectedText) {
-      const definitionResponse = await fetchDefinition(
-        urlBase,
-        token,
-        selectedText
-      );
+      const definition = await fetchDefinition(urlBase, token, selectedText);
       console.log(definition);
-      setDefinition(definitionResponse);
+      defineRef.current.value = definition;
       setPopoverOpen(false);
-      setDefineOpen(true);
     } else {
       toast.warn('No text selected for definition.');
     }
@@ -131,28 +111,10 @@ const CustomEditor = ({ ...children }) => {
     });
   }, [editorState]);
 
+
+
   return (
     <div>
-      <Popper
-        className={classes.popper}
-        placement="bottom-right"
-        open={defineOpen}
-        anchorEl={anchorEl}
-        transition
-      >
-        {({ TransitionProps }) => (
-          <Fade {...TransitionProps} timeout={600}>
-            <Paper>
-              <Typography
-                onMouseLeave={() => setDefineOpen(false)}
-                className={classes.typography}
-              >
-                {definition}
-              </Typography>
-            </Paper>
-          </Fade>
-        )}
-      </Popper>
       <Popper
         className={classes.popper}
         placement="bottom-start"
@@ -182,7 +144,7 @@ const CustomEditor = ({ ...children }) => {
                     e.preventDefault();
                     setUiBtn('analyse');
                     setAnalyseTabValue(1);
-                    handleGetKeywords();
+                    // handleGetSumary();
                   }}
                   variant="contained"
                   color="secondary"
@@ -193,6 +155,7 @@ const CustomEditor = ({ ...children }) => {
                 <Button
                   onMouseDown={(e) => {
                     e.preventDefault();
+                    setUiBtn('define');
                     handleDefineQuery();
                   }}
                   variant="contained"
@@ -221,7 +184,6 @@ const CustomEditor = ({ ...children }) => {
       <DraftOuterWrapper>
         <DraftInnerWrapper>
           <Editor
-            toolbarCustomButtons={toolbarCustomButtons}
             editorState={editorState}
             onEditorStateChange={handleEditorChange}
             wrapperStyle={{
@@ -230,16 +192,35 @@ const CustomEditor = ({ ...children }) => {
               overflow: 'hidden',
               height: '100%',
             }}
-            editorStyle={{
-              backgroundColor: '#fff',
-              border: '1px solid gray',
-              padding: '1rem',
-              overflow: 'auto',
-              height: '84%',
-            }}
-            toolbarStyle={{
-              border: '1px solid gray',
-            }}
+            editorStyle={
+              darkMode !== true
+              ? {
+                  backgroundColor: '#fff',
+                  border: '1px solid gray',
+                  padding: '0.75rem',
+                  overflow: 'auto',
+                  height: '89%',
+                }
+              : {
+                  backgroundColor: 'gray',
+                  border: '1px solid gray',
+                  padding: '0.75rem',
+                  overflow: 'auto',
+                  height: '89%',
+                  color: 'white',
+                }
+            }
+            toolbarStyle={
+              darkMode !== true
+              ? {
+                  backgroundColor: '#fff',
+                  border: '1px solid gray',
+                }
+              : {
+                  backgroundColor: 'gray',
+                  border: '1px solid gray',
+                }
+            }
           />
         </DraftInnerWrapper>
       </DraftOuterWrapper>
@@ -247,4 +228,4 @@ const CustomEditor = ({ ...children }) => {
   );
 };
 
-export default CustomEditor;
+export default CustomEditorFullScreen;
