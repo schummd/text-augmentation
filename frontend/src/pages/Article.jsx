@@ -341,7 +341,7 @@ const Article = () => {
   }, []);
 
   React.useEffect(() => {
-    const [thisRead] = myReads.filter((myRead) => myRead.text_id === id);
+    const [thisRead] = myReads?.filter((myRead) => myRead.text_id === id);
     if (thisRead && id !== 'new') {
       setSingularRead(thisRead);
       const rawEditorState = convertFromRaw(

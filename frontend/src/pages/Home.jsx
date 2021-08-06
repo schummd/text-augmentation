@@ -93,7 +93,7 @@ const Home = () => {
       toast.error('Error retrieving Reads from server.');
     }
     console.log('View Text', text_id);
-    // history.push(`/articles/${text_id}`);
+    history.push(`/articles/${text_id}`);
   };
 
   const [data, setData] = React.useState([]);
