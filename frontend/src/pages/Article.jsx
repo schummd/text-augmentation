@@ -438,25 +438,6 @@ const Article = () => {
     setOpenFullScreen(false);
   };
   const [darkMode, setDarkMode] = React.useState(false);
-  const FullscreenBtn = () => {
-    return (
-      <Box className={classes.btnFullScreenReaderDiv}>
-        <Tooltip title="Read in Full Screen">
-          <Button
-            variant="contained"
-            color="default"
-            className={classes.btnFullScreenReader}
-            endIcon={<FullscreenIcon />}
-            onClick={() => {
-              handleClickOpenFullScreen();
-            }}
-          >
-            Full Screen Mode
-          </Button>
-        </Tooltip>
-      </Box>
-    );
-  };
 
   const classes = useStyles();
 
