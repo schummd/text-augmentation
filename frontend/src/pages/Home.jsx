@@ -15,6 +15,7 @@ import ReactDOM from 'react-dom';
 import { toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
+import {Button}  from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -145,7 +146,17 @@ const Home = () => {
         {dataIn.followee_first_name} {dataIn.followee_last_name}
         <ul>
           {dataIn.text_titles.map((text_titles) => (
-            <li key={text_titles.text_title}>{text_titles.text_title}</li>
+            <li key={text_titles.text_title}>{text_titles.text_title}
+            
+            <Box sx={{ '& button': { m: 1 } }}>
+                      
+                      <Button  size="small" onClick={() => viewText(text_titles.text_id)}>
+                      View Article
+                     </Button>
+                   </Box>
+            
+            </li>
+            
           ))}
         </ul>
         <br></br>
