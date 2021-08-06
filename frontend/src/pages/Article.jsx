@@ -1,18 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReadMoreLogo from '../assets/readmore-logo.png';
 import { StoreContext } from '../utils/store';
-import { convertToRaw, convertFromRaw, EditorState, Modifier } from 'draft-js';
-import {
-  createTextObject,
-  fetchDefinition,
-  getSummary,
-  getArticles,
-  dataUrlToFile,
-} from '../utils/utils';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import { createTextObject, getArticles, dataUrlToFile } from '../utils/utils';
 import Navigation from '../components/Navigation';
 import PdfModal from '../components/PdfModal';
 import MyAccordian from '../components/MyAccordian';
-import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import {
   makeStyles,
@@ -46,7 +40,6 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
-import search from 'youtube-search';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -244,7 +237,6 @@ const useStyles = makeStyles((theme) => ({
   fullScreenCloseDiv: {
     display: 'flex',
     width: '100%',
-    // justifyContent: 'flex-end',
     alignItems: 'center',
   },
   fullScreenUiInputTextDiv: {
@@ -305,9 +297,7 @@ const Article = () => {
 
   const [uiBtn, setUiBtn] = React.useState('analyse');
 
-  const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
-  const [definitionVal, setDefinitionVal] = React.useState('');
   const [analysisSummary, setAnalysisSummary] = React.useState('summary');
   const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -346,9 +336,12 @@ const Article = () => {
       const originalPdfDataUrl = JSON.parse(
         thisRead.text_body
       ).uploadedPdfDataUrl;
-      dataUrlToFile(originalPdfDataUrl).then((res) => {
-        setRawPdf(res);
-      });
+
+      if (originalPdfDataUrl) {
+        dataUrlToFile(originalPdfDataUrl).then((res) => {
+          setRawPdf(res);
+        });
+      }
 
       setEditorState(EditorState.createWithContent(rawEditorState));
     }
@@ -370,7 +363,6 @@ const Article = () => {
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
-        // notes: notesRef.current.value,
         uploadedPdfDataUrl: rawDataUrl,
       })
     );
@@ -470,7 +462,7 @@ const Article = () => {
 
                   {rawPdf && (
                     <Box className={classes.titleDivMultipleBtn}>
-                      <PdfModal rawPdf={rawPdf} />
+                      {<PdfModal rawPdf={rawPdf} />}
                     </Box>
                   )}
 

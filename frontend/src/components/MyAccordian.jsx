@@ -45,7 +45,7 @@ export default function ControlledAccordions({ searchTerm }) {
   React.useEffect(() => {
     const getYoutubeVideos = async (keyword) => {
       const opts = {
-        maxResults: 3,
+        maxResults: 4,
         key: process.env.REACT_APP_YT_KEY,
       };
 
@@ -79,13 +79,13 @@ export default function ControlledAccordions({ searchTerm }) {
         <AccordionDetails>
           <Box className={classes.videosDiv}>
             {videoIds && (
-              <List>
+              <Box>
                 {videoIds.map((id) => (
-                  <ListItem key={id}>
-                    <Youtube embedId={id} />
-                  </ListItem>
+                  // <ListItem key={id}>
+                  <Youtube embedId={id} />
+                  // </ListItem>
                 ))}
-              </List>
+              </Box>
             )}
           </Box>
         </AccordionDetails>

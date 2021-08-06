@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
   videoIframe: {
     left: 0,
     top: 0,
-    height: '50%',
+    height: '75%',
     width: '80%',
     position: 'absolute',
   },
