@@ -61,6 +61,8 @@ const Home = () => {
   // const [username] = context.username;
   const [myReads, setMyReads] = context.myReads;
 
+
+  // view text of another reader
   const viewText = async (text_id, followee_username) => {
     setLoadingState('loading');
 
@@ -97,6 +99,7 @@ const Home = () => {
   const [data, setData] = React.useState([]);
   const history = useHistory();
 
+  // get article titles of the connected reader
   React.useEffect(() => {
     setPage('/home');
     setLoadingState('loading');

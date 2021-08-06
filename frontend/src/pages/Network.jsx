@@ -129,13 +129,13 @@ const UserNetwork = () => {
         const ulist = await axios(payload);
         const userlist = ulist.data;
         console.log('User List', userlist.data);
-        setLoadingState('done');
         // if (resData.status === 'success') {
         if (userlist.data.length > 0) {
-          toast.success(`Retrieved User information from server.`);
+          // toast.success(`Retrieved User information from server.`);
           setRows(userlist.data);
           console.log('User List', rows);
           setRequestToFollow(false)
+          setLoadingState('done');
         } else {
           toast.warn(`${userlist.message}`);
         }
@@ -163,7 +163,7 @@ const UserNetwork = () => {
   const HandleRowClick = async (param, event) => {
 
     const networkUsername = param.row.username;
-
+    // history.push(`user/${networkUsername}`)
     // sending backend 'followers' status update
     const payload = {
       method: 'PATCH',
@@ -231,6 +231,7 @@ const UserNetwork = () => {
                       onPageSizeChange={handlePageSizeChange}
                       rowsPerPageOptions={[5, 10, 20]}
                       rowCount={rows.length}
+                      
                     />
                   </div>
                 </div>

@@ -112,6 +112,7 @@ const MyReads = () => {
                       button
                       onClick={() => {
                         console.log(`Username: ${username}`);
+                        console.log('Text id', myRead.text_id)
                         console.log(JSON.parse(myRead.text_body));
                         history.push(`/articles/${myRead.text_id}`);
                       }}
