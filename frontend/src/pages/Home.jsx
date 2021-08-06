@@ -11,7 +11,10 @@ import {
 } from '@material-ui/core';
 // import axios from 'axios';
 // import { toast } from 'react-toastify';
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { Button } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -55,140 +58,83 @@ const Home = () => {
   const setPage = context.pageState[1];
   const [loadingState, setLoadingState] = React.useState('load');
 
-  // const data =[{"name":"test1"},{"name":"test2"}];
-  // {
-  //   "data": [
-  //     {
-  //       "followee_username": "emily",
-  //       "followee_last_name": "Tong",
-  //       "followee_first_name": "Emily",
-  //       "text_titles": []
-  //     }
-  //   ]
-  // }
   const viewText = (id) => {
     console.log('View Text', id);
   };
 
- 
-    // const data = 
-    //   [
-    //   {
-    //     name: "Jude",
-    //     position: "Developer",
-    //     experiences: [
-    //       {
-    //         id: 0,
-    //         job: "React UI Developer",
-    //         period: "2017-2018",
-    //         description:
-    //           "I love Creating beautiful Smart UI with React js and styled components"
-    //       },
-    //       {
-    //         id: 1,
-    //         job: "React/ Redux UI Developer",
-    //         period: "2017-2018",
-    //         description:
-    //           "I love Creating beautiful Smart UI with React js and styled components"
-    //       }
-    //     ]
-    //   }
-    // ]
-
-       const data = 
-       [
+  const data = [
+    {
+      followee_username: 'emily',
+      followee_last_name: 'Tong',
+      followee_first_name: 'Emily',
+      text_titles: [
         {
-          followee_username: 'emily',
-          followee_last_name: 'Tong',
-          followee_first_name: 'Emily',
-          text_titles: [
-            {
-              text_title:
-                'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
-              text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
-            },
-            {
-              text_title:
-                "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
-              text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
-            },
-          ],
+          text_title:
+            'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
+          text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
         },
         {
-          followee_username: 'emily',
-          followee_last_name: 'Tong',
-          followee_first_name: 'Emily',
-          text_titles: [
-            {
-              text_title:
-                'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
-              text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
-            },
-            {
-              text_title:
-                "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
-              text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
-            },
-          ],
+          text_title:
+            "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
+          text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
         },
-      ]
-    
+      ],
+    },
+    {
+      followee_username: 'emily',
+      followee_last_name: 'Tong',
+      followee_first_name: 'Emily',
+      text_titles: [
+        {
+          text_title:
+            'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
+          text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
+        },
+        {
+          text_title:
+            "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
+          text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
+        },
+      ],
+    },
+  ];
 
-    
-    class RenderItems extends React.Component {
-      state = {
-        data: []
-      };
-      componentDidMount=() => {
-        console.log(data);
-        this.setState({ data });
-      };
-     
-      render() {
-        const { data } = this.state;
-        const resume = data.map(dataIn => {
-          return (
-            <div key={dataIn.followee_first_name}>
-              {dataIn.followee_first_name} {dataIn.followee_last_name}
-              <ul>
-                {dataIn.text_titles.map(text_titles => (
-                  <li key={text_titles.text_title}>{text_titles.text_title}</li>
-                ))}
-              </ul>
-              <br></br>
-            </div>
-          );
-        });
-    
-        return <div>{<React.Fragment>{resume}</React.Fragment>}</div>;
-      }
+  class RenderItems extends React.Component {
+    state = {
+      data: [],
+    };
+    componentDidMount = () => {
+      console.log(data);
+      this.setState({ data });
+    };
+
+    render() {
+      const { data } = this.state;
+      const articles = data.map((dataIn) => {
+        return (
+          <div key={dataIn.followee_first_name}>
+            {dataIn.followee_first_name} {dataIn.followee_last_name}
+            <ul>
+              {dataIn.text_titles.map((text_titles) => (
+                <li key={text_titles.text_title}>{text_titles.text_title}
+               <Box sx={{ '& button': { m: 1 } }}>
+                      
+                       <Button  size="small" onClick={() => viewText(text_titles.text_id)}>
+                       View Article
+                      </Button>
+                    </Box></li>
+              ))}
+            </ul>
+            <br></br>
+          </div>
+        );
+      });
+
+      return <div>{<React.Fragment>{articles}</React.Fragment>}</div>;
     }
-    
-  
-    
-    
-    
-  //   const state = {
-  //     userData: [
-  //       {
-  //         followee_username: 'emily',
-  //         followee_last_name: 'Tong',
-  //         followee_first_name: 'Emily',
-  //         text_titles: [
-  //           {
-  //             text_title:
-  //               'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
-  //             text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
-  //           },
-  //           {
-  //             text_title:
-  //               "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
-  //             text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   };
+  }
+
+
 
   //   // return mapTitles;
 
@@ -213,12 +159,12 @@ const Home = () => {
   //     </React.Fragment>
   //   ));
 
-
   //   return mapRows;
   // };
-  const rootElement = document.getElementById("root");
+  const rootElement = document.getElementById('root');
+
   // React.useEffect(() => {
-    // ReactDOM.render(<RenderItems />, rootElement);
+  // ReactDOM.render(<RenderItems />, rootElement);
   // }, []);
 
   // React.useEffect(() => {
@@ -229,6 +175,50 @@ const Home = () => {
   //   }
   //   setupHome();
   // }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const Newsfeed = () => {
+    const context = React.useContext(StoreContext);
+    const [username] = context.username;
+    const [myReads, setMyReads] = context.myReads;
+    const history = React.useHistory();
+  
+    React.useEffect(() => {
+      setPage('/home');
+      setLoadingState('loading');
+      const getArticles = async () => {
+        console.log(username);
+        try {
+          const payload = {
+            method: 'GET',
+            url: `/text/${username}/newsfeed`,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          };
+          console.log(payload);
+          const res = await axios(payload);
+          const resData = res.data;
+          console.log(resData);
+          if (resData.status === 'success') {
+            // toast.success(`Retrieved Reads from server.`);
+            console.log('success');
+          } else {
+            toast.warn(`${resData.message}`);
+          }
+          const { data } = resData;
+          setMyReads(data);
+          console.log(data);
+          setLoadingState('done');
+        } catch (error) {
+          toast.error('Error retrieving Reads from server.');
+        }
+      };
+  
+      getArticles();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  }
+
 
   const classes = useStyles();
   return (
@@ -247,7 +237,9 @@ const Home = () => {
               <Typography paragraph align="left" variant="h4">
                 Home
               </Typography>
-              <ul><RenderItems/></ul>
+              <ul>
+                <RenderItems />
+              </ul>
             </Box>
           </Box>
           <br />
