@@ -6,7 +6,7 @@ export const createTextObject = (text_title, text_body) => {
   return { text_title, text_body };
 };
 
-export const fetchDefinition = async (urlBase, token, word, setFunc) => {
+export const fetchDefinition = async (urlBase, token, word) => {
   try {
     const payload = {
       method: `GET`,
@@ -22,7 +22,8 @@ export const fetchDefinition = async (urlBase, token, word, setFunc) => {
     console.log('definition response:');
     console.log(resData);
 
-    setFunc(resData.Definition);
+    const { Definition } = resData;
+    return Definition;
   } catch (error) {
     console.log(error);
     toast.error('Error retrieving definition');
