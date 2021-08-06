@@ -71,29 +71,69 @@ const Home = () => {
   };
 
  
-    const data = 
-      [
-      {
-        name: "Jude",
-        position: "Developer",
-        experiences: [
-          {
-            id: 0,
-            job: "React UI Developer",
-            period: "2017-2018",
-            description:
-              "I love Creating beautiful Smart UI with React js and styled components"
-          },
-          {
-            id: 1,
-            job: "React/ Redux UI Developer",
-            period: "2017-2018",
-            description:
-              "I love Creating beautiful Smart UI with React js and styled components"
-          }
-        ]
-      }
-    ]
+    // const data = 
+    //   [
+    //   {
+    //     name: "Jude",
+    //     position: "Developer",
+    //     experiences: [
+    //       {
+    //         id: 0,
+    //         job: "React UI Developer",
+    //         period: "2017-2018",
+    //         description:
+    //           "I love Creating beautiful Smart UI with React js and styled components"
+    //       },
+    //       {
+    //         id: 1,
+    //         job: "React/ Redux UI Developer",
+    //         period: "2017-2018",
+    //         description:
+    //           "I love Creating beautiful Smart UI with React js and styled components"
+    //       }
+    //     ]
+    //   }
+    // ]
+
+       const data = 
+       [
+        {
+          followee_username: 'emily',
+          followee_last_name: 'Tong',
+          followee_first_name: 'Emily',
+          text_titles: [
+            {
+              text_title:
+                'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
+              text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
+            },
+            {
+              text_title:
+                "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
+              text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
+            },
+          ],
+        },
+        {
+          followee_username: 'emily',
+          followee_last_name: 'Tong',
+          followee_first_name: 'Emily',
+          text_titles: [
+            {
+              text_title:
+                'Late unexpected complete fracture of a right ventricular lead still capturing the myocardium',
+              text_id: 'afe1b2ab-10b2-44e5-a395-cf1d98131311',
+            },
+            {
+              text_title:
+                "Complement-mediated autoimmune haemolytic anaemia as an initial presentation of Legionnaires' disease",
+              text_id: '9a61bc5e-784c-4081-b98f-6099966f1ecf',
+            },
+          ],
+        },
+      ]
+    
+
     
     class RenderItems extends React.Component {
       state = {
@@ -108,14 +148,14 @@ const Home = () => {
         const { data } = this.state;
         const resume = data.map(dataIn => {
           return (
-            <div key={dataIn.name}>
-              {dataIn.name}
+            <div key={dataIn.followee_first_name}>
+              {dataIn.followee_first_name} {dataIn.followee_last_name}
               <ul>
-                {dataIn.experiences.map(experience => (
-                  <li key={experience.id}>{experience.job}</li>
+                {dataIn.text_titles.map(text_titles => (
+                  <li key={text_titles.text_title}>{text_titles.text_title}</li>
                 ))}
               </ul>
-              {dataIn.position}
+              <br></br>
             </div>
           );
         });
