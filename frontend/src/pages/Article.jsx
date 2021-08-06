@@ -35,6 +35,7 @@ import {
   Slide,
   FormControlLabel,
   Switch,
+  Paper,
 } from '@material-ui/core';
 import CustomEditor from '../components/CustomEditor';
 import CustomEditorFullScreen from '../components/CustomEditorFullScreen';
@@ -149,6 +150,12 @@ const useStyles = makeStyles((theme) => ({
   uiDisplayTextfield: {
     width: '100%',
     height: '100%',
+    marginBottom: '0.5em',
+  },
+  uiSummary: {
+    width: '100%',
+    height: '100%',
+    minHeight: '528px',
     marginBottom: '0.5em',
   },
   btnUiWrapper: {
@@ -299,6 +306,8 @@ const Article = () => {
   const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
+  const [analysisSummary, setAnalysisSummary] = React.useState('summary');
+  const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
 
   const [rawPdf, setRawPdf] = React.useState(null);
   const [rawDataUrl, setRawDataUrl] = React.useState(null);
@@ -515,28 +524,23 @@ const Article = () => {
                     {parseLoad === 'load' ? (
                       <Skeleton animation="wave" variant="rectangle">
                         <CustomEditor
-                          analysisSummaryRef={analysisSummaryRef}
+                          setAnalysisSummary={setAnalysisSummary}
+                          setAnalysisKeywords={setAnalysisKeywords}
                           analysisKeywordsRef={analysisKeywordsRef}
                           defineRef={defineRef}
                           setUiBtn={setUiBtn}
-                          analyseTabValue={analyseTabValue}
                           setAnalyseTabValue={setAnalyseTabValue}
                           token={token}
-                          fullScreen={openFullScreen}
-                          fullscreenBtn={FullscreenBtn()}
-                          toolbarCustomButtons={[<FullscreenBtn />]}
                         />
                       </Skeleton>
                     ) : (
                       <CustomEditor
-                        analysisSummaryRef={analysisSummaryRef}
-                        analysisKeywordsRef={analysisKeywordsRef}
+                        setAnalysisSummary={setAnalysisSummary}
+                        setAnalysisKeywords={setAnalysisKeywords}
                         defineRef={defineRef}
                         setUiBtn={setUiBtn}
                         setAnalyseTabValue={setAnalyseTabValue}
                         token={token}
-                        fullScreen={openFullScreen}
-                        toolbarCustomButtons={[<FullscreenBtn />]}
                       />
                     )}
                   </Box>
@@ -671,6 +675,23 @@ const Article = () => {
                   >
                     <Grid item xs={11} align="center">
                       <Box className={classes.btnUiWrapper}>
+                        {
+                          <Box className={classes.btnUiDiv}>
+                            <Tooltip title="Read in Full Screen">
+                              <Button
+                                variant="outlined"
+                                color="default"
+                                className={classes.btnUi}
+                                endIcon={<FullscreenIcon />}
+                                onClick={() => {
+                                  handleClickOpenFullScreen();
+                                }}
+                              >
+                                Focus
+                              </Button>
+                            </Tooltip>
+                          </Box>
+                        }
                         <Box className={classes.btnUiDiv}>
                           <Tooltip title="Analyse">
                             <Button
@@ -689,6 +710,7 @@ const Article = () => {
                             </Button>
                           </Tooltip>
                         </Box>
+
                         <Box className={classes.btnUiDiv}>
                           <Tooltip title="Web Info">
                             <Button
@@ -734,36 +756,46 @@ const Article = () => {
                         id={`analyse-tab-panel-0`}
                         aria-labelledby={`analyse-tab-panel-0`}
                       >
-                        <TextField
-                          placeholder="Text Analysis Summary"
-                          variant="outlined"
-                          multiline
-                          fullWidth
-                          rows={25}
-                          className={classes.uiDisplayTextfield}
-                          inputRef={analysisSummaryRef}
-                          inputProps={{
-                            readOnly: true,
-                          }}
-                        />
+                        <Paper
+                          // placeholder="Text Analysis Summary"
+                          variant="elevation"
+                          // multiline
+                          // fullWidth
+                          // rows={25}
+
+                          className={classes.uiSummary}
+                          // inputRef={analysisSummaryRef}
+                          // inputProps={{
+                          //   readOnly: true,
+                          // }}
+                        >
+                          <Typography align="left" variant="p">
+                            {analysisSummary}
+                          </Typography>
+                        </Paper>
                       </div>
                       <div
                         hidden={analyseTabValue !== 1}
                         id={`analyse-tab-panel-1`}
                         aria-labelledby={`analyse-tab-panel-1`}
                       >
-                        <TextField
-                          placeholder="Text Analysis Keywords"
-                          variant="outlined"
-                          multiline
-                          fullWidth
-                          rows={25}
-                          className={classes.uiDisplayTextfield}
-                          inputRef={analysisKeywordsRef}
-                          inputProps={{
-                            readOnly: true,
-                          }}
-                        />
+                        <Paper
+                          // placeholder="Text Analysis Summary"
+                          variant="elevation"
+                          // multiline
+                          // fullWidth
+                          // rows={25}
+
+                          className={classes.uiSummary}
+                          // inputRef={analysisSummaryRef}
+                          // inputProps={{
+                          //   readOnly: true,
+                          // }}
+                        >
+                          <Typography align="left" variant="p">
+                            {analysisKeywords}
+                          </Typography>
+                        </Paper>
                       </div>
                     </Box>
                   )

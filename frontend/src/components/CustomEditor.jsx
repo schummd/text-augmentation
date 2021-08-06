@@ -42,14 +42,12 @@ const useStyles = makeStyles((theme) => ({
 
 const CustomEditor = ({ ...children }) => {
   const {
-    analysisSummaryRef,
-    analysisKeywordsRef,
+    setAnalysisSummary,
+    setAnalysisKeywords,
     setAnalyseTabValue,
     defineRef,
     setUiBtn,
     token,
-    fullScreen,
-    toolbarCustomButtons,
   } = children;
 
   const context = React.useContext(StoreContext);
@@ -73,7 +71,7 @@ const CustomEditor = ({ ...children }) => {
     if (selectedText) {
       const summary = await getSummary(selectedText, token);
       console.log(summary);
-      analysisSummaryRef.current.value = summary;
+      setAnalysisSummary(summary);
       setPopoverOpen(false);
     } else {
       toast.warn('No text selected for analysis.');
@@ -86,7 +84,7 @@ const CustomEditor = ({ ...children }) => {
     if (selectedText) {
       const keywords = await getKeywords(selectedText, token);
       console.log(keywords);
-      analysisKeywordsRef.current.value = keywords;
+      setAnalysisKeywords(keywords.join(', '));
       setPopoverOpen(false);
     } else {
       toast.warn('No text selected for analysis.');
@@ -221,7 +219,6 @@ const CustomEditor = ({ ...children }) => {
       <DraftOuterWrapper>
         <DraftInnerWrapper>
           <Editor
-            toolbarCustomButtons={toolbarCustomButtons}
             editorState={editorState}
             onEditorStateChange={handleEditorChange}
             wrapperStyle={{
