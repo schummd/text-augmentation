@@ -182,9 +182,12 @@ const Home = () => {
                 <Typography paragraph align="left" variant="h4">
                   Home
                 </Typography>
-                <ul>
-                  <RenderItems />
-                </ul>
+                {
+                  data.length > 0 &&
+                  <ul>
+                    <RenderItems />
+                  </ul>
+                }
               </Box>
             </Box>
             <br />
