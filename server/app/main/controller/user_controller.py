@@ -15,11 +15,8 @@ from ..service.user_service import (
     follow_a_user,
     get_all_following,
     get_newsfeed,
-<<<<<<< HEAD
-    get_matching_users
-=======
+    get_matching_users,
     get_all_users_with_connection_status,
->>>>>>> c2d4fa087614dbab7299319b3bee24ab16e40f22
 )
 from typing import Dict, Tuple
 
