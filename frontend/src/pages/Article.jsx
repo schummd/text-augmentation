@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReadMoreLogo from '../assets/readmore-logo.png';
 import { StoreContext } from '../utils/store';
-import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import { convertToRaw, convertFromRaw, EditorState, Modifier } from 'draft-js';
 import {
   createTextObject,
   fetchDefinition,
@@ -35,9 +35,8 @@ import {
   Slide,
   FormControlLabel,
   Switch,
+  Paper,
 } from '@material-ui/core';
-import BackspaceIcon from '@material-ui/icons/Backspace';
-import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
 import CustomEditorFullScreen from '../components/CustomEditorFullScreen';
 import Skeleton from '@material-ui/lab/Skeleton';
@@ -47,6 +46,7 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
+import search from 'youtube-search';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -153,6 +153,13 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     marginBottom: '0.5em',
   },
+  uiSummary: {
+    width: '100%',
+    height: '100%',
+    minHeight: '528px',
+    marginBottom: '0.5em',
+    backgroundColor: '#F0F0F0',
+  },
   btnUiWrapper: {
     display: 'flex',
     width: '100%',
@@ -212,7 +219,7 @@ const useStyles = makeStyles((theme) => ({
   btnFullScreenReaderDiv: {
     display: 'flex',
     marginBottom: '0.5em',
-    justifyContent: 'center',
+    justifyContent: 'left',
     alignItems: 'center',
     // backgroundColor: '#D0D0D0',
     width: '100%',
@@ -252,7 +259,7 @@ const useStyles = makeStyles((theme) => ({
   fullScreenUiDialogContentDark: {
     overflow: 'hidden',
     backgroundColor: '#282c34',
-  },  
+  },
   readMoreLogo: {
     display: 'flex',
     alignItems: 'center',
@@ -263,9 +270,7 @@ const useStyles = makeStyles((theme) => ({
   img: {
     maxWidth: '64px',
   },
-  lightModeLabel: {
-
-  },
+  lightModeLabel: {},
   darkModeLabel: {
     color: 'white',
   },
@@ -298,26 +303,17 @@ const Article = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [uiBtn, setUiBtn] = React.useState('define');
+  const [uiBtn, setUiBtn] = React.useState('analyse');
 
   const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
+  const [analysisSummary, setAnalysisSummary] = React.useState('summary');
+  const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const [rawPdf, setRawPdf] = React.useState(null);
   const [rawDataUrl, setRawDataUrl] = React.useState(null);
-
-  const handleChangeDefineQuery = async (event) => {
-    await setDefineQuery(event.target.value);
-  };
-
-  const handleDefineQuery = () => {
-    if (defineQuery !== '') {
-      fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
-    } else {
-      setDefinitionVal('');
-    }
-  };
 
   const titleRef = React.useRef();
   const analysisSummaryRef = React.useRef();
@@ -441,7 +437,6 @@ const Article = () => {
   const handleClickCloseFullScreen = () => {
     setOpenFullScreen(false);
   };
-
   const [darkMode, setDarkMode] = React.useState(false);
 
   const classes = useStyles();
@@ -513,25 +508,25 @@ const Article = () => {
                     {parseLoad === 'load' ? (
                       <Skeleton animation="wave" variant="rectangle">
                         <CustomEditor
-                          analysisSummaryRef={analysisSummaryRef}
+                          setAnalysisSummary={setAnalysisSummary}
+                          setAnalysisKeywords={setAnalysisKeywords}
                           analysisKeywordsRef={analysisKeywordsRef}
+                          setSearchTerm={setSearchTerm}
                           defineRef={defineRef}
                           setUiBtn={setUiBtn}
-                          analyseTabValue={analyseTabValue}
                           setAnalyseTabValue={setAnalyseTabValue}
                           token={token}
-                          fullScreen={openFullScreen}
                         />
                       </Skeleton>
                     ) : (
                       <CustomEditor
-                        analysisSummaryRef={analysisSummaryRef}
-                        analysisKeywordsRef={analysisKeywordsRef}
+                        setAnalysisSummary={setAnalysisSummary}
+                        setAnalysisKeywords={setAnalysisKeywords}
+                        setSearchTerm={setSearchTerm}
                         defineRef={defineRef}
                         setUiBtn={setUiBtn}
                         setAnalyseTabValue={setAnalyseTabValue}
                         token={token}
-                        fullScreen={openFullScreen}
                       />
                     )}
                   </Box>
@@ -555,7 +550,6 @@ const Article = () => {
                     >
                       <Toolbar>
                         <Box className={classes.fullScreenCloseDiv}>
-
                           <Grid
                             container
                             spacing={0}
@@ -563,7 +557,13 @@ const Article = () => {
                             justify="center"
                             align="center"
                           >
-                            <Grid container item xs={4} align="flex-start" justify="flex-start">
+                            <Grid
+                              container
+                              item
+                              xs={4}
+                              align="flex-start"
+                              justify="flex-start"
+                            >
                               <Box className={classes.readMoreLogo}>
                                 <Tooltip title="ReadMore">
                                   <img
@@ -581,7 +581,9 @@ const Article = () => {
                                   control={
                                     <Switch
                                       checked={darkMode}
-                                      onChange={()=>{setDarkMode(!darkMode);}}
+                                      onChange={() => {
+                                        setDarkMode(!darkMode);
+                                      }}
                                       name="dark mode"
                                       color="primary"
                                     />
@@ -602,7 +604,13 @@ const Article = () => {
                               </Tooltip>
                             </Grid>
 
-                            <Grid container item xs={4} align="flex-end" justify="flex-end">
+                            <Grid
+                              container
+                              item
+                              xs={4}
+                              align="flex-end"
+                              justify="flex-end"
+                            >
                               <Tooltip title="Exit Full Screen">
                                 <Button
                                   variant="contained"
@@ -614,7 +622,6 @@ const Article = () => {
                               </Tooltip>
                             </Grid>
                           </Grid>
-
                         </Box>
                       </Toolbar>
                     </AppBar>
@@ -654,24 +661,23 @@ const Article = () => {
                   >
                     <Grid item xs={11} align="center">
                       <Box className={classes.btnUiWrapper}>
-                        <Box className={classes.btnUiDiv}>
-                          <Tooltip title="Read">
-                            <Button
-                              variant="outlined"
-                              className={
-                                uiBtn === 'define'
-                                  ? classes.btnUiClicked
-                                  : classes.btnUi
-                              }
-                              onClick={() => {
-                                console.log('Clicked Read');
-                                setUiBtn('define');
-                              }}
-                            >
-                              Read
-                            </Button>
-                          </Tooltip>
-                        </Box>
+                        {
+                          <Box className={classes.btnUiDiv}>
+                            <Tooltip title="Read in Full Screen">
+                              <Button
+                                variant="outlined"
+                                color="default"
+                                className={classes.btnUi}
+                                endIcon={<FullscreenIcon />}
+                                onClick={() => {
+                                  handleClickOpenFullScreen();
+                                }}
+                              >
+                                Focus
+                              </Button>
+                            </Tooltip>
+                          </Box>
+                        }
                         <Box className={classes.btnUiDiv}>
                           <Tooltip title="Analyse">
                             <Button
@@ -690,6 +696,7 @@ const Article = () => {
                             </Button>
                           </Tooltip>
                         </Box>
+
                         <Box className={classes.btnUiDiv}>
                           <Tooltip title="Web Info">
                             <Button
@@ -713,49 +720,52 @@ const Article = () => {
                   </Grid>
                 </Box>
                 {
-                  // Read (default) tab
-                  uiBtn === 'define' && (
+                  // Analyse tab
+                  uiBtn === 'analyse' && (
                     <Box className={classes.uiDisplayDiv}>
-                      <Box className={classes.btnFullScreenReaderDiv}>
-                        <Tooltip
-                          title={
-                            parseLoad !== 'load'
-                              ? "Read in Full Screen"
-                              : ""
-                          }
+                      <AppBar
+                        position="static"
+                        className={classes.analyseTabAppBar}
+                      >
+                        <Tabs
+                          value={analyseTabValue}
+                          onChange={handleAnalyseTabChange}
+                          variant="fullWidth"
+                          indicatorColor="primary"
                         >
-                          <Button
-                            variant="contained"
-                            color="default"
-                            className={classes.btnFullScreenReader}
-                            endIcon={<FullscreenIcon />}
-                            onClick={() => {
-                              handleClickOpenFullScreen();
-                            }}
-                            disabled={
-                              parseLoad === 'load'
-                              ? true
-                              : false
-                            }
-                          >
-                            Full Screen Mode
-                          </Button>
-                        </Tooltip>
-                      </Box>
-
-                      <TextField
-                        inputRef={defineRef}
-                        placeholder="Definition"
-                        variant="outlined"
-                        multiline
-                        inputProps={{
-                          readOnly: true,
-                        }}
-                        fullWidth
-                        rows={5}
-                        className={classes.displayTextfield}
-                      />
-
+                          <Tab label="Summary" {...a11yProps(0)} />
+                          <Tab label="Keywords" {...a11yProps(1)} />
+                        </Tabs>
+                      </AppBar>
+                      <div
+                        hidden={analyseTabValue !== 0}
+                        id={`analyse-tab-panel-0`}
+                        aria-labelledby={`analyse-tab-panel-0`}
+                      >
+                        <Paper variant="outlined" className={classes.uiSummary}>
+                          <Typography align="left" variant="p">
+                            {analysisSummary}
+                          </Typography>
+                        </Paper>
+                      </div>
+                      <div
+                        hidden={analyseTabValue !== 1}
+                        id={`analyse-tab-panel-1`}
+                        aria-labelledby={`analyse-tab-panel-1`}
+                      >
+                        <Paper variant="outlined" className={classes.uiSummary}>
+                          <Typography align="left" variant="p">
+                            {analysisKeywords}
+                          </Typography>
+                        </Paper>
+                      </div>
+                    </Box>
+                  )
+                }
+                {
+                  // Web Info tab
+                  uiBtn === 'weblinks' && (
+                    <Box className={classes.uiDisplayDiv}>
                       <TextField
                         placeholder="Ask a question"
                         variant="outlined"
@@ -793,71 +803,7 @@ const Article = () => {
                         }}
                         className={classes.uiDisplayTextfield}
                       />
-                    </Box>
-                  )
-                }
-                {
-                  // Analyse tab
-                  uiBtn === 'analyse' && (
-                    <Box className={classes.uiDisplayDiv}>
-                      <AppBar
-                        position="static"
-                        className={classes.analyseTabAppBar}
-                      >
-                        <Tabs
-                          value={analyseTabValue}
-                          onChange={handleAnalyseTabChange}
-                          variant="fullWidth"
-                          indicatorColor="primary"
-                        >
-                          <Tab label="Summary" {...a11yProps(0)} />
-                          <Tab label="Keywords" {...a11yProps(1)} />
-                        </Tabs>
-                      </AppBar>
-                      <div
-                        hidden={analyseTabValue !== 0}
-                        id={`analyse-tab-panel-0`}
-                        aria-labelledby={`analyse-tab-panel-0`}
-                      >
-                        <TextField
-                          placeholder="Text Analysis Summary"
-                          variant="outlined"
-                          multiline
-                          fullWidth
-                          rows={25}
-                          className={classes.uiDisplayTextfield}
-                          inputRef={analysisSummaryRef}
-                          inputProps={{
-                            readOnly: true,
-                          }}
-                        />
-                      </div>
-                      <div
-                        hidden={analyseTabValue !== 1}
-                        id={`analyse-tab-panel-1`}
-                        aria-labelledby={`analyse-tab-panel-1`}
-                      >
-                        <TextField
-                          placeholder="Text Analysis Keywords"
-                          variant="outlined"
-                          multiline
-                          fullWidth
-                          rows={25}
-                          className={classes.uiDisplayTextfield}
-                          inputRef={analysisKeywordsRef}
-                          inputProps={{
-                            readOnly: true,
-                          }}
-                        />
-                      </div>
-                    </Box>
-                  )
-                }
-                {
-                  // Web Info tab
-                  uiBtn === 'weblinks' && (
-                    <Box className={classes.uiDisplayDiv}>
-                      <MyAccordian></MyAccordian>
+                      <MyAccordian searchTerm={searchTerm}></MyAccordian>
                     </Box>
                   )
                 }
