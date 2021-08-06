@@ -6,7 +6,7 @@ export const createTextObject = (text_title, text_body) => {
   return { text_title, text_body };
 };
 
-export const fetchDefinition = async (urlBase, token, word, setFunc) => {
+export const fetchDefinition = async (urlBase, token, word) => {
   try {
     const payload = {
       method: `GET`,
@@ -22,7 +22,8 @@ export const fetchDefinition = async (urlBase, token, word, setFunc) => {
     console.log('definition response:');
     console.log(resData);
 
-    setFunc(resData.Definition);
+    const { Definition } = resData;
+    return Definition;
   } catch (error) {
     console.log(error);
     toast.error('Error retrieving definition');
@@ -113,6 +114,27 @@ export const getSummary = async (textToAnalyse, token) => {
     const resData = res.data;
     const { summary } = resData;
     return summary;
+  } catch (error) {
+    return;
+  }
+};
+
+export const getKeywords = async (textToAnalyse, token) => {
+  try {
+    const payload = {
+      method: 'POST',
+      url: `/keywords/`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${token}`,
+      },
+      data: { text_body: textToAnalyse },
+    };
+    console.log(payload);
+    const res = await axios(payload);
+    const resData = res.data;
+    const { keywords } = resData;
+    return keywords;
   } catch (error) {
     return;
   }

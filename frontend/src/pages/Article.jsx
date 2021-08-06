@@ -1,10 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
+import ReadMoreLogo from '../assets/readmore-logo.png';
 import { StoreContext } from '../utils/store';
-import {
-  convertToRaw,
-  convertFromRaw,
-  EditorState
-} from 'draft-js';
+import { convertToRaw, convertFromRaw, EditorState, Modifier } from 'draft-js';
 import {
   createTextObject,
   fetchDefinition,
@@ -15,12 +12,7 @@ import {
 import Navigation from '../components/Navigation';
 import PdfModal from '../components/PdfModal';
 import MyAccordian from '../components/MyAccordian';
-import {
-  Redirect,
-  useParams,
-  useHistory,
-  Link
-} from 'react-router-dom';
+import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
   makeStyles,
@@ -41,10 +33,12 @@ import {
   DialogContent,
   Toolbar,
   Slide,
+  FormControlLabel,
+  Switch,
+  Paper,
 } from '@material-ui/core';
-import BackspaceIcon from '@material-ui/icons/Backspace';
-import SearchIcon from '@material-ui/icons/Search';
 import CustomEditor from '../components/CustomEditor';
+import CustomEditorFullScreen from '../components/CustomEditorFullScreen';
 import Skeleton from '@material-ui/lab/Skeleton';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
@@ -52,6 +46,7 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
+import search from 'youtube-search';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -158,6 +153,13 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     marginBottom: '0.5em',
   },
+  uiSummary: {
+    width: '100%',
+    height: '100%',
+    minHeight: '528px',
+    marginBottom: '0.5em',
+    backgroundColor: '#F0F0F0',
+  },
   btnUiWrapper: {
     display: 'flex',
     width: '100%',
@@ -217,7 +219,7 @@ const useStyles = makeStyles((theme) => ({
   btnFullScreenReaderDiv: {
     display: 'flex',
     marginBottom: '0.5em',
-    justifyContent: 'center',
+    justifyContent: 'left',
     alignItems: 'center',
     // backgroundColor: '#D0D0D0',
     width: '100%',
@@ -228,14 +230,21 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     height: '34px',
   },
-  fullScreenDialogTopDiv: {
+  fullScreenDialog: {
+    backgroundColor: '#F0F0F0',
+  },
+  fullScreenDialogTopDivLight: {
     color: 'black',
     backgroundColor: '#D0D0D0',
+  },
+  fullScreenDialogTopDivDark: {
+    color: 'black',
+    backgroundColor: '#383F4E',
   },
   fullScreenCloseDiv: {
     display: 'flex',
     width: '100%',
-    justifyContent: 'flex-end',
+    // justifyContent: 'flex-end',
     alignItems: 'center',
   },
   fullScreenUiInputTextDiv: {
@@ -243,8 +252,27 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     margin: theme.spacing(1),
   },
-  fullScreenUiDialogContent: {
+  fullScreenUiDialogContentLight: {
     overflow: 'hidden',
+    backgroundColor: '#F0F0F0',
+  },
+  fullScreenUiDialogContentDark: {
+    overflow: 'hidden',
+    backgroundColor: '#282c34',
+  },
+  readMoreLogo: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'flex-start',
+    paddingLeft: '24px',
+  },
+  img: {
+    maxWidth: '64px',
+  },
+  lightModeLabel: {},
+  darkModeLabel: {
+    color: 'white',
   },
 }));
 
@@ -253,7 +281,7 @@ const a11yProps = (index) => {
     id: `analyse-tab-panel-${index}`,
     'aria-controls': `analyse-tab-panel-${index}`,
   };
-}
+};
 
 const FullScreenTransition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -275,33 +303,22 @@ const Article = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [uiBtn, setUiBtn] = React.useState('define');
+  const [uiBtn, setUiBtn] = React.useState('analyse');
 
   const [defineQuery, setDefineQuery] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
+  const [analysisSummary, setAnalysisSummary] = React.useState('summary');
+  const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const [rawPdf, setRawPdf] = React.useState(null);
   const [rawDataUrl, setRawDataUrl] = React.useState(null);
 
-  const handleChangeDefineQuery = async (event) => {
-    await setDefineQuery(event.target.value);
-  };
-
-  const handleDefineQuery = () => {
-    if (defineQuery !== '') {
-      fetchDefinition(urlBase, token, defineQuery, setDefinitionVal);
-    } else {
-      setDefinitionVal('');
-    }
-  };
-
   const titleRef = React.useRef();
-  const notesRef = React.useRef();
-
-  // POPOVER
-
-  ////////
+  const analysisSummaryRef = React.useRef();
+  const analysisKeywordsRef = React.useRef();
+  const defineRef = React.useRef();
 
   const { id } = useParams();
   const history = useHistory();
@@ -353,7 +370,7 @@ const Article = () => {
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
-        notes: notesRef.current.value,
+        // notes: notesRef.current.value,
         uploadedPdfDataUrl: rawDataUrl,
       })
     );
@@ -399,18 +416,6 @@ const Article = () => {
     }
   };
 
-  const handleGetSumary = async () => {
-    const selectedText = document.getSelection().toString();
-    if (selectedText) {
-      const summary = await getSummary(selectedText, token);
-      console.log(summary);
-      notesRef.current.value = summary;
-    } else {
-      toast.warn('No text selected for analysis.');
-    }
-    setUiBtn('analyse');
-  };
-
   const handleTwitterQuery = () => {
     const formatedText = twitterQuery.replace(/ /g, '+');
     window.open(
@@ -419,18 +424,20 @@ const Article = () => {
     );
   };
 
-  const [analyseTabValue, setAnalyseTabValue] = React.useState(0)
+  const [analyseTabValue, setAnalyseTabValue] = React.useState(0);
   const handleAnalyseTabChange = (event, newValue) => {
+    console.log('NEW VALUE: ', newValue);
     setAnalyseTabValue(newValue);
   };
 
-  const [openFullScreen, setOpenFullScreen] = React.useState(false)
+  const [openFullScreen, setOpenFullScreen] = React.useState(false);
   const handleClickOpenFullScreen = () => {
     setOpenFullScreen(true);
   };
   const handleClickCloseFullScreen = () => {
     setOpenFullScreen(false);
   };
+  const [darkMode, setDarkMode] = React.useState(false);
 
   const classes = useStyles();
 
@@ -496,27 +503,34 @@ const Article = () => {
                   className={classes.uiInputText}
                   inputRef={titleRef}
                 />
-                {
-                  openFullScreen !== true &&
+                {openFullScreen !== true && (
                   <Box className={classes.uiInputText}>
-
                     {parseLoad === 'load' ? (
                       <Skeleton animation="wave" variant="rectangle">
                         <CustomEditor
-                          notesRef={notesRef}
+                          setAnalysisSummary={setAnalysisSummary}
+                          setAnalysisKeywords={setAnalysisKeywords}
+                          analysisKeywordsRef={analysisKeywordsRef}
+                          setSearchTerm={setSearchTerm}
+                          defineRef={defineRef}
+                          setUiBtn={setUiBtn}
+                          setAnalyseTabValue={setAnalyseTabValue}
                           token={token}
-                          fullScreen={openFullScreen}
                         />
                       </Skeleton>
                     ) : (
                       <CustomEditor
-                        notesRef={notesRef}
+                        setAnalysisSummary={setAnalysisSummary}
+                        setAnalysisKeywords={setAnalysisKeywords}
+                        setSearchTerm={setSearchTerm}
+                        defineRef={defineRef}
+                        setUiBtn={setUiBtn}
+                        setAnalyseTabValue={setAnalyseTabValue}
                         token={token}
-                        fullScreen={openFullScreen}
                       />
                     )}
                   </Box>
-                }
+                )}
                 <Box>
                   <Dialog
                     fullScreen
@@ -524,47 +538,110 @@ const Article = () => {
                     onClose={handleClickCloseFullScreen}
                     TransitionComponent={FullScreenTransition}
                     keepMounted
+                    className={classes.fullScreenDialog}
                   >
                     <AppBar
                       position="relative"
-                      className={classes.fullScreenDialogTopDiv}
+                      className={
+                        darkMode !== true
+                          ? classes.fullScreenDialogTopDivLight
+                          : classes.fullScreenDialogTopDivDark
+                      }
                     >
                       <Toolbar>
                         <Box className={classes.fullScreenCloseDiv}>
-                          <Tooltip title="Exit Full Screen">
-                            
-                            <Button
-                              variant="contained"
-                              onClick={handleClickCloseFullScreen}
-                              endIcon={<FullscreenExitIcon />}
+                          <Grid
+                            container
+                            spacing={0}
+                            alignItems="center"
+                            justify="center"
+                            align="center"
+                          >
+                            <Grid
+                              container
+                              item
+                              xs={4}
+                              align="flex-start"
+                              justify="flex-start"
                             >
-                              Exit
-                            </Button>
-                          </Tooltip>
+                              <Box className={classes.readMoreLogo}>
+                                <Tooltip title="ReadMore">
+                                  <img
+                                    className={classes.img}
+                                    src={ReadMoreLogo}
+                                    alt="ReadMore logo"
+                                  />
+                                </Tooltip>
+                              </Box>
+                            </Grid>
+
+                            <Grid item xs={4} align="center">
+                              <Tooltip title="Dark Theme">
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={darkMode}
+                                      onChange={() => {
+                                        setDarkMode(!darkMode);
+                                      }}
+                                      name="dark mode"
+                                      color="primary"
+                                    />
+                                  }
+                                  label={
+                                    <Typography
+                                      className={
+                                        darkMode !== true
+                                          ? classes.lightModeLabel
+                                          : classes.darkModeLabel
+                                      }
+                                    >
+                                      Dark Mode
+                                    </Typography>
+                                  }
+                                  labelPlacement="start"
+                                />
+                              </Tooltip>
+                            </Grid>
+
+                            <Grid
+                              container
+                              item
+                              xs={4}
+                              align="flex-end"
+                              justify="flex-end"
+                            >
+                              <Tooltip title="Exit Full Screen">
+                                <Button
+                                  variant="contained"
+                                  onClick={handleClickCloseFullScreen}
+                                  endIcon={<FullscreenExitIcon />}
+                                >
+                                  Exit
+                                </Button>
+                              </Tooltip>
+                            </Grid>
+                          </Grid>
                         </Box>
                       </Toolbar>
                     </AppBar>
-                    <DialogContent className={classes.fullScreenUiDialogContent}>
-                      {
-                        openFullScreen === true &&
-                        <Box className={classes.fullScreenUiInputTextDiv}>
-                          {parseLoad === 'load' ? (
-                            <Skeleton animation="wave" variant="rectangle">
-                              <CustomEditor
-                                notesRef={notesRef}
-                                token={token}
-                                fullScreen={openFullScreen}
-                              />
-                            </Skeleton>
-                          ) : (
-                            <CustomEditor
-                              notesRef={notesRef}
-                              token={token}
-                              fullScreen={openFullScreen}
-                            />
-                          )}
-                        </Box>
+                    <DialogContent
+                      className={
+                        darkMode !== true
+                          ? classes.fullScreenUiDialogContentLight
+                          : classes.fullScreenUiDialogContentDark
                       }
+                    >
+                      {openFullScreen === true && (
+                        <Box className={classes.fullScreenUiInputTextDiv}>
+                          <CustomEditorFullScreen
+                            analysisKeywordsRef={analysisKeywordsRef}
+                            analysisSummaryRef={analysisSummaryRef}
+                            token={token}
+                            darkMode={darkMode}
+                          />
+                        </Box>
+                      )}
                     </DialogContent>
                   </Dialog>
                 </Box>
@@ -584,24 +661,23 @@ const Article = () => {
                   >
                     <Grid item xs={11} align="center">
                       <Box className={classes.btnUiWrapper}>
-                        <Box className={classes.btnUiDiv}>
-                          <Tooltip title="Read">
-                            <Button
-                              variant="outlined"
-                              className={
-                                uiBtn === 'define'
-                                  ? classes.btnUiClicked
-                                  : classes.btnUi
-                              }
-                              onClick={() => {
-                                console.log('Clicked Read');
-                                setUiBtn('define');
-                              }}
-                            >
-                              Read
-                            </Button>
-                          </Tooltip>
-                        </Box>
+                        {
+                          <Box className={classes.btnUiDiv}>
+                            <Tooltip title="Read in Full Screen">
+                              <Button
+                                variant="outlined"
+                                color="default"
+                                className={classes.btnUi}
+                                endIcon={<FullscreenIcon />}
+                                onClick={() => {
+                                  handleClickOpenFullScreen();
+                                }}
+                              >
+                                Focus
+                              </Button>
+                            </Tooltip>
+                          </Box>
+                        }
                         <Box className={classes.btnUiDiv}>
                           <Tooltip title="Analyse">
                             <Button
@@ -612,13 +688,15 @@ const Article = () => {
                                   : classes.btnUi
                               }
                               onMouseDown={async () => {
-                                await handleGetSumary();
+                                // await handleGetSumary();
+                                setUiBtn('analyse');
                               }}
                             >
                               Analyse
                             </Button>
                           </Tooltip>
                         </Box>
+
                         <Box className={classes.btnUiDiv}>
                           <Tooltip title="Web Info">
                             <Button
@@ -642,178 +720,92 @@ const Article = () => {
                   </Grid>
                 </Box>
                 {
-                  // Read (default) tab
-                  uiBtn === 'define' &&
-                  <Box className={classes.uiDisplayDiv}>
-                    <Box
-                      className={classes.btnFullScreenReaderDiv}
-                    >
-                      <Tooltip title="Read in Full Screen">
-                        <Button
-                          variant="contained"
-                          color="default"
-                          className={classes.btnFullScreenReader}
-                          endIcon={<FullscreenIcon />}
-                          onClick={() => {
-                            handleClickOpenFullScreen();
-                          }}
-                        >
-                          Full Screen Mode
-                        </Button>
-                      </Tooltip>
-                    </Box>
-                    <TextField
-                      placeholder="Define"
-                      variant="outlined"
-                      multiline
-                      fullWidth
-                      maxRows={1}
-                      value={defineQuery}
-                      onKeyPress={(eventkey) => {
-                        if (eventkey.key === 'Enter') {
-                          eventkey.preventDefault();
-                          handleDefineQuery();
-                        }
-                      }}
-                      onChange={(e) => {
-                        handleChangeDefineQuery(e);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <Tooltip title="Clear Query">
-                            <IconButton
-                              className={classes.backspaceIconBtn}
-                              onClick={() => {
-                                setDefineQuery('');
-                              }}
-                            >
-                              <BackspaceIcon />
-                            </IconButton>
-                          </Tooltip>
-                        ),
-                      }}
-                      className={classes.uiDisplayTextfield}
-                    />
-
-                    <TextField
-                      placeholder="Definition"
-                      variant="outlined"
-                      multiline
-                      inputProps={{
-                        readOnly: true,
-                      }}
-                      fullWidth
-                      rows={5}
-                      className={classes.displayTextfield}
-                      value={definitionVal}
-                    />
-
-                    <TextField
-                      placeholder="Ask a question"
-                      variant="outlined"
-                      multiline
-                      fullWidth
-                      maxRows={1}
-                      value={twitterQuery}
-                      onKeyPress={(eventkey) => {
-                        if (eventkey.key === 'Enter') {
-                          eventkey.preventDefault();
-                          // handleDefineQuery();
-                        }
-                      }}
-                      onChange={(e) => {
-                        setTwitterQuery(e.target.value);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <HelpOutlineIcon />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <Tooltip title="Ask on Twitter">
-                            <IconButton
-                              className={classes.twitterIconBtn}
-                              onClick={() => {
-                                handleTwitterQuery();
-                              }}
-                            >
-                              <TwitterIcon />
-                            </IconButton>
-                          </Tooltip>
-                        ),
-                      }}
-                      className={classes.uiDisplayTextfield}
-                    />
-                  </Box>
-                }
-                {
                   // Analyse tab
-                  uiBtn === 'analyse' &&
-                  <Box className={classes.uiDisplayDiv}>
-                    <AppBar
-                      position="static"
-                      className={classes.analyseTabAppBar}
-                    >
-                      <Tabs
-                        value={analyseTabValue}
-                        onChange={handleAnalyseTabChange}
-                        variant="fullWidth"
-                        indicatorColor="primary"
+                  uiBtn === 'analyse' && (
+                    <Box className={classes.uiDisplayDiv}>
+                      <AppBar
+                        position="static"
+                        className={classes.analyseTabAppBar}
                       >
-                        <Tab label="Summary" {...a11yProps(0)} />
-                        <Tab label="Keywords" {...a11yProps(1)} />
-                      </Tabs>
-                    </AppBar>
-                    <div
-                      hidden={analyseTabValue !== 0}
-                      id={`analyse-tab-panel-0`}
-                      aria-labelledby={`analyse-tab-panel-0`}
-                    >
-                      <TextField
-                        placeholder="Text Analysis Summary"
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        rows={25}
-                        className={classes.uiDisplayTextfield}
-                        inputRef={notesRef}
-                        inputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                    </div>
-                    <div
-                      hidden={analyseTabValue !== 1}
-                      id={`analyse-tab-panel-1`}
-                      aria-labelledby={`analyse-tab-panel-1`}
-                    >
-                      <TextField
-                        placeholder="Text Analysis Keywords"
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        rows={25}
-                        className={classes.uiDisplayTextfield}
-                        inputRef={notesRef}
-                        inputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                    </div>                    
-                  </Box>
+                        <Tabs
+                          value={analyseTabValue}
+                          onChange={handleAnalyseTabChange}
+                          variant="fullWidth"
+                          indicatorColor="primary"
+                        >
+                          <Tab label="Summary" {...a11yProps(0)} />
+                          <Tab label="Keywords" {...a11yProps(1)} />
+                        </Tabs>
+                      </AppBar>
+                      <div
+                        hidden={analyseTabValue !== 0}
+                        id={`analyse-tab-panel-0`}
+                        aria-labelledby={`analyse-tab-panel-0`}
+                      >
+                        <Paper variant="outlined" className={classes.uiSummary}>
+                          <Typography align="left" variant="p">
+                            {analysisSummary}
+                          </Typography>
+                        </Paper>
+                      </div>
+                      <div
+                        hidden={analyseTabValue !== 1}
+                        id={`analyse-tab-panel-1`}
+                        aria-labelledby={`analyse-tab-panel-1`}
+                      >
+                        <Paper variant="outlined" className={classes.uiSummary}>
+                          <Typography align="left" variant="p">
+                            {analysisKeywords}
+                          </Typography>
+                        </Paper>
+                      </div>
+                    </Box>
+                  )
                 }
                 {
                   // Web Info tab
-                  uiBtn === 'weblinks' &&
-                  <Box className={classes.uiDisplayDiv}>
-                    <MyAccordian></MyAccordian>
-                  </Box>
+                  uiBtn === 'weblinks' && (
+                    <Box className={classes.uiDisplayDiv}>
+                      <TextField
+                        placeholder="Ask a question"
+                        variant="outlined"
+                        multiline
+                        fullWidth
+                        maxRows={1}
+                        value={twitterQuery}
+                        onKeyPress={(eventkey) => {
+                          if (eventkey.key === 'Enter') {
+                            eventkey.preventDefault();
+                            // handleDefineQuery();
+                          }
+                        }}
+                        onChange={(e) => {
+                          setTwitterQuery(e.target.value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <HelpOutlineIcon />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <Tooltip title="Ask on Twitter">
+                              <IconButton
+                                className={classes.twitterIconBtn}
+                                onClick={() => {
+                                  handleTwitterQuery();
+                                }}
+                              >
+                                <TwitterIcon />
+                              </IconButton>
+                            </Tooltip>
+                          ),
+                        }}
+                        className={classes.uiDisplayTextfield}
+                      />
+                      <MyAccordian searchTerm={searchTerm}></MyAccordian>
+                    </Box>
+                  )
                 }
                 {/* end UI display section */}
               </Box>
