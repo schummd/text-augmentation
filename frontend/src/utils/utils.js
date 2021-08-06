@@ -119,6 +119,27 @@ export const getSummary = async (textToAnalyse, token) => {
   }
 };
 
+export const getKeywords = async (textToAnalyse, token) => {
+  try {
+    const payload = {
+      method: 'POST',
+      url: `/keywords/`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${token}`,
+      },
+      data: { text_body: textToAnalyse },
+    };
+    console.log(payload);
+    const res = await axios(payload);
+    const resData = res.data;
+    const { keywords } = resData;
+    return keywords;
+  } catch (error) {
+    return;
+  }
+};
+
 export const getArticles = async (username) => {
   try {
     const payload = {

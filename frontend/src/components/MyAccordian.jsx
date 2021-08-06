@@ -7,6 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Youtube from './Youtube';
 import { Box, List, ListItem } from '@material-ui/core';
+import * as youtubeSearch from 'youtube-search';
+import { toast } from 'react-toastify';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,13 +33,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ControlledAccordions() {
+export default function ControlledAccordions({ searchTerm }) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
+  const [videoIds, setVideoIds] = React.useState(false);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
+
+  React.useEffect(() => {
+    const getYoutubeVideos = async (keyword) => {
+      const opts = {
+        maxResults: 3,
+        key: process.env.REACT_APP_YT_KEY,
+      };
+
+      try {
+        const { results } = await youtubeSearch(keyword, opts);
+        console.log('RES: ', results);
+        const res = results.map((result) => result.id);
+        setVideoIds(res);
+      } catch (error) {
+        toast.error('error retrieving youtube videos.');
+      }
+    };
+    getYoutubeVideos(searchTerm);
+  }, [searchTerm]);
 
   return (
     <div className={classes.root}>
@@ -56,14 +78,15 @@ export default function ControlledAccordions() {
         </AccordionSummary>
         <AccordionDetails>
           <Box className={classes.videosDiv}>
-            <List>
-              <ListItem>
-                <Youtube key={1} />
-              </ListItem>
-              <ListItem>
-                <Youtube key={2} />
-              </ListItem>
-            </List>
+            {videoIds && (
+              <List>
+                {videoIds.map((id) => (
+                  <ListItem key={id}>
+                    <Youtube embedId={id} />
+                  </ListItem>
+                ))}
+              </List>
+            )}
           </Box>
         </AccordionDetails>
       </Accordion>

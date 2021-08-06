@@ -8,9 +8,11 @@ import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
-import { Box, Button } from '@material-ui/core';
+import { Box, Button, Link, Paper, Typography } from '@material-ui/core';
 import { toast } from 'react-toastify';
-import { getSummary, fetchDefinition } from '../utils/utils';
+import * as youtubeSearch from 'youtube-search';
+
+import { getSummary, fetchDefinition, getKeywords } from '../utils/utils';
 
 const DraftOuterWrapper = styled.div`
   height: 550px;
@@ -23,6 +25,8 @@ const DraftInnerWrapper = styled.div`
 const useStyles = makeStyles((theme) => ({
   typography: {
     padding: theme.spacing(2),
+    backgroundColor: '#5461AA',
+    color: '#fff',
   },
   paper: {
     opacity: 1,
@@ -34,18 +38,44 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(3),
     },
   },
+  btnSummary: {
+    backgroundColor: '#505160',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnKeywords: {
+    backgroundColor: '#68829E',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnDefine: {
+    backgroundColor: '#AEBD38',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnWebInfo: {
+    backgroundColor: '#598234',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnUiWrapper: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+  },
+
   popper: { zIndex: 9999 },
 }));
 
 const CustomEditor = ({ ...children }) => {
   const {
-    analysisSummaryRef,
-    analysisKeywordsRef,
+    setAnalysisSummary,
+    setAnalysisKeywords,
     setAnalyseTabValue,
     defineRef,
     setUiBtn,
     token,
-    fullScreen,
+    setSearchTerm,
   } = children;
 
   const context = React.useContext(StoreContext);
@@ -54,6 +84,9 @@ const CustomEditor = ({ ...children }) => {
   const [editorState, setEditorState] = context.editorState;
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [defineOpen, setDefineOpen] = React.useState(false);
+  const [definition, setDefinition] = React.useState('');
+  const [isSingleWordSelected, setIsSingleWordSelected] = React.useState(false);
 
   const handleEditorChange = (state) => {
     setEditorState(state);
@@ -67,7 +100,37 @@ const CustomEditor = ({ ...children }) => {
     if (selectedText) {
       const summary = await getSummary(selectedText, token);
       console.log(summary);
-      analysisSummaryRef.current.value = summary;
+      setAnalysisSummary(summary);
+      setPopoverOpen(false);
+    } else {
+      toast.warn('No text selected for analysis.');
+    }
+  };
+
+  const handleGetKeywords = async (text) => {
+    const selectedText = window.getSelection().toString();
+    console.log('ST: ', selectedText);
+    if (selectedText) {
+      const keywords = await getKeywords(selectedText, token);
+      console.log(keywords);
+      const formattedKeywords = (
+        <div>
+          {keywords.map((keyword) => (
+            <p>
+              <Link
+                onClick={() => {
+                  setSearchTerm(keyword);
+                  setUiBtn('weblinks');
+                }}
+                component="button"
+              >
+                {keyword}
+              </Link>
+            </p>
+          ))}
+        </div>
+      );
+      setAnalysisKeywords(formattedKeywords);
       setPopoverOpen(false);
     } else {
       toast.warn('No text selected for analysis.');
@@ -77,10 +140,15 @@ const CustomEditor = ({ ...children }) => {
   const handleDefineQuery = async (defineQuery) => {
     const selectedText = window.getSelection().toString();
     if (selectedText) {
-      const definition = await fetchDefinition(urlBase, token, selectedText);
+      const definitionResponse = await fetchDefinition(
+        urlBase,
+        token,
+        selectedText
+      );
       console.log(definition);
-      defineRef.current.value = definition;
+      setDefinition(definitionResponse);
       setPopoverOpen(false);
+      setDefineOpen(true);
     } else {
       toast.warn('No text selected for definition.');
     }
@@ -88,11 +156,15 @@ const CustomEditor = ({ ...children }) => {
 
   React.useEffect(() => {
     const selection = window.getSelection();
+    const numWords = selection.toString().trim().split(' ');
+    console.log(numWords);
+    if (numWords.length === 1) setIsSingleWordSelected(true);
     console.log('ES: ', editorState);
 
     // Resets when the selection has a length of 0
     if (!selection || selection.anchorOffset === selection.focusOffset) {
       setPopoverOpen(false);
+      setIsSingleWordSelected(false);
       return;
     }
 
@@ -100,6 +172,7 @@ const CustomEditor = ({ ...children }) => {
       selection.getRangeAt(0).getBoundingClientRect();
 
     setPopoverOpen(true);
+
     setAnchorEl({
       clientWidth: getBoundingClientRect().width,
       clientHeight: getBoundingClientRect().height,
@@ -107,12 +180,31 @@ const CustomEditor = ({ ...children }) => {
     });
   }, [editorState]);
 
-
   return (
     <div>
       <Popper
         className={classes.popper}
-        placement="bottom-start"
+        placement="bottom-right"
+        open={defineOpen}
+        anchorEl={anchorEl}
+        transition
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={600}>
+            <Paper>
+              <Typography
+                onMouseLeave={() => setDefineOpen(false)}
+                className={classes.typography}
+              >
+                {definition}
+              </Typography>
+            </Paper>
+          </Fade>
+        )}
+      </Popper>
+      <Popper
+        className={classes.popper}
+        placement="top-start"
         open={popoverOpen}
         anchorEl={anchorEl}
         transition
@@ -121,52 +213,61 @@ const CustomEditor = ({ ...children }) => {
           <Fade {...TransitionProps} timeout={600}>
             <div>
               <Box className={classes.btnUiWrapper}>
-                <Button
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setUiBtn('analyse');
-                    setAnalyseTabValue(0);
-                    handleGetSumary();
-                  }}
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                >
-                  {'SUMMARY'}
-                </Button>
-                <Button
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setUiBtn('analyse');
-                    setAnalyseTabValue(1);
-                    // handleGetSumary();
-                  }}
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                >
-                  {'KEYWORDS'}
-                </Button>
-                <Button
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setUiBtn('define');
-                    handleDefineQuery();
-                  }}
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                >
-                  {'DEFINE'}
-                </Button>
+                {!isSingleWordSelected && (
+                  <Button
+                    className={classes.btnSummary}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setUiBtn('analyse');
+                      setAnalyseTabValue(0);
+                      handleGetSumary();
+                    }}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                  >
+                    {'SUMMARY'}
+                  </Button>
+                )}
+                {!isSingleWordSelected && (
+                  <Button
+                    className={classes.btnKeywords}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setUiBtn('analyse');
+                      setAnalyseTabValue(1);
+                      handleGetKeywords();
+                    }}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                  >
+                    {'KEYWORDS'}
+                  </Button>
+                )}
+                {isSingleWordSelected && (
+                  <Button
+                    className={classes.btnDefine}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleDefineQuery();
+                    }}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                  >
+                    {'DEFINE'}
+                  </Button>
+                )}
 
                 <Button
+                  className={classes.btnWebInfo}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     setUiBtn('weblinks');
                   }}
                   variant="contained"
-                  color="secondary"
+                  color="primary"
                   size="small"
                 >
                   {'WEB INFO'}
