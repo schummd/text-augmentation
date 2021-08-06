@@ -78,7 +78,7 @@ const MyReads = () => {
         }
         const { data } = resData;
         setMyReads(data);
-        console.log(data);
+        console.log("Retrieved from backend", data);
         setLoadingState('done');
       } catch (error) {
         toast.error('Error retrieving Reads from server.');
@@ -112,6 +112,7 @@ const MyReads = () => {
                       button
                       onClick={() => {
                         console.log(`Username: ${username}`);
+                        console.log('Text id', myRead.text_id)
                         console.log(JSON.parse(myRead.text_body));
                         history.push(`/articles/${myRead.text_id}`);
                       }}

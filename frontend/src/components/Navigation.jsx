@@ -91,6 +91,14 @@ const Navigation = () => {
         setUsername(null);
       });
   };
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const [usersname, setUsersname] = React.useState(storedUser.username);
+
+  const btnProfile = () => {
+    const profileUrl = "/user/" + usersname
+    history.push(profileUrl);
+  }
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -131,6 +139,20 @@ const Navigation = () => {
                   </Button>
                 </Tooltip>
 
+                <Tooltip title="profile">
+                  <Button
+                    id="profile-button"
+                    variant="contained"
+                    color="default"
+                    className={classes.btnText}
+                    onClick={() => {
+                      history.push('/user/network');
+                    }}
+                  >
+                    Social 
+                  </Button>
+                </Tooltip>
+
                 <Tooltip title="My Reads">
                   <Button
                     id="texts-button"
@@ -162,6 +184,19 @@ const Navigation = () => {
             </Grid>
 
             <Grid container item xs={4} align="flex-end" justify="flex-end">
+            <Tooltip title="Profile">
+                <Button
+                  id="profile-button"
+                  variant="contained"
+                  color="default"
+                  className={classes.btnText}
+                  onClick={() => {
+                    btnProfile();
+                  }}
+                >
+                  My Profile
+                </Button>
+              </Tooltip>             
               <Tooltip title="Logout">
                 <Button
                   id="logout-button"
