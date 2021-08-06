@@ -21,6 +21,17 @@ class UserDto:
             ),
         },
     )
+    update = api.model(
+        "update",
+        {
+            "email": fields.String(required=False, description="update email address"),
+            "username": fields.String(required=False, description="update username"),
+            "first_name": fields.String(
+                required=False, description="update first name"
+            ),
+            "last_name": fields.String(required=False, description="update last name"),
+        },
+    )
 
 
 class AuthDto:

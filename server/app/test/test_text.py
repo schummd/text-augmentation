@@ -46,18 +46,6 @@ def login_user(self, name):
     )
 
 
-# def save_text(text_id, title, user_id):
-#     new_text = Text(
-#         text_id=text_id,
-#         created_on=datetime.datetime.utcnow(),
-#         text_title=title,
-#         user_id=user_id,
-#         text_body="what does the fox say?",
-#     )
-#     db.session.add(new_text)
-#     db.session.commit()
-
-
 def user_add_text(self, response_login, title, body):
     # add text
     return self.client.post(
