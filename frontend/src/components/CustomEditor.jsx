@@ -37,6 +37,32 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(3),
     },
   },
+  btnSummary: {
+    backgroundColor: '#505160',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnKeywords: {
+    backgroundColor: '#68829E',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnDefine: {
+    backgroundColor: '#AEBD38',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnWebInfo: {
+    backgroundColor: '#598234',
+    color: '#fff',
+    marginRight: '2px',
+  },
+  btnUiWrapper: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+  },
+
   popper: { zIndex: 9999 },
 }));
 
@@ -58,6 +84,7 @@ const CustomEditor = ({ ...children }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [defineOpen, setDefineOpen] = React.useState(false);
   const [definition, setDefinition] = React.useState('');
+  const [isSingleWordSelected, setIsSingleWordSelected] = React.useState(false);
 
   const handleEditorChange = (state) => {
     setEditorState(state);
@@ -110,11 +137,15 @@ const CustomEditor = ({ ...children }) => {
 
   React.useEffect(() => {
     const selection = window.getSelection();
+    const numWords = selection.toString().trim().split(' ');
+    console.log(numWords);
+    if (numWords.length === 1) setIsSingleWordSelected(true);
     console.log('ES: ', editorState);
 
     // Resets when the selection has a length of 0
     if (!selection || selection.anchorOffset === selection.focusOffset) {
       setPopoverOpen(false);
+      setIsSingleWordSelected(false);
       return;
     }
 
@@ -153,7 +184,7 @@ const CustomEditor = ({ ...children }) => {
       </Popper>
       <Popper
         className={classes.popper}
-        placement="bottom-start"
+        placement="top-start"
         open={popoverOpen}
         anchorEl={anchorEl}
         transition
@@ -162,51 +193,61 @@ const CustomEditor = ({ ...children }) => {
           <Fade {...TransitionProps} timeout={600}>
             <div>
               <Box className={classes.btnUiWrapper}>
-                <Button
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setUiBtn('analyse');
-                    setAnalyseTabValue(0);
-                    handleGetSumary();
-                  }}
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                >
-                  {'SUMMARY'}
-                </Button>
-                <Button
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setUiBtn('analyse');
-                    setAnalyseTabValue(1);
-                    handleGetKeywords();
-                  }}
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                >
-                  {'KEYWORDS'}
-                </Button>
-                <Button
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleDefineQuery();
-                  }}
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                >
-                  {'DEFINE'}
-                </Button>
+                {!isSingleWordSelected && (
+                  <Button
+                    className={classes.btnSummary}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setUiBtn('analyse');
+                      setAnalyseTabValue(0);
+                      handleGetSumary();
+                    }}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                  >
+                    {'SUMMARY'}
+                  </Button>
+                )}
+                {!isSingleWordSelected && (
+                  <Button
+                    className={classes.btnKeywords}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setUiBtn('analyse');
+                      setAnalyseTabValue(1);
+                      handleGetKeywords();
+                    }}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                  >
+                    {'KEYWORDS'}
+                  </Button>
+                )}
+                {isSingleWordSelected && (
+                  <Button
+                    className={classes.btnDefine}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleDefineQuery();
+                    }}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                  >
+                    {'DEFINE'}
+                  </Button>
+                )}
 
                 <Button
+                  className={classes.btnWebInfo}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     setUiBtn('weblinks');
                   }}
                   variant="contained"
-                  color="secondary"
+                  color="primary"
                   size="small"
                 >
                   {'WEB INFO'}
