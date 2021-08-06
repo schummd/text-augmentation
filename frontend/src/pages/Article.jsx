@@ -46,6 +46,7 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
+import search from 'youtube-search';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -157,6 +158,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     minHeight: '528px',
     marginBottom: '0.5em',
+    backgroundColor: '#F0F0F0',
   },
   btnUiWrapper: {
     display: 'flex',
@@ -308,6 +310,7 @@ const Article = () => {
   const [definitionVal, setDefinitionVal] = React.useState('');
   const [analysisSummary, setAnalysisSummary] = React.useState('summary');
   const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const [rawPdf, setRawPdf] = React.useState(null);
   const [rawDataUrl, setRawDataUrl] = React.useState(null);
@@ -527,6 +530,7 @@ const Article = () => {
                           setAnalysisSummary={setAnalysisSummary}
                           setAnalysisKeywords={setAnalysisKeywords}
                           analysisKeywordsRef={analysisKeywordsRef}
+                          setSearchTerm={setSearchTerm}
                           defineRef={defineRef}
                           setUiBtn={setUiBtn}
                           setAnalyseTabValue={setAnalyseTabValue}
@@ -537,6 +541,7 @@ const Article = () => {
                       <CustomEditor
                         setAnalysisSummary={setAnalysisSummary}
                         setAnalysisKeywords={setAnalysisKeywords}
+                        setSearchTerm={setSearchTerm}
                         defineRef={defineRef}
                         setUiBtn={setUiBtn}
                         setAnalyseTabValue={setAnalyseTabValue}
@@ -756,19 +761,7 @@ const Article = () => {
                         id={`analyse-tab-panel-0`}
                         aria-labelledby={`analyse-tab-panel-0`}
                       >
-                        <Paper
-                          // placeholder="Text Analysis Summary"
-                          variant="elevation"
-                          // multiline
-                          // fullWidth
-                          // rows={25}
-
-                          className={classes.uiSummary}
-                          // inputRef={analysisSummaryRef}
-                          // inputProps={{
-                          //   readOnly: true,
-                          // }}
-                        >
+                        <Paper variant="outlined" className={classes.uiSummary}>
                           <Typography align="left" variant="p">
                             {analysisSummary}
                           </Typography>
@@ -779,19 +772,7 @@ const Article = () => {
                         id={`analyse-tab-panel-1`}
                         aria-labelledby={`analyse-tab-panel-1`}
                       >
-                        <Paper
-                          // placeholder="Text Analysis Summary"
-                          variant="elevation"
-                          // multiline
-                          // fullWidth
-                          // rows={25}
-
-                          className={classes.uiSummary}
-                          // inputRef={analysisSummaryRef}
-                          // inputProps={{
-                          //   readOnly: true,
-                          // }}
-                        >
+                        <Paper variant="outlined" className={classes.uiSummary}>
                           <Typography align="left" variant="p">
                             {analysisKeywords}
                           </Typography>
@@ -841,7 +822,7 @@ const Article = () => {
                         }}
                         className={classes.uiDisplayTextfield}
                       />
-                      <MyAccordian></MyAccordian>
+                      <MyAccordian searchTerm={searchTerm}></MyAccordian>
                     </Box>
                   )
                 }

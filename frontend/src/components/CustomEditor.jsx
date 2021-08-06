@@ -8,8 +8,9 @@ import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
-import { Box, Button, Paper, Typography } from '@material-ui/core';
+import { Box, Button, Link, Paper, Typography } from '@material-ui/core';
 import { toast } from 'react-toastify';
+import * as youtubeSearch from 'youtube-search';
 
 import { getSummary, fetchDefinition, getKeywords } from '../utils/utils';
 
@@ -74,6 +75,7 @@ const CustomEditor = ({ ...children }) => {
     defineRef,
     setUiBtn,
     token,
+    setSearchTerm,
   } = children;
 
   const context = React.useContext(StoreContext);
@@ -111,7 +113,24 @@ const CustomEditor = ({ ...children }) => {
     if (selectedText) {
       const keywords = await getKeywords(selectedText, token);
       console.log(keywords);
-      setAnalysisKeywords(keywords.join(', '));
+      const formattedKeywords = (
+        <div>
+          {keywords.map((keyword) => (
+            <p>
+              <Link
+                onClick={() => {
+                  setSearchTerm(keyword);
+                  setUiBtn('weblinks');
+                }}
+                component="button"
+              >
+                {keyword}
+              </Link>
+            </p>
+          ))}
+        </div>
+      );
+      setAnalysisKeywords(formattedKeywords);
       setPopoverOpen(false);
     } else {
       toast.warn('No text selected for analysis.');
@@ -153,6 +172,7 @@ const CustomEditor = ({ ...children }) => {
       selection.getRangeAt(0).getBoundingClientRect();
 
     setPopoverOpen(true);
+
     setAnchorEl({
       clientWidth: getBoundingClientRect().width,
       clientHeight: getBoundingClientRect().height,
