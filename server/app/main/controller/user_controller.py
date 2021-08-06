@@ -106,6 +106,7 @@ class Newsfeed(Resource):
     @api.doc("newsfeed")
     def get(self, username):
         """List all titles"""
+        print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
 
