@@ -203,18 +203,12 @@ const Home = () => {
     const feed = data.map((dataIn) => (
      <Box > 
       <div key={dataIn.followee_username}>
-        {/* {
-        dataIn.followee_first_name &&
-        `${dataIn.followee_first_name}` `${dataIn.followee_last_name}`
-      }
-      {
-        dataIn.followee_first_name === '' &&
-        `${dataIn.followee_username}`
-      } */}
-        {dataIn.followee_first_name} {dataIn.followee_last_name}
+        {dataIn.followee_username}
         <ul>
-          {dataIn.text_titles.map((text_titles) => (
-            <Typography key={text_titles.text_title} color="inherit">
+          {
+            dataIn.text_titles.length > 0 &&
+            dataIn.text_titles.map((text_titles) => (
+            <li key={text_titles.text_title}>
               {text_titles.text_title}
 
               <Box sx={{ '& button': { m: 1 } }}>
@@ -233,11 +227,18 @@ const Home = () => {
                   />
                 </Button>
               </Box>
-            </Typography>
+            </li> 
           ))}
+          {
+            dataIn.text_titles.length === 0 &&
+            <Typography variant="subtitle2" color="textSecondary">
+              {`${dataIn.followee_username} has no saved Reads.`}
+            </Typography>
+          }
         </ul>
-        <br></br>
-      </div></Box>
+        <br />
+      </div>
+      </Box>
     ));
 
     return feed;
