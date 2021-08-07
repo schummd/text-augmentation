@@ -17,6 +17,8 @@ Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_
 ### Current Key Names
 This is a list of all API keys used in our project. If you incorporate a new key, update this list with its name ONLY. Only update this list when your code has been pushed to master.
 - REACT_APP_YT_KEY: API key for youtube [Getting a key](https://medium.com/swlh/how-to-get-youtubes-api-key-7c28b59b1154)
+- REACT_APP_NEWSAPI_KEY: API key for newsapi.org [Get a key](https://newsapi.org/)
+- REACT_APP_UNPAYWALL_EMAIL: your email for unpaywall requests.
 
 In the /frontned folder, create a file named `.env`:
 
@@ -30,6 +32,8 @@ CURRENT file:
 
 ```
 REACT_APP_YT_KEY="XXXXXXXXXX"
+REACT_APP_NEWSAPI_KEY="XXXXXXXXXX"
+REACT_APP_UNPAYWALL_EMAIL="XXXXXXXXXX"
 ```
 
 
