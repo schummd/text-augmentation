@@ -39,6 +39,7 @@ import {
 } from '@material-ui/core';
 import CustomEditor from '../components/CustomEditor';
 import CustomEditorFullScreen from '../components/CustomEditorFullScreen';
+import DeleteDialog from '../components/DeleteDialog';
 import Skeleton from '@material-ui/lab/Skeleton';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
@@ -46,6 +47,7 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import search from 'youtube-search';
 
 const useStyles = makeStyles((theme) => ({
@@ -295,6 +297,7 @@ const Article = () => {
   const [editorState, setEditorState] = context.editorState;
   const [singularRead, setSingularRead] = context.singularRead;
   const [myReads, setMyReads] = context.myReads;
+  const [page, setPage] = context.pageState;
   const { blankEditorState } = context;
 
   React.useEffect(() => {
@@ -306,6 +309,7 @@ const Article = () => {
   const [uiBtn, setUiBtn] = React.useState('analyse');
 
   const [defineQuery, setDefineQuery] = React.useState('');
+  const [articleOwner, setArticleOwner] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
   const [definitionVal, setDefinitionVal] = React.useState('');
   const [analysisSummary, setAnalysisSummary] = React.useState('summary');
@@ -320,7 +324,9 @@ const Article = () => {
   const analysisKeywordsRef = React.useRef();
   const defineRef = React.useRef();
 
-  const { id } = useParams();
+  const params = useParams();
+  const readId = params.id;
+
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
   const [parseLoad, setParseLoad] = React.useState('done');
@@ -337,32 +343,60 @@ const Article = () => {
   }, []);
 
   React.useEffect(() => {
-    const [thisRead] = myReads?.filter((myRead) => myRead.text_id === id);
-    if (thisRead && id !== 'new') {
-      setSingularRead(thisRead);
-      const rawEditorState = convertFromRaw(
-        JSON.parse(thisRead.text_body).editorState
-      );
-      const originalPdfDataUrl = JSON.parse(
-        thisRead.text_body
-      ).uploadedPdfDataUrl;
-      dataUrlToFile(originalPdfDataUrl).then((res) => {
-        setRawPdf(res);
-      });
+    setPage('/articles')
+    let thisRead = null;
+    const getReadFunc = async () => {
+      if (readId !== 'new') {
+        try {
+          const response = await axios({
+            method: 'GET',
+            url: `${urlBase}/text/${readId}`,
+            headers: {
+              accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          })
+          thisRead = response.data.data;
+          console.log('this read is:', thisRead);
+        } catch (error) {
+          console.log(error);
+          toast.error('Could not fetch Read.');
+        }
+      }
+      if (thisRead && readId !== 'new') {
+        if (thisRead.text_author !== undefined) {
+          setArticleOwner(thisRead.text_author);
+        } else {
+          setArticleOwner(username);
+        }
+        setSingularRead(thisRead);
+        const rawEditorState = convertFromRaw(
+          JSON.parse(thisRead.text_body).editorState
+        );
+        const originalPdfDataUrl = JSON.parse(
+          thisRead.text_body
+        ).uploadedPdfDataUrl;
+        dataUrlToFile(originalPdfDataUrl).then((res) => {
+          setRawPdf(res);
+        });
 
-      setEditorState(EditorState.createWithContent(rawEditorState));
+        setEditorState(EditorState.createWithContent(rawEditorState));
+      } else {
+        setArticleOwner(username);
+      }
+      setLoadingState('done');
     }
-    setLoadingState('done');
+    getReadFunc();
   }, []);
 
   React.useEffect(() => {
-    if (id === 'new') {
+    if (readId === 'new') {
       setEditorState(blankEditorState());
       setSingularRead('');
       setRawPdf(null);
       setRawDataUrl(null);
     }
-  }, [id]);
+  }, [readId]);
 
   const saveArticle = async (editorState, rawPdf = null, rawDataUrl = null) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());
@@ -375,16 +409,27 @@ const Article = () => {
       })
     );
 
+    console.log('article owner is', articleOwner);
+    console.log('username is', username);
+    console.log('readid is:', readId);
+
     try {
+      let reqMethod = 'POST';
+      let reqUrl = '/text/';
+      if (articleOwner === username && readId !== 'new') {
+        reqMethod = 'PUT';
+        reqUrl = `/text/${readId}`;
+      }
       const payload = {
-        method: `${id === 'new' ? 'POST' : 'PUT'}`,
-        url: `${id === 'new' ? '/text/' : `/text/${id}`}`,
+        method: reqMethod,
+        url: reqUrl,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `${token}`,
         },
         data: textObject,
       };
+
       console.log(payload);
       const res = await axios(payload);
       console.log('RES', res);
@@ -412,7 +457,7 @@ const Article = () => {
         toast.warn(`${resData.message}`);
       }
     } catch (error) {
-      toast.error('error saving article to server');
+      toast.error('Error saving article to server');
     }
   };
 
@@ -439,6 +484,14 @@ const Article = () => {
   };
   const [darkMode, setDarkMode] = React.useState(false);
 
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+  const handleClickDeleteRead = () => {
+    setOpenDeleteDialog(true);
+  };
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
   const classes = useStyles();
 
   return (
@@ -456,7 +509,7 @@ const Article = () => {
               <Box className={classes.titleSubDiv}>
                 <Box className={classes.titleText}>
                   <Typography align="left" variant="h4">
-                    {id === 'new' ? 'New Read' : singularRead.text_title}
+                    {readId === 'new' ? 'New Read' : singularRead.text_title}
                   </Typography>
                 </Box>
                 <Box className={classes.titleDivBtns}>
@@ -484,9 +537,35 @@ const Article = () => {
                           saveArticle(editorState, rawPdf, rawDataUrl)
                         }
                       >
-                        {id === 'new' ? 'Save New Read' : 'Update Read'}
+                        {
+                          readId === 'new'
+                            ? 'Save New Read'
+                            : articleOwner === username
+                                ? 'Update Read'
+                                : 'Save As Yours'
+                        }
                       </Button>
                     </Tooltip>
+                  </Box>
+                  <Box className={classes.titleDivSingleBtn}>
+                    <Tooltip title="Delete Read">
+                      <IconButton
+                        variant="contained"
+                        color="primary"
+                        className={classes.btnSaveText}
+                        onClick={() => {
+                          handleClickDeleteRead();
+                        }}
+                      >
+                        <DeleteForeverIcon color="secondary" />
+                      </IconButton>
+                    </Tooltip>
+                    <DeleteDialog
+                      open={openDeleteDialog}
+                      handleClose={handleCloseDeleteDialog}
+                      page={page}
+                      deleteUuid={singularRead.text_id}
+                    />
                   </Box>
                 </Box>
               </Box>
@@ -495,7 +574,7 @@ const Article = () => {
             <Box className={classes.containerUi}>
               <Box className={classes.uiInteractionWrapper}>
                 <TextField
-                  placeholder={id === 'new' ? 'TItle' : 'Update Title'}
+                  placeholder={readId === 'new' ? 'TItle' : 'Update Title'}
                   variant="outlined"
                   multiline
                   fullWidth
