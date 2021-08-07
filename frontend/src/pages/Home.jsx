@@ -74,9 +74,9 @@ const Home = () => {
   const storedUser = JSON.parse(localStorage.getItem('user'));
   // const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);
-  const [search, setSearch] = React.useState(false);
-  const [header, setHeader] = React.useState('Newsfeed')
-
+  const [search, setSearch] = context.search
+  const [header, setHeader] = context.header
+ 
   React.useEffect(() => {
     if (token === null) {
       return <Redirect to={{ pathname: '/login' }} />;

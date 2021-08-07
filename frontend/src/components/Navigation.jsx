@@ -93,7 +93,8 @@ const Navigation = () => {
   };
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [usersname, setUsersname] = React.useState(storedUser.username);
-
+  const [search, setSearch] = context.search
+  const [header, setHeader] = context.header
   const btnProfile = () => {
     const profileUrl = "/user/" + usersname
     history.push(profileUrl);
@@ -132,6 +133,8 @@ const Navigation = () => {
                     color="default"
                     className={classes.btnText}
                     onClick={() => {
+                      setSearch(false)
+                      setHeader('Newsfeed')
                       history.push('/home');
                     }}
                   >
