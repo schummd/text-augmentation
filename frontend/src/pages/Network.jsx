@@ -1,6 +1,6 @@
 import React from 'react';
 import Navigation from '../components/Navigation';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 import {
   makeStyles,
   Box,
@@ -105,7 +105,8 @@ const UserNetwork = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setPage = context.pageState[1];
+  const [page, setPage] = context.pageState;
+  const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
   const [firstName, setFirstName] = React.useState('not provided');
   const [lastName, setLastName] = React.useState('not provided');
@@ -132,6 +133,9 @@ const UserNetwork = () => {
         <Box className={classes.cellBtn}>
           <Button
             className={classes.btnText}
+            onClick={()=>{
+              history.push(`/user/${params.row.username}`);
+            }}
           >
             {`${params.formattedValue}`}
           </Button>
@@ -161,11 +165,10 @@ const UserNetwork = () => {
   ];
 
   React.useEffect(() => {
-    setPage('/user');
+    setPage('/user/network');
     async function setupHome() {
       setLoadingState('loading');
       console.log('Profile page', username, token);
-
 
       // getting all users information
       try {
@@ -250,7 +253,7 @@ const UserNetwork = () => {
 
   return (
     <Container>
-      <Navigation />
+      <Navigation page={page} />
       <Container className={classes.container}>
         {loadingState !== 'done' && (
           <div>
@@ -259,7 +262,7 @@ const UserNetwork = () => {
         )}
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
-             <Box className={classes.titleDiv}>
+            <Box className={classes.titleDiv}>
               <Box>
                 <Typography paragraph align="left" variant="h4">
                   Users

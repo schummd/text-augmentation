@@ -76,7 +76,7 @@ const Home = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setPage = context.pageState[1];
+  const [page, setPage] = context.pageState;
   const [loadingState, setLoadingState] = React.useState('load');
   // const [username] = context.username;
   const [myReads, setMyReads] = context.myReads;
@@ -148,7 +148,7 @@ const Home = () => {
 
   // get article titles of the connected reader
   React.useEffect(() => {
-    setPage('/home');
+    setPage('/newsfeed');
     if (search) {
       handleSearch(search);
       console.log("Search is", search)
@@ -246,7 +246,7 @@ const Home = () => {
   const classes = useStyles();
   return (
     <Container>
-      <Navigation />
+      <Navigation page={page} />
       <Container className={classes.container}>
         {loadingState !== 'done' && (
           <div>

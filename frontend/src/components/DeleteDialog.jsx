@@ -19,7 +19,7 @@ const DeleteReadDialog = ({ open, handleClose, page, deleteUuid }) => {
   const token = context.token[0];
   const urlBase = context.urlBase;
   const history = useHistory();
-  
+  console.log('deleteuuid is', deleteUuid)
   return (
     <Dialog
       open={open}
@@ -36,22 +36,33 @@ const DeleteReadDialog = ({ open, handleClose, page, deleteUuid }) => {
           <Button
             color="secondary"
             onClick={async () => {
-              await axios({
-                method: 'DELETE',
-                url: `${urlBase}/text/${deleteUuid}`,
-                headers: {
-                  accept: 'application/json',
-                  'content-type': 'application/json',
-                  Authorization: `${token}`,
-                },
-              })
-                .catch((error) => {
-                  console.log(error);
-                  toast.error('Failed to delete Read.');
+              if (deleteUuid !== 'new') {
+                await axios({
+                  method: 'DELETE',
+                  url: `${urlBase}/text/${deleteUuid}`,
+                  headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `${token}`,
+                  },
                 })
-              handleClose();
-              if (page === '/articles') {
-                history.push('/myreads');
+                  .then(() => {
+                    handleClose();
+                    if (page === '/articles/') {
+                      history.push('/myreads');
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    toast.error('Failed to delete Read.');
+                    handleClose();
+                    if (page === '/articles/') {
+                      history.push('/myreads');
+                    }
+                  })
+              } else {
+                toast.error('Save the new Read before deleting');
+                handleClose();
               }
             }}
           >
@@ -59,7 +70,7 @@ const DeleteReadDialog = ({ open, handleClose, page, deleteUuid }) => {
           </Button>
         </Tooltip>
         <Tooltip title="Cancel">
-          <Button title="Cancel" onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
         </Tooltip>
