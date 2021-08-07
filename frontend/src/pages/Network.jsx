@@ -33,8 +33,6 @@ import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import Paper from '@material-ui/core/Paper';
 
-
-
 const useStyles = makeStyles((theme) => ({
   container: {
     textAlign: 'center',
@@ -66,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
   },
   cellBtn: {
     display: 'flex',
-    width:' 100%',
+    width: ' 100%',
     justifyContent: 'flex-start',
   },
   btnText: {
@@ -97,7 +95,8 @@ const UserNetwork = () => {
   const [username, setUsername] = React.useState(storedUser.username);
   // const username = context.username;
   // console.log("Context data", token, username)
-
+  const [search, setSearch] = context.search;
+  const [usersHeader, setUsersHeader] = context.usersHeader;
 
   React.useEffect(() => {
     if (token === null) {
@@ -125,22 +124,22 @@ const UserNetwork = () => {
     { field: 'id', headerName: 'id', width: 150, hide: true },
     { field: 'first_name', headerName: 'First Name', width: 150 },
     { field: 'last_name', headerName: 'Last Name', width: 150 },
-    { 
+    {
       field: 'username',
       headerName: 'Username',
       width: 150,
-      renderCell: (params) => 
+      renderCell: (params) => (
         <Box className={classes.cellBtn}>
           <Button
             className={classes.btnText}
-            onClick={()=>{
+            onClick={() => {
               history.push(`/user/${params.row.username}`);
             }}
           >
             {`${params.formattedValue}`}
           </Button>
         </Box>
-      
+      ),
     },
     { field: 'email', headerName: 'Email', width: 150 },
     {
@@ -189,7 +188,7 @@ const UserNetwork = () => {
           // toast.success(`Retrieved User information from server.`);
           setRows(userlist.data);
           console.log('User List', rows);
-          setRequestToFollow(false)
+          setRequestToFollow(false);
           setLoadingState('done');
         } else {
           toast.warn(`${userlist.message}`);
@@ -202,13 +201,56 @@ const UserNetwork = () => {
     setupHome();
   }, [requestToFollow]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // TODO: add button actions to search for users and edit profile
- 
+  // search for users
+  const handleUserSearch = async (e) => {
+    setSearch(true);
+    if (e.keyCode === 13 || e.code === 'NumpadEnter') {
+      const words = e.target.value;
+      console.log('searched words are ', e.target.value);
+      setLoadingState('loading');
+      try {
+        const payload = {
+          method: 'GET',
+          url: `/user/${username}/search`,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // params: {"firstname": {firstName},
+          //          "lastname": {lastName},
+          //          "username": {usersName},
+          //          "email": {email}
+          //         }
+        };
+        console.log(payload);
+        const res = await axios(payload);
+        const resData = res.data;
+        console.log(resData);
 
-  const handleUserSearch = async () => {
-
+        if (resData.status === 'success') {
+          console.log('success');
+        } else {
+          toast.warn(`${resData.message}`);
+        }
+        const { rdata } = resData;
+        setRows(resData.data);
+        setUsersHeader('Search Results');
+        console.log(rows);
+        setLoadingState('done');
+      } catch (error) {
+        toast.error('Error retrieving Reads from server.');
+      }
+    }
   };
 
+  const [openEditProfile, setEditProfileOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setEditProfileOpen(true);
+  };
+  const handleCancel = () => {
+    setEditProfileOpen(false);
+  };
+
+  // follow or unfollow another user
   const handleCellClick = async (param, event) => {
     console.log(param);
     console.log(event);
@@ -227,16 +269,15 @@ const UserNetwork = () => {
           'Content-Type': 'application/json',
           Authorization: token,
         },
-        data: { 'user_to_follow': networkUsername },
+        data: { user_to_follow: networkUsername },
       };
       console.log('Payload', payload);
       const response = await axios(payload);
-      console.log("Response", response);
+      console.log('Response', response);
       if (response.status === 201) {
         toast.success(`Changed connection status.`);
         setRequestToFollow(true);
-        console.log("Params", param)
-     
+        console.log('Params', param);
       } else {
         toast.error('Error retrieving response from server.');
       }
@@ -265,21 +306,74 @@ const UserNetwork = () => {
                   display="inline-block"
                   padding="30px"
                   > */}
-                   </Typography>
-                <Paper component="form" className={classes.root}>
-                  <IconButton>
-                    <SearchIcon />
-                  </IconButton>
-                  <InputBase
-                    className={classes.input}
-                    placeholder="Search Articles"
-                    inputProps={{ 'aria-label': 'search articles' }}
-                    // onKeyDown={(e) => setSearch(e)}
-                  />
-                </Paper>
+                </Typography>
+                <Box className={classes.btnUiDiv}>
+                  <Tooltip title="Edit Profile">
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        handleClickOpen();
+                      }}
+                    >
+                      Search Users
+                    </Button>
+                  </Tooltip>
+                  <Dialog open={openEditProfile} onClose={handleCancel}>
+                    <DialogTitle>Search Users</DialogTitle>
+                    <DialogContent>
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="First Name"
+                        type="name"
+                        fullWidth
+                        variant="standard"
+                        // value={firstName}
+                        // onChange={(e) => setFirstName(e.target.value)}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Last Name"
+                        type="name"
+                        fullWidth
+                        variant="standard"
+                        // value={lastName}
+                        // onChange={(e) => setFirstName(e.target.value)}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="username"
+                        type="name"
+                        fullWidth
+                        variant="standard"
+                        // value={usersName}
+                        // onChange={(e) => setFirstName(e.target.value)}
+                      />
+                      <TextField
+                        margin="dense"
+                        id="name"
+                        label="Email"
+                        type="name"
+                        fullWidth
+                        variant="standard"
+                        // value={email}
+                        // onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </DialogContent>
+                    <DialogActions>
+                      {/* <Button onClick={handleCancel}>Cancel</Button> */}
+                      {/* <Button onClick={handleSave}>Save</Button> */}
+                    </DialogActions>
+                  </Dialog>
+                </Box>
+
                 <br></br>
-              {/* </Box> */}
-             
+                {/* </Box> */}
               </Box>
               <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
                 <div style={{ display: 'flex', height: '100%' }}>
@@ -298,7 +392,6 @@ const UserNetwork = () => {
                       onPageSizeChange={handlePageSizeChange}
                       rowsPerPageOptions={[5, 10, 20]}
                       rowCount={rows.length}
-                      
                     />
                   </div>
                 </div>

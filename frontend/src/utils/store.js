@@ -19,6 +19,7 @@ const Context = ({ children }) => {
   );
   const [search, setSearch] = React.useState(false);
   const [header, setHeader] = React.useState('News Feed')
+  const [usersHeader, setUsersHeader] = React.useState('Users')
 
 
   const blankEditorState = () => {
@@ -33,6 +34,7 @@ const Context = ({ children }) => {
     myReads: [myReads, setMyReads],
     search: [search, setSearch],
     header: [header, setHeader],
+    usersHeader: [usersHeader, setUsersHeader],
     singularRead: [singularRead, setSingularRead],
     editorState: [editorState, setEditorState],
     blankEditorState,
