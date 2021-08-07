@@ -138,9 +138,6 @@ class ArticleSearch(Resource):
     def get(self, username):
         """List searched titles"""
         search_string = request.args.get('search_string')
-        # response, status = Auth.get_logged_in_user(request)
-        
         word = json.loads(search_string)['words']
-        print('string', word)
-        res = article_search(username, word)
-        return res
+        return article_search(username, word)
+ 

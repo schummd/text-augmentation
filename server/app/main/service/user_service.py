@@ -296,6 +296,7 @@ def get_newsfeed(username):
 
 
 def _processing_text_id(text_ids, ids, word):
+    '''collecting results of the search'''
     for id in text_ids:
         if not id.text_id in ids:  # checking if this text has alreadu been counted in
             ids[id.text_id] = [id.text_title, word]
@@ -304,69 +305,71 @@ def _processing_text_id(text_ids, ids, word):
                 ids[id.text_id].append(word)
     return ids
 
-def _analyse_results(ids):
+
+def _analyse_results(ids, number_of_words):
+    '''selecting results where all words are present'''
     titles = []
     item = {}
-    # print(ids)
-    for title in ids:
-        print('Element of ids', title)
-        t = {}
-        t["text_title"] = ids[title][0]
-        t["text_id"] = title
-        titles.append(t)
+
+    for id in ids:
+        if len(ids[id])-1 == number_of_words:
+            t = {}
+            t["text_title"] = ids[id][0]
+            t["text_id"] = id
+            titles.append(t)
     item["followee_username"] = ' ',
     item["followee_last_name"] = ' ',
     item["followee_first_name"] = ' ',    
     item["text_titles"] = titles
-    print(item)
     return {"status": "success", "data": [item]}
 
 
         
-
 def article_search(username, search_string):
-    print(search_string)
+    '''Search for article titles with one or more words. Returns titles in which all 
+    words are present. Articles searched are those of the logged in user and also 
+    of those who the user follows.'''
     new_string = ''
+    # input validation
     for ch in search_string:
         if ord(ch) == 32 or (ord(ch) >= 97 and ord(ch) <= 122):
             new_string = new_string + ch
     words = new_string.split(' ')
-
-
+    number_of_words = len(words)
+    ids = {}  # all text ids key: text_id, value: [text_title, word1, word2]
     users = Follower.query.filter_by(user_name=username).all()
-    # user follower someone
     if len(users) != 0:
 
-        newsfeed = []
-        # statistics of all textx found with dictionary t["text_title"],["text_id"] as a key 
-        ids = {}  # all text ids key: text_id, value: [words]
         for user in users:
             person_username = user.following
-            followee = User.query.filter_by(username=person_username).first()
-  
             for word in words:
-                text_ids = (
+                texts = (
                             db.session.query(Text.text_id, Text.text_title)
                             .join(User, Text.user_id == User.id)
-                            .filter(User.username == person_username) #| (User.username == username) 
+                            .filter(User.username == person_username) 
                             .filter(func.lower(Text.text_title).contains(word.lower()))
                             .all()
                         )
-                # print(followee, words, text_ids, ids)
-                ids = _processing_text_id(text_ids, ids, word)
-          
-        for word in words:
-    
-            text_ids = (
-                        db.session.query(Text.text_id, Text.text_title)
-                        .join(User, Text.user_id == User.id)
-                        .filter(User.username == username) 
-                        .filter(func.lower(Text.text_title).contains(word.lower()))
-                        .all()
-                    )
-            ids = _processing_text_id(text_ids, ids, word)
+                
+                ids = _processing_text_id(texts, ids, word)
+    # search in the articles of logged in user  
+    for word in words:
 
-        return _analyse_results(ids)
+        texts = (
+                    db.session.query(Text.text_id, Text.text_title)
+                    .join(User, Text.user_id == User.id)
+                    .filter(User.username == username) 
+                    .filter(func.lower(Text.text_title).contains(word.lower()))
+                    .all()
+                )
+        ids = _processing_text_id(texts, ids, word)
+
+    print(ids)
+
+    return _analyse_results(ids, number_of_words)
+
+
+
 
 
 def save_changes(data: User) -> None:
