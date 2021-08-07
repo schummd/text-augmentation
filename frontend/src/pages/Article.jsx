@@ -547,26 +547,30 @@ const Article = () => {
                       </Button>
                     </Tooltip>
                   </Box>
-                  <Box className={classes.titleDivSingleBtn}>
-                    <Tooltip title="Delete Read">
-                      <IconButton
-                        variant="contained"
-                        color="primary"
-                        className={classes.btnSaveText}
-                        onClick={() => {
-                          handleClickDeleteRead();
-                        }}
-                      >
-                        <DeleteForeverIcon color="secondary" />
-                      </IconButton>
-                    </Tooltip>
-                    <DeleteDialog
-                      open={openDeleteDialog}
-                      handleClose={handleCloseDeleteDialog}
-                      page={page}
-                      deleteUuid={singularRead.text_id}
-                    />
-                  </Box>
+                  {
+                    articleOwner === username &&
+                    readId !== 'new' &&
+                    <Box className={classes.titleDivSingleBtn}>
+                      <Tooltip title="Delete Read">
+                        <IconButton
+                          variant="contained"
+                          color="primary"
+                          className={classes.btnSaveText}
+                          onClick={() => {
+                            handleClickDeleteRead();
+                          }}
+                        >
+                          <DeleteForeverIcon color="secondary" />
+                        </IconButton>
+                      </Tooltip>
+                      <DeleteDialog
+                        open={openDeleteDialog}
+                        handleClose={handleCloseDeleteDialog}
+                        page={page}
+                        deleteUuid={singularRead.text_id}
+                      />
+                    </Box>
+                  }
                 </Box>
               </Box>
             </Box>
