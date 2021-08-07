@@ -124,7 +124,8 @@ const Login = () => {
               token: response.data.Authorization,
             })
           );
-          history.push('/home');
+          setPage('/articles/');
+          history.push('/articles/new');
         })
         .catch((error) => {
           let errorText = '';
