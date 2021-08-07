@@ -18,7 +18,7 @@ const Context = ({ children }) => {
     EditorState.createEmpty()
   );
   const [search, setSearch] = React.useState(false);
-  const [header, setHeader] = React.useState('Newsfeed')
+  const [header, setHeader] = React.useState('News Feed')
 
 
   const blankEditorState = () => {

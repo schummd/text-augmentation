@@ -210,7 +210,7 @@ const Navigation = ({ page }) => {
                     className={classes.btnText}
                     onClick={() => {
                       setSearch(false)
-                      setHeader('Newsfeed')
+                      setHeader('News Feed')
                       history.push('/home');
                     }}
                   >
