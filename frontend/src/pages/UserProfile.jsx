@@ -1,34 +1,39 @@
 import React from 'react';
+import { StoreContext } from '../utils/store';
 import Navigation from '../components/Navigation';
-import { Redirect } from 'react-router-dom';
+import {
+  Redirect,
+  useParams,
+  useHistory,
+} from 'react-router-dom';
 import {
   makeStyles,
   Box,
   Container,
+  Button,
+  TextField,
   Typography,
   CircularProgress,
+  FormControl,
+  Tooltip,
+  Icon,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
 } from '@material-ui/core';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import { StoreContext } from '../utils/store';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { Tooltip } from '@material-ui/core';
-import { Button } from '@material-ui/core';
 import { DataGrid } from '@material-ui/data-grid';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import Icon from '@material-ui/core/Icon';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-import TextField from '@material-ui/core/TextField';
-import { FormControl } from '@material-ui/core/';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContentText from '@material-ui/core/DialogContentText';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -39,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     color: 'gray',
     minHeight: '100vh',
-    width: '50%',
+    width: '100%',
     backgroundColor: '#F0F0F0',
   },
   containerDiv: {
@@ -55,20 +60,45 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2),
     float: 'left',
   },
+  titleAndBtnDiv: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   btnUiDiv: {
     display: 'inline',
     paddingRight: '4px',
     paddingLeft: '50px',
   },
+  tableContainer: {
+    marginBottom: '1em',
+  },
+  articlesContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  cellBtn: {
+    display: 'flex',
+    width:' 100%',
+    justifyContent: 'flex-start',
+  },
+  btnText: {
+    fontSize: '14px',
+    textTransform: 'none',
+    justifyContent: 'flex-start',
+    width: '100%',
+  },  
 }));
 
 const UserProfile = () => {
   const context = React.useContext(StoreContext);
-  const storedUser = JSON.parse(localStorage.getItem('user'));
-  const [token, setToken] = React.useState(storedUser.token);
-  const [username, setUsername] = React.useState(storedUser.username);
-  // const username = context.username;
-  // console.log("Context data", token, username)
+  // const storedUser = JSON.parse(localStorage.getItem('user'));
+  // const [token, setToken] = React.useState(storedUser.token);
+  // const [username, setUsername] = React.useState(storedUser.username);
+  const token = context.token[0];
+  const username = context.username[0];
 
   React.useEffect(() => {
     if (token === null) {
@@ -76,24 +106,26 @@ const UserProfile = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setPage = context.pageState[1];
-  const [loadingState, setLoadingState] = React.useState('load');
+  const [page, setPage] = context.pageState;
+  const history = useHistory();
+  const [loadingState, setLoadingState] = React.useState('loading');
+  const params = useParams();
+  const currentProfileUsername = params.username;
   const [firstName, setFirstName] = React.useState('not provided');
   const [lastName, setLastName] = React.useState('not provided');
   const [email, setEmail] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+  const [userArticles, setUserArticles] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
 
   React.useEffect(() => {
-    setPage('/user');
+    setPage(`/user/${currentProfileUsername}`);
     async function setupHome() {
       setLoadingState('loading');
-      console.log('Profile page', username, token);
-
-      // getting logged-in user information
+      // getting user information
       try {
         const payload = {
           method: 'GET',
-          url: `/user/${username}`,
+          url: `/user/${currentProfileUsername}`,
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Authorization: ${token}`,
@@ -103,12 +135,6 @@ const UserProfile = () => {
         const res = await axios(payload);
         const resData = res.data;
         console.log('ResData', resData);
-        // if (resData.status === 'success') {
-        if (resData.username === username) {
-          toast.success(`Retrieved User information from server.`);
-        } else {
-          toast.warn(`${resData.message}`);
-        }
 
         setFirstName(resData.first_name);
         setLastName(resData.last_name);
@@ -117,57 +143,57 @@ const UserProfile = () => {
       } catch (error) {
         toast.error('Error retrieving User data from server.');
       }
+      if (currentProfileUsername !== username) {
+        try {
+          const payload = {
+            method: 'GET',
+            url: `/text/fetchall/${currentProfileUsername}`,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          };
+          console.log(payload);
+          const res = await axios(payload);
+          const resData = res.data;
+          console.log(resData);
+          if (resData.status === 'success') {
+            console.log('success');
+          } else {
+            toast.warn(`${resData.message}`);
+          }
+          const { data } = resData;
+
+          console.log('userArticles are', data);
+
+          if (data.length > 0) {
+            setUserArticles(data);
+            setRows(data);
+          }
+        } catch (error) {
+          toast.error('Error retrieving Reads from server.');
+        }        
+      }
     }
     setupHome();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // TODO: add button actions to search for users and edit profile
+  const handleCellClick = async (param, event) => {
+    // handling clicking on an article
+    if (param.colDef.field === 'text_title') {
+      history.push(`/articles/${param.row.text_id}`);
+    }
+    event.stopPropagation();
+  };
 
   const [openEditProfile, setEditProfileOpen] = React.useState(false);
-  const [openSearchUsers, setEditSearchUsers] = React.useState(false);
-
-  const [searchUsersOperate, setSearchUsersOperate] = React.useState();
-  const handleUserSearch = async () => {
-    React.setOpenSearchUsers(true);
-    // React.setSearchUsersOperate(<SearchUsersButton />);
-    // return searchUsersOperate;
-  };
-
-  // handling change in following status
-  const HandleCellClick = async (param, event) => {
-    const networkUsername = param.row.username;
-
-    // sending backend 'followers' status update
-    const payload = {
-      method: 'PATCH',
-      url: '/user/' + username + '/following',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      data: { user_to_follow: networkUsername },
-    };
-    console.log('Payload', payload);
-    const response = await axios(payload);
-    console.log('Response', response);
-    if (response.status === 201) {
-      toast.success(`Changed connection status.`);
-      console.log('Params', param);
-    } else {
-      toast.error('Error retrieving response from server.');
-    }
-  };
-
   const handleClickOpen = () => {
-    setOpen(true);
+    setEditProfileOpen(true);
   };
-
   const handleCancel = () => {
-    setOpen(false);
+    setEditProfileOpen(false);
   };
 
   const handleSave = async () => {
-    setOpen(false);
     const profilePayload = {
       method: 'PUT',
       url: '/user/',
@@ -189,12 +215,39 @@ const UserProfile = () => {
     } else {
       toast.error('Error retrieving response from server.');
     }
+    handleCancel();
   };
 
+  const [pageSize, setPageSize] = React.useState(10);
+  const [pageNumber, setPageNumber] = React.useState(0);
+  const handlePageSizeChange = (params) => {
+    setPageSize(params.pageSize);
+  };
+
+  const columns = [
+    { field: 'id', headerName: 'Id', width: 150, hide: true },
+    { field: 'text_id', headerName: 'Text Id', width: 150, hide: true },
+    {
+      field: 'text_title', headerName: 'Title', width: 600,
+      renderCell: (params) =>
+        <Box className={classes.cellBtn}>
+          <Tooltip title="Go to Read">
+            <Button
+              className={classes.btnText}
+            >
+              {`${params.formattedValue}`}
+            </Button>
+          </Tooltip>
+        </Box>
+    },
+    { field: 'text_created', headerName: 'Created At', width: 200 },
+  ];
+  
   const classes = useStyles();
+
   return (
     <Container>
-      <Navigation />
+      <Navigation page={page} />
       <Container className={classes.container}>
         {loadingState !== 'done' && (
           <div>
@@ -204,15 +257,35 @@ const UserProfile = () => {
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
-              <Box>
+              <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
-                  My Profile
+                  {
+                    currentProfileUsername === username
+                      ? 'My Profile'
+                      : 'User Profile'
+                  }
+                </Typography>
+                {
+                  currentProfileUsername === username &&
                   <Box className={classes.btnUiDiv}>
-                    <Button variant="outlined" onClick={handleClickOpen}>
-                      Edit Profile
-                    </Button>
-
-                    <Dialog open={open} onClose={handleCancel}>
+                    <Tooltip title="Edit Profile">
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          if (currentProfileUsername === username) {
+                            handleClickOpen();
+                          } else {
+                            toast.error('May only change your own Profile');
+                          }
+                        }}
+                      >
+                        Edit Profile
+                      </Button>
+                    </Tooltip>
+                    <Dialog
+                      open={openEditProfile}
+                      onClose={handleCancel}
+                    >
                       <DialogTitle>Edit Profile</DialogTitle>
                       <DialogContent>
                         <TextField
@@ -239,15 +312,15 @@ const UserProfile = () => {
                         />
                       </DialogContent>
                       <DialogActions>
-                        {/* <Button onClick={handleCancel}>Cancel</Button> */}
+                        <Button onClick={handleCancel}>Cancel</Button>
                         <Button onClick={handleSave}>Save</Button>
                       </DialogActions>
                     </Dialog>
                   </Box>
-                </Typography>
+                }
               </Box>
 
-              <TableContainer>
+              <TableContainer className={classes.tableContainer}>
                 <Table
                   aria-label="profile-table"
                   style={{ maxHeight: 'auto', wordWrap: 'break-word' }}
@@ -308,6 +381,51 @@ const UserProfile = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              {
+                currentProfileUsername !== username &&
+                userArticles.length === 0 &&
+                <Box>
+                  <Box className={classes.titleDiv}>
+                    <Typography paragraph align="left" variant="h6" color="textSecondary">
+                      {'User Reads'}
+                    </Typography>
+                  </Box>
+                  <Typography>
+                    {`${currentProfileUsername} has no Reads.`}
+                  </Typography>
+                </Box>
+              }            
+              {
+                currentProfileUsername !== username &&
+                userArticles.length > 0 &&
+                <Box className={classes.articlesContainer}>
+                  <Box className={classes.titleDiv}>
+                    <Typography paragraph align="left" variant="h6" color="textSecondary">
+                      {'User Reads'}
+                    </Typography>
+                  </Box>
+                  <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
+                    <div style={{ display: 'flex', height: '100%' }}>
+                      <div style={{ flexGrow: 1 }}>
+                        <DataGrid
+                          page={pageNumber}
+                          onPageChange={(params) => {
+                            setPageNumber(params.pageNumber);
+                          }}
+                          onCellClick={handleCellClick}
+                          rows={rows}
+                          columns={columns}
+                          pagination
+                          pageSize={pageSize}
+                          onPageSizeChange={handlePageSizeChange}
+                          rowsPerPageOptions={[5, 10, 20]}
+                          rowCount={rows.length}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Box>
+              }
             </Box>
           </Box>
         )}

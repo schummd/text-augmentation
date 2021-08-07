@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
-  },  
+  },
 }));
 
 const MyReads = () => {
@@ -149,7 +149,6 @@ const MyReads = () => {
     };
     getArticles();
   }, [deletedRead]); // eslint-disable-line react-hooks/exhaustive-deps
-
   
   const handleRowClick = (param, event) => {
     history.push(`/articles/${param.row.text_id}`);
@@ -165,28 +164,6 @@ const MyReads = () => {
     event.stopPropagation();
   };
 
-  // const handleClickDeleteRead = async (id) => {
-  //   try {
-  //     const response = await axios({
-  //       method: 'DELETE',
-  //       url: `/text/${id}`,
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Authorization: `${token}`,
-  //       },
-  //     })
-  //     const resData = response.data;
-  //     console.log('deleted read res data is:', resData);
-  //     if (resData.status === 'success') {
-  //       toast.success('Successfully deleted read');
-  //       setDeletedRead(!deletedRead);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(`Failed to delete read: ${id}`);
-  //   }
-  // };
-
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const handleClickDeleteRead = () => {
     setOpenDeleteDialog(true);
@@ -200,7 +177,7 @@ const MyReads = () => {
 
   return (
     <Container>
-      <Navigation />
+      <Navigation page={page} />
       <Container className={classes.container}>
         {loadingState !== 'done' && (
           <div>

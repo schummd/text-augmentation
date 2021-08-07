@@ -343,7 +343,7 @@ const Article = () => {
   }, []);
 
   React.useEffect(() => {
-    setPage('/articles')
+    setPage('/articles/')
     let thisRead = null;
     const getReadFunc = async () => {
       if (readId !== 'new') {
@@ -440,6 +440,7 @@ const Article = () => {
         toast.success(`${resData.message}`);
         if (payload.method === 'POST') {
           history.push(`/articles/${resData.text_id}`);
+          setArticleOwner(username);
         }
         setUpdate(!update);
         const updatedReads = await getArticles(username);
@@ -496,7 +497,7 @@ const Article = () => {
 
   return (
     <Container className={classes.outerWidth}>
-      <Navigation />
+      <Navigation page={page} />
       <Container className={classes.container}>
         {loadingState !== 'done' && (
           <div>
@@ -567,7 +568,7 @@ const Article = () => {
                         open={openDeleteDialog}
                         handleClose={handleCloseDeleteDialog}
                         page={page}
-                        deleteUuid={singularRead.text_id}
+                        deleteUuid={readId}
                       />
                     </Box>
                   }

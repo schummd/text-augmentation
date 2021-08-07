@@ -36,19 +36,23 @@ const DeleteReadDialog = ({ open, handleClose, page, deleteUuid }) => {
           <Button
             color="secondary"
             onClick={async () => {
-              await axios({
-                method: 'DELETE',
-                url: `${urlBase}/text/${deleteUuid}`,
-                headers: {
-                  accept: 'application/json',
-                  'content-type': 'application/json',
-                  Authorization: `${token}`,
-                },
-              })
-                .catch((error) => {
-                  console.log(error);
-                  toast.error('Failed to delete Read.');
+              if (deleteUuid !== 'new') {
+                await axios({
+                  method: 'DELETE',
+                  url: `${urlBase}/text/${deleteUuid}`,
+                  headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `${token}`,
+                  },
                 })
+                  .catch((error) => {
+                    console.log(error);
+                    toast.error('Failed to delete Read.');
+                  })
+              } else {
+                toast.error('Save the new Read before deleting');
+              }
               handleClose();
               if (page === '/articles') {
                 history.push('/myreads');
