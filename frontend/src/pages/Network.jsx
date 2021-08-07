@@ -7,6 +7,7 @@ import {
   Container,
   Typography,
   CircularProgress,
+  IconButton,
 } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -58,6 +59,17 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: '4px',
     paddingLeft: '50px',
   },
+  cellBtn: {
+    display: 'flex',
+    width:' 100%',
+    justifyContent: 'flex-start',
+  },
+  btnText: {
+    fontSize: '14px',
+    textTransform: 'none',
+    justifyContent: 'flex-start',
+    width: '100%',
+  },
 }));
 
 const UserNetwork = () => {
@@ -94,16 +106,38 @@ const UserNetwork = () => {
     { field: 'id', headerName: 'id', width: 150, hide: true },
     { field: 'first_name', headerName: 'First Name', width: 150 },
     { field: 'last_name', headerName: 'Last Name', width: 150 },
-    { field: 'username', headerName: 'Username', width: 150 },
+    { 
+      field: 'username',
+      headerName: 'Username',
+      width: 150,
+      renderCell: (params) => 
+        <Box className={classes.cellBtn}>
+          <Button
+            className={classes.btnText}
+          >
+            {`${params.formattedValue}`}
+          </Button>
+        </Box>
+      
+    },
+    { field: 'email', headerName: 'Email', width: 150 },
     {
       field: 'following',
       headerName: 'Following',
       width: 150,
       renderCell: (params) =>
         params.value ? (
-          <CheckCircleIcon color="primary" />
+          <Box className={classes.cellBtn}>
+            <IconButton>
+              <CheckCircleIcon color="primary" />
+            </IconButton>
+          </Box>
         ) : (
-          <CheckCircleOutlineIcon color="primary" />
+          <Box className={classes.cellBtn}>
+            <IconButton>
+              <CheckCircleOutlineIcon color="primary" />
+            </IconButton>
+          </Box>
         ),
     },
   ];
@@ -159,36 +193,43 @@ const UserNetwork = () => {
     // return searchUsersOperate;
   };
 
-  // handling change in following status
-  const HandleRowClick = async (param, event) => {
-
-    const networkUsername = param.row.username;
-    // history.push(`user/${networkUsername}`)
-    // sending backend 'followers' status update
-    const payload = {
-      method: 'PATCH',
-      url: '/user/' + username + '/following',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-      data: { 'user_to_follow': networkUsername },
-    };
-    console.log('Payload', payload);
-    const response = await axios(payload);
-    console.log("Response", response);
-    if (response.status === 201) {
-      toast.success(`Changed connection status.`);
-      setRequestToFollow(true);
-      console.log("Params", param)
-   
-    } else {
-      toast.error('Error retrieving response from server.');
+  const handleCellClick = async (param, event) => {
+    console.log(param);
+    console.log(event);
+    if (param.colDef.field === 'username') {
+      console.log('nav to user profile');
+      // history.push(`/user/${param.row.username}`);
+    } else if (param.colDef.field === 'following') {
+      // handling change in following status
+      const networkUsername = param.row.username;
+      // history.push(`user/${networkUsername}`)
+      // sending backend 'followers' status update
+      const payload = {
+        method: 'PATCH',
+        url: '/user/' + username + '/following',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        data: { 'user_to_follow': networkUsername },
+      };
+      console.log('Payload', payload);
+      const response = await axios(payload);
+      console.log("Response", response);
+      if (response.status === 201) {
+        toast.success(`Changed connection status.`);
+        setRequestToFollow(true);
+        console.log("Params", param)
+     
+      } else {
+        toast.error('Error retrieving response from server.');
+      }
     }
+    event.stopPropagation();
   };
 
-
   const classes = useStyles();
+
   return (
     <Container>
       <Navigation />
@@ -222,7 +263,7 @@ const UserNetwork = () => {
                       onPageChange={(params) => {
                         setPageNumber(params.pageNumber);
                       }}
-                      onRowClick={HandleRowClick}
+                      onCellClick={handleCellClick}
                       // autoHeight
                       rows={rows}
                       columns={columns}
