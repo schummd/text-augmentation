@@ -353,18 +353,18 @@ def article_search(username, search_string):
                 
                 ids = _processing_text_id(texts, ids, word)
     # search in the articles of logged in user  
-    for word in words:
+    # for word in words:
 
-        texts = (
-                    db.session.query(Text.text_id, Text.text_title)
-                    .join(User, Text.user_id == User.id)
-                    .filter(User.username == username) 
-                    .filter(func.lower(Text.text_title).contains(word.lower()))
-                    .all()
-                )
-        ids = _processing_text_id(texts, ids, word)
+    #     texts = (
+    #                 db.session.query(Text.text_id, Text.text_title)
+    #                 .join(User, Text.user_id == User.id)
+    #                 .filter(User.username == username) 
+    #                 .filter(func.lower(Text.text_title).contains(word.lower()))
+    #                 .all()
+    #             )
+    #     ids = _processing_text_id(texts, ids, word)
 
-    print(ids)
+    
 
     return _analyse_results(ids, number_of_words)
 
