@@ -204,14 +204,9 @@ const UserNetwork = () => {
 
   // TODO: add button actions to search for users and edit profile
  
-  const [openEditProfile, setEditProfileOpen] = React.useState(false);
-  const [openSearchUsers, setEditSearchUsers] = React.useState(false);
 
-  const [searchUsersOperate, setSearchUsersOperate] = React.useState();
   const handleUserSearch = async () => {
-    React.setOpenSearchUsers(true);
-    // React.setSearchUsersOperate(<SearchUsersButton />);
-    // return searchUsersOperate;
+
   };
 
   const handleCellClick = async (param, event) => {
