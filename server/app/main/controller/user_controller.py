@@ -128,7 +128,9 @@ class Search(Resource):
     def get(self):
         data = search_parser.parse_args()
         print("REQUEST IS", data)
-        return get_matching_users(data)
+        res = get_matching_users(data)
+        print(res)
+        return res
 
 
 # GET /user/{username}/network

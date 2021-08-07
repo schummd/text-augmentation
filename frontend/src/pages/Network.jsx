@@ -104,13 +104,6 @@ const UserNetwork = () => {
   // console.log("Context data", token, username)
   const [search, setSearch] = context.search;
   const [usersHeader, setUsersHeader] = context.usersHeader;
-
-  React.useEffect(() => {
-    if (token === null) {
-      return <Redirect to={{ pathname: '/login' }} />;
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const [page, setPage] = context.pageState;
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
@@ -123,9 +116,22 @@ const UserNetwork = () => {
   const [pageNumber, setPageNumber] = React.useState(0);
   const [requestToFollow, setRequestToFollow] = React.useState(false);
 
+  const [firstNameSearch, setFirstNameSearch] = React.useState()
+  const [lastNameSearch, setLastNameSearch] = React.useState()
+  const [usernameSearch, setUsernameSearch] = React.useState()
+  const [emailSearch, setEmailSearch] = React.useState()
+  const [openSearch, setOpenSearch] = React.useState(false);
+
   const handlePageSizeChange = (params) => {
     setPageSize(params.pageSize);
   };
+
+  React.useEffect(() => {
+    if (token === null) {
+      return <Redirect to={{ pathname: '/login' }} />;
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const columns = [
     { field: 'id', headerName: 'id', width: 150, hide: true },
@@ -169,58 +175,48 @@ const UserNetwork = () => {
         ),
     },
   ];
+
+
   // setting up users
   React.useEffect(() => {
     setPage('/user/network');
-    async function setupHome() {
-      setLoadingState('loading');
-      console.log('Profile page', username, token);
-
-      // getting all users information
-      try {
-        const payload = {
-          method: 'GET',
-          url: '/user/' + username + '/network',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Authorization: ${token}`,
-          },
-        };
-        console.log('Payload', payload);
-        const ulist = await axios(payload);
-        const userlist = ulist.data;
-        console.log('User List', userlist.data);
-        // if (resData.status === 'success') {
-        if (userlist.data.length > 0) {
-          // toast.success(`Retrieved User information from server.`);
-          setRows(userlist.data);
-          console.log('User List', rows);
-          setRequestToFollow(false);
-          setLoadingState('done');
-        } else {
-          toast.warn(`${userlist.message}`);
-        }
-      } catch (error) {
-        toast.error('Error retrieving User data from server.');
-      }
-    }
-
+    if (!search) {
     setupHome();
-  }, [requestToFollow]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
+  }, [requestToFollow, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  async function setupHome() {
+    setLoadingState('loading');
+    console.log('Profile page', username, token);
 
-  const [firstNameSearch, setFirstNameSearch] = React.useState()
-  const [lastNameSearch, setLastNameSearch] = React.useState()
-  const [usernameSearch, setUsernameSearch] = React.useState()
-  const [emailSearch, setEmailSearch] = React.useState()
-  const [openSearch, setOpenSearch] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpenSearch(true);
-  };
-  const handleCancel = () => {
-    setOpenSearch(false);
-  };
+    // getting all users information
+    try {
+      const payload = {
+        method: 'GET',
+        url: '/user/' + username + '/network',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Authorization: ${token}`,
+        },
+      };
+      console.log('Payload', payload);
+      const ulist = await axios(payload);
+      const userlist = ulist.data;
+      console.log('User List', userlist.data);
+      // if (resData.status === 'success') {
+      if (userlist.data.length > 0) {
+        // toast.success(`Retrieved User information from server.`);
+        setRows(userlist.data);
+        console.log('User List', rows);
+        setRequestToFollow(false);
+        setLoadingState('done');
+      } else {
+        toast.warn(`${userlist.message}`);
+      }
+    } catch (error) {
+      toast.error('Error retrieving User data from server.');
+    }
+  }
 
   // search for users
   const handleUserSearch = async (e) => {
@@ -251,7 +247,7 @@ const UserNetwork = () => {
           setRows(resData);
 
         } else {
-          toast.warn(`${resData.message}`);
+          setUsersHeader('Search results')
           setRows([]);
         }
         setFirstNameSearch()
@@ -267,7 +263,14 @@ const UserNetwork = () => {
       }
     }
  
-
+    const handleClickOpen = () => {
+      setOpenSearch(true);
+    };
+    const handleCancel = () => {
+      setOpenSearch(false);
+    };
+  
+  
 
 
   // follow or unfollow another user
