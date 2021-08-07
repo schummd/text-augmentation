@@ -139,16 +139,11 @@ const Home = () => {
   const RenderItems = () => {
     const resume = data.map((dataIn) => (
       <div key={dataIn.followee_username}>
-        {
-          dataIn.followee_first_name &&
-          `${dataIn.followee_first_name}` `${dataIn.followee_last_name}`
-        }
-        {
-          dataIn.followee_first_name === '' &&
-          `${dataIn.followee_username}`
-        }
+        {dataIn.followee_username}
         <ul>
-          {dataIn.text_titles.map((text_titles) => (
+          {
+            dataIn.text_titles.length > 0 &&
+            dataIn.text_titles.map((text_titles) => (
             <li key={text_titles.text_title}>
               {text_titles.text_title}
 
@@ -164,8 +159,14 @@ const Home = () => {
               </Box>
             </li>
           ))}
+          {
+            dataIn.text_titles.length === 0 &&
+            <Typography variant="subtitle2" color="textSecondary">
+              {`${dataIn.followee_username} has no saved Reads.`}
+            </Typography>
+          }
         </ul>
-        <br></br>
+        <br />
       </div>
     ));
 
