@@ -108,6 +108,8 @@ const Navigation = ({ page }) => {
   const [usersname, setUsersname] = React.useState(storedUser.username);
   const [search, setSearch] = context.search
   const [header, setHeader] = context.header
+  const [usersHeader, setUsersHeader] = context.usersHeader
+
   const btnProfile = () => {
     const profileUrl = "/user/" + usersname
     history.push(profileUrl);
@@ -192,6 +194,8 @@ const Navigation = ({ page }) => {
                     }
                     className={classes.btnText}
                     onClick={() => {
+                      setSearch(false)
+                      setUsersHeader('Users')
                       history.push('/user/network');
                     }}
                   >
