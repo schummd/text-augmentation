@@ -54,6 +54,10 @@ export default function ControlledAccordions({ searchTerm }) {
 
   React.useEffect(() => {
     const getYoutubeVideos = async (keyword) => {
+      if (!process.env.REACT_APP_YT_KEY) {
+        toast.error('Youtube API key not found.');
+        return;
+      }
       const opts = {
         maxResults: 4,
         key: process.env.REACT_APP_YT_KEY,
@@ -69,6 +73,10 @@ export default function ControlledAccordions({ searchTerm }) {
     };
 
     const getNewsApiArticles = async (keyword) => {
+      if (!process.env.REACT_APP_NEWSAPI_KEY) {
+        toast.error('newsapi key not found');
+        return;
+      }
       const url =
         'https://newsapi.org/v2/everything?' +
         `q=${keyword}&` +
@@ -101,6 +109,10 @@ export default function ControlledAccordions({ searchTerm }) {
     };
 
     const getAcadamicPapers = async (keyword) => {
+      if (!process.env.REACT_APP_UNPAYWALL_EMAIL) {
+        toast.error('Email environemnt variable for Unpaywalled not found.');
+        return;
+      }
       const url = `https://api.unpaywall.org/v2/search/?query=${keyword}&is_oa=true&email=${process.env.REACT_APP_UNPAYWALL_EMAIL}`;
       const instance = axios.create({
         timeout: 5000,
