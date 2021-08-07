@@ -16,6 +16,14 @@ import { toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '@material-ui/core';
+import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import SearchIcon from '@material-ui/icons/Search';
+import DirectionsIcon from '@material-ui/icons/Directions';
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -41,6 +49,23 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     margin: theme.spacing(2),
   },
+  root: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    width: 400,
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1,
+  },
+  iconButton: {
+    padding: 10,
+  },
+  divider: {
+    height: 28,
+    margin: 4,
+  },
 }));
 
 const Home = () => {
@@ -60,7 +85,6 @@ const Home = () => {
   const [loadingState, setLoadingState] = React.useState('load');
   // const [username] = context.username;
   const [myReads, setMyReads] = context.myReads;
-
 
   // view text of another reader
   const viewText = async (text_id, followee_username) => {
@@ -142,20 +166,22 @@ const Home = () => {
         {dataIn.followee_first_name} {dataIn.followee_last_name}
         <ul>
           {dataIn.text_titles.map((text_titles) => (
-            <li key={text_titles.text_title}>
+            <Typography key={text_titles.text_title} color="inherit">
               {text_titles.text_title}
 
               <Box sx={{ '& button': { m: 1 } }}>
                 <Button
-                  size="small"
+                  size="small" color="primary"
                   onClick={() =>
                     viewText(text_titles.text_id, dataIn.followee_username)
                   }
                 >
-                  View Article
+                  View Article   
+                  <DoubleArrowIcon color="primary" 
+                  fontSize="small" padding="10px"/>
                 </Button>
               </Box>
-            </li>
+            </Typography>
           ))}
         </ul>
         <br></br>
@@ -178,18 +204,30 @@ const Home = () => {
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
-              <Box>
-                <Typography paragraph align="left" variant="h4">
+              <Box> 
+                <Typography paragraph align="left" variant="h4" >
                   Home
                 </Typography>
-                {
-                  data.length > 0 &&
+                </Box> 
+             <div position='relative' display='inline-block'>
+                <Paper component="form" 
+                className={classes.root} >
+                <IconButton >
+                  <SearchIcon />
+                </IconButton>
+                <InputBase
+                  className={classes.input}
+                  placeholder="Search Articles"
+                  inputProps={{ 'aria-label': 'search articles' }}
+                />
+              </Paper>
+              </div>
+            </Box>
+            {data.length > 0 && (
                   <ul>
                     <RenderItems />
                   </ul>
-                }
-              </Box>
-            </Box>
+                )}
             <br />
             <br />
           </Box>
