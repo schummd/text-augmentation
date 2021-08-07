@@ -104,7 +104,6 @@ const Home = () => {
       const resData = res.data;
       console.log(resData);
       if (resData.status === 'success') {
-        // toast.success(`Retrieved Reads from server.`);
         console.log('success');
       } else {
         toast.warn(`${resData.message}`);
@@ -159,6 +158,43 @@ const Home = () => {
     getArticles();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // search for articles 
+  async function handleSearch(e) {
+    console.log("searched words are", e)
+    if (e.nativeEvent.key === "Enter" || e.code === "NumpadEnter") {
+    const words = e.target.value;
+    console.log("searched words are", words)
+    try {
+      const payload = {
+        method: 'GET',
+        url: `/user/${username}/newsfeed`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      console.log(payload);
+      const res = await axios(payload);
+      const resData = res.data;
+      console.log(resData);
+      if (resData.status === 'success') {
+        console.log('success');
+      } else {
+        toast.warn(`${resData.message}`);
+      }
+      const { rdata } = resData;
+      setData(resData.data);
+      console.log(data);
+      setLoadingState('done');
+    } catch (error) {
+      toast.error('Error retrieving Reads from server.');
+    }
+  }
+  }
+
+
+
+
+
   console.log(data);
   const RenderItems = () => {
     const resume = data.map((dataIn) => (
@@ -209,7 +245,7 @@ const Home = () => {
                   Home
                 </Typography>
                 </Box> 
-             <div position='relative' display='inline-block'>
+             <Box position='relative' display='inline-block'>
                 <Paper component="form" 
                 className={classes.root} >
                 <IconButton >
@@ -219,9 +255,10 @@ const Home = () => {
                   className={classes.input}
                   placeholder="Search Articles"
                   inputProps={{ 'aria-label': 'search articles' }}
+                  onChange={(e) => handleSearch(e)}
                 />
               </Paper>
-              </div>
+              </Box>
             </Box>
             {data.length > 0 && (
                   <ul>
