@@ -144,7 +144,7 @@ export const getArticles = async (username) => {
   try {
     const payload = {
       method: 'GET',
-      url: `/text/${username}`,
+      url: `/text/fetchall/${username}`,
       headers: {
         'Content-Type': 'application/json',
       },

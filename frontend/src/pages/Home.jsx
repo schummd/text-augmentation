@@ -70,7 +70,7 @@ const Home = () => {
     try {
       const payload = {
         method: 'GET',
-        url: `/text/${followee_username}/${text_id}`,
+        url: `/text/${text_id}`,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -93,7 +93,7 @@ const Home = () => {
       toast.error('Error retrieving Reads from server.');
     }
     console.log('View Text', text_id);
-    // history.push(`/articles/${text_id}`);
+    history.push(`/articles/${text_id}`);
   };
 
   const [data, setData] = React.useState([]);
@@ -135,11 +135,18 @@ const Home = () => {
     getArticles();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  console.log(data);
+  console.log('home data is', data);
   const RenderItems = () => {
     const resume = data.map((dataIn) => (
-      <div key={dataIn.followee_first_name}>
-        {dataIn.followee_first_name} {dataIn.followee_last_name}
+      <div key={dataIn.followee_username}>
+        {
+          dataIn.followee_first_name &&
+          `${dataIn.followee_first_name}` `${dataIn.followee_last_name}`
+        }
+        {
+          dataIn.followee_first_name === '' &&
+          `${dataIn.followee_username}`
+        }
         <ul>
           {dataIn.text_titles.map((text_titles) => (
             <li key={text_titles.text_title}>

@@ -205,7 +205,6 @@ const UserProfile = () => {
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
               <Box>
-                <br></br>
                 <Typography paragraph align="left" variant="h4">
                   My Profile
                   <Box className={classes.btnUiDiv}>
@@ -213,7 +212,7 @@ const UserProfile = () => {
                       Edit Profile
                     </Button>
 
-                    <Dialog open={open} onClose={handleSave}>
+                    <Dialog open={open} onClose={handleCancel}>
                       <DialogTitle>Edit Profile</DialogTitle>
                       <DialogContent>
                         <TextField
