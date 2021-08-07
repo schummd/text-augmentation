@@ -75,6 +75,7 @@ const Home = () => {
   // const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);
   const [search, setSearch] = React.useState(false);
+  const [header, setHeader] = React.useState('Newsfeed')
 
   React.useEffect(() => {
     if (token === null) {
@@ -122,6 +123,7 @@ const Home = () => {
   const [data, setData] = React.useState([]);
   const history = useHistory();
 
+  // get newsfeed articles
   const getArticles = async () => {
     setLoadingState('loading');
     console.log(username);
@@ -153,7 +155,7 @@ const Home = () => {
 
   // get article titles of the connected reader
   React.useEffect(() => {
-    // setPage('/home');
+    setPage('/home');
     if (search) {
       handleSearch(search);
       console.log("Search is", search)
@@ -166,11 +168,9 @@ const Home = () => {
 
   // search for articles
   async function handleSearch(e) {
- 
     setSearch(true);
     console.log('searched words are', e);
     if (e.keyCode === 13 || e.code === 'NumpadEnter') {
-      // alert('you have searched for ' + e.target.value);
       const words = e.target.value;
       console.log('searched words are ', e.target.value);
       setLoadingState('loading');
@@ -195,21 +195,20 @@ const Home = () => {
         }
         const { rdata } = resData;
         setData(resData.data);
-       
+        setHeader('Search Results') 
         console.log(data);
         setLoadingState('done');
       } catch (error) {
         toast.error('Error retrieving Reads from server.');
       }
     }
-    return (
-      <RenderItems/>
-    )
   }
 
   console.log('data', data);
   const RenderItems = () => {
+    
     const feed = data.map((dataIn) => (
+     <Box > 
       <div key={dataIn.followee_username}>
         {/* {
         dataIn.followee_first_name &&
@@ -245,7 +244,7 @@ const Home = () => {
           ))}
         </ul>
         <br></br>
-      </div>
+      </div></Box>
     ));
 
     return feed;
@@ -266,7 +265,7 @@ const Home = () => {
             <Box className={classes.titleDiv}>
               <Box>
                 <Typography paragraph align="left" variant="h4">
-                  Home
+                  {header}
                 </Typography>
               </Box>
               <Box position="relative" display="inline-block">
