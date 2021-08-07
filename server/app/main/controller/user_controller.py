@@ -113,6 +113,7 @@ class Newsfeed(Resource):
         print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
+
 search_parser = reqparse.RequestParser()
 search_parser.add_argument('firstname')
 search_parser.add_argument('lastname')
@@ -126,8 +127,9 @@ class Search(Resource):
     @api.doc("Retrieve a list of users from a search request")
     def get(self):
         data = search_parser.parse_args()
-        print(data)
+        print("REQUEST IS", data)
         return get_matching_users(data)
+
 
 # GET /user/{username}/network
 @token_required

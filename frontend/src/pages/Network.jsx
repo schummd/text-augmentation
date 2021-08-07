@@ -62,6 +62,13 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: '4px',
     paddingLeft: '50px',
   },
+  titleAndBtnDiv: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   cellBtn: {
     display: 'flex',
     width: ' 100%',
@@ -162,7 +169,7 @@ const UserNetwork = () => {
         ),
     },
   ];
-
+  // setting up users
   React.useEffect(() => {
     setPage('/user/network');
     async function setupHome() {
@@ -201,54 +208,63 @@ const UserNetwork = () => {
     setupHome();
   }, [requestToFollow]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
+  const [firstNameSearch, setFirstNameSearch] = React.useState()
+  const [lastNameSearch, setLastNameSearch] = React.useState()
+  const [usernameSearch, setUsernameSearch] = React.useState()
+  const [emailSearch, setEmailSearch] = React.useState()
+  const [openSearch, setOpenSearch] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpenSearch(true);
+  };
+  const handleCancel = () => {
+    setOpenSearch(false);
+  };
+
   // search for users
   const handleUserSearch = async (e) => {
     setSearch(true);
-    if (e.keyCode === 13 || e.code === 'NumpadEnter') {
-      const words = e.target.value;
-      console.log('searched words are ', e.target.value);
       setLoadingState('loading');
+      console.log(firstNameSearch)
       try {
         const payload = {
           method: 'GET',
-          url: `/user/${username}/search`,
+          url: `/user/search`,
           headers: {
             'Content-Type': 'application/json',
           },
-          // params: {"firstname": {firstName},
-          //          "lastname": {lastName},
-          //          "username": {usersName},
-          //          "email": {email}
-          //         }
+          params: {"firstname": firstNameSearch,
+                   "lastname": lastNameSearch,
+                   "username": usernameSearch,
+                   "email": emailSearch
+                  }
         };
         console.log(payload);
         const res = await axios(payload);
         const resData = res.data;
-        console.log(resData);
+        console.log("Request returned", resData);
 
-        if (resData.status === 'success') {
+        if (resData.length > 0) {
           console.log('success');
+          setRows(resData.data);
         } else {
           toast.warn(`${resData.message}`);
+          setRows([]);
         }
         const { rdata } = resData;
-        setRows(resData.data);
+        
         setUsersHeader('Search Results');
         console.log(rows);
         setLoadingState('done');
+        setOpenSearch(false)
       } catch (error) {
         toast.error('Error retrieving Reads from server.');
       }
     }
-  };
+ 
 
-  const [openEditProfile, setEditProfileOpen] = React.useState(false);
-  const handleClickOpen = () => {
-    setEditProfileOpen(true);
-  };
-  const handleCancel = () => {
-    setEditProfileOpen(false);
-  };
+
 
   // follow or unfollow another user
   const handleCellClick = async (param, event) => {
@@ -299,13 +315,9 @@ const UserNetwork = () => {
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
-              <Box>
+            <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
                   Users
-                  {/* <Box position="relative" 
-                  display="inline-block"
-                  padding="30px"
-                  > */}
                 </Typography>
                 <Box className={classes.btnUiDiv}>
                   <Tooltip title="Edit Profile">
@@ -318,7 +330,9 @@ const UserNetwork = () => {
                       Search Users
                     </Button>
                   </Tooltip>
-                  <Dialog open={openEditProfile} onClose={handleCancel}>
+                  <Dialog open={openSearch} 
+                  maxWidth='xs'
+                  onClose={handleCancel}>
                     <DialogTitle>Search Users</DialogTitle>
                     <DialogContent>
                       <TextField
@@ -329,30 +343,25 @@ const UserNetwork = () => {
                         type="name"
                         fullWidth
                         variant="standard"
-                        // value={firstName}
-                        // onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => setFirstNameSearch(e.target.value)}
                       />
                       <TextField
-                        autoFocus
                         margin="dense"
                         id="name"
                         label="Last Name"
                         type="name"
                         fullWidth
                         variant="standard"
-                        // value={lastName}
-                        // onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => setLastNameSearch(e.target.value)}
                       />
                       <TextField
-                        autoFocus
                         margin="dense"
                         id="name"
                         label="username"
                         type="name"
                         fullWidth
                         variant="standard"
-                        // value={usersName}
-                        // onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => setUsernameSearch(e.target.value)}
                       />
                       <TextField
                         margin="dense"
@@ -361,13 +370,11 @@ const UserNetwork = () => {
                         type="name"
                         fullWidth
                         variant="standard"
-                        // value={email}
-                        // onChange={(e) => setLastName(e.target.value)}
+                        onChange={(e) => setEmailSearch(e.target.value)}
                       />
                     </DialogContent>
                     <DialogActions>
-                      {/* <Button onClick={handleCancel}>Cancel</Button> */}
-                      {/* <Button onClick={handleSave}>Save</Button> */}
+                      <Button onClick={handleUserSearch}>Search</Button>
                     </DialogActions>
                   </Dialog>
                 </Box>
