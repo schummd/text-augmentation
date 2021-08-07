@@ -1,5 +1,6 @@
+from re import search
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
 from app.main.service.auth_helper import Auth
@@ -14,6 +15,7 @@ from ..service.user_service import (
     follow_a_user,
     get_all_following,
     get_newsfeed,
+    get_matching_users,
     get_all_users_with_connection_status,
 )
 from typing import Dict, Tuple
@@ -109,6 +111,20 @@ class Newsfeed(Resource):
         print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
+search_parser = reqparse.RequestParser()
+search_parser.add_argument('firstname')
+search_parser.add_argument('lastname')
+search_parser.add_argument('username')
+search_parser.add_argument('email')
+
+@api.route("/search")
+@api.response(200, "User(s) retrieved")
+@api.expect(search_parser, validate=True)
+class Search(Resource):
+    @api.doc("Retrieve a list of users from a search request")
+    def get(self):
+        data = search_parser.parse_args()
+        return get_matching_users(data)
 
 # GET /user/{username}/network
 @token_required

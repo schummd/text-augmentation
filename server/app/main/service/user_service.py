@@ -9,6 +9,7 @@ from app.main import db
 from app.main.model.user import User
 from app.main.model.follower import Follower
 from app.main.model.text import Text
+from sqlalchemy import func
 from app.main.service.auth_helper import Auth
 from flask.globals import request
 
@@ -294,6 +295,35 @@ def get_newsfeed(username):
 
         return response_object, 200
 
+def get_matching_users(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
+    data_updated = check_search_parameters(data)
+    users = User.query.filter(func.lower(User.first_name).contains(data_updated['firstname'].lower()))\
+                      .filter(func.lower(User.last_name).contains(data_updated['lastname'].lower()))\
+                      .filter(func.lower(User.username).contains(data_updated['username'].lower()))\
+                      .filter(func.lower(User.email).contains(data_updated['email'].lower())).all()
+
+    result = []
+    for user in users:
+        object = {}
+        object['public_id'] = user.public_id
+        object['first_name'] = user.first_name
+        object['last_name'] = user.last_name
+        object['username'] = user.username
+        object['email'] = user.email
+        result.append(object)
+
+    return result, 200
+
+def check_search_parameters(data: Dict[str, str]) -> Dict[str, str]:
+    if data['firstname'] is None:
+        data['firstname'] = ''
+    if data['lastname'] is None:
+        data['lastname'] = ''
+    if data['username'] is None:
+        data['username'] = ''
+    if data['email'] is None:
+        data['email'] = ''
+    return data
 
 def save_changes(data: User) -> None:
     db.session.add(data)
