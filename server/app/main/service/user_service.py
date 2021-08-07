@@ -314,15 +314,18 @@ def _analyse_results(ids):
         t["text_title"] = ids[title][0]
         t["text_id"] = title
         titles.append(t)
+    item["followee_username"] = ' ',
+    item["followee_last_name"] = ' ',
+    item["followee_first_name"] = ' ',    
     item["text_titles"] = titles
     print(item)
-    return {"status": "success", "data": item}
+    return {"status": "success", "data": [item]}
 
 
         
 
 def article_search(username, search_string):
-    search_string = search_string.lower()
+    print(search_string)
     new_string = ''
     for ch in search_string:
         if ord(ch) == 32 or (ord(ch) >= 97 and ord(ch) <= 122):

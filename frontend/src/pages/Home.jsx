@@ -74,6 +74,7 @@ const Home = () => {
   const storedUser = JSON.parse(localStorage.getItem('user'));
   // const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);
+  const [search, setSearch] = React.useState(false);
 
   React.useEffect(() => {
     if (token === null) {
@@ -89,7 +90,6 @@ const Home = () => {
   // view text of another reader
   const viewText = async (text_id, followee_username) => {
     setLoadingState('loading');
-
     console.log(username);
     try {
       const payload = {
@@ -122,47 +122,9 @@ const Home = () => {
   const [data, setData] = React.useState([]);
   const history = useHistory();
 
-  // get article titles of the connected reader
-  React.useEffect(() => {
-    setPage('/home');
+  const getArticles = async () => {
     setLoadingState('loading');
-    const getArticles = async () => {
-      console.log(username);
-      try {
-        const payload = {
-          method: 'GET',
-          url: `/user/${username}/newsfeed`,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        };
-        console.log(payload);
-        const res = await axios(payload);
-        const resData = res.data;
-        console.log(resData);
-        if (resData.status === 'success') {
-          console.log('success');
-        } else {
-          toast.warn(`${resData.message}`);
-        }
-        const { rdata } = resData;
-        setData(resData.data);
-        console.log(data);
-        setLoadingState('done');
-      } catch (error) {
-        toast.error('Error retrieving Reads from server.');
-      }
-    };
-
-    getArticles();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // search for articles 
-  async function handleSearch(e) {
-    console.log("searched words are", e)
-    if (e.nativeEvent.key === "Enter" || e.code === "NumpadEnter") {
-    const words = e.target.value;
-    console.log("searched words are", words)
+    console.log(username);
     try {
       const payload = {
         method: 'GET',
@@ -187,18 +149,69 @@ const Home = () => {
     } catch (error) {
       toast.error('Error retrieving Reads from server.');
     }
+  };
+
+  // get article titles of the connected reader
+  React.useEffect(() => {
+    // setPage('/home');
+    if (search) {
+      handleSearch(search);
+      console.log("Search is", search)
+      
+    } else {
+      getArticles();
+      console.log("Search is", search)
+    }
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // search for articles
+  async function handleSearch(e) {
+ 
+    setSearch(true);
+    console.log('searched words are', e);
+    if (e.keyCode === 13 || e.code === 'NumpadEnter') {
+      // alert('you have searched for ' + e.target.value);
+      const words = e.target.value;
+      console.log('searched words are ', e.target.value);
+      setLoadingState('loading');
+      try {
+        const payload = {
+          method: 'GET',
+          url: `/user/${username}/search`,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          params: {"search_string": {words}}
+        };
+        console.log(payload);
+        const res = await axios(payload);
+        const resData = res.data;
+        console.log(resData);
+ 
+        if (resData.status === 'success') {
+          console.log('success');
+        } else {
+          toast.warn(`${resData.message}`);
+        }
+        const { rdata } = resData;
+        setData(resData.data);
+       
+        console.log(data);
+        setLoadingState('done');
+      } catch (error) {
+        toast.error('Error retrieving Reads from server.');
+      }
+    }
+    return (
+      <RenderItems/>
+    )
   }
-  }
 
-
-
-
-
-  console.log(data);
+  console.log('data', data);
   const RenderItems = () => {
-    const resume = data.map((dataIn) => (
-    <div key={dataIn.followee_username}>
-      {/* {
+    const feed = data.map((dataIn) => (
+      <div key={dataIn.followee_username}>
+        {/* {
         dataIn.followee_first_name &&
         `${dataIn.followee_first_name}` `${dataIn.followee_last_name}`
       }
@@ -206,9 +219,7 @@ const Home = () => {
         dataIn.followee_first_name === '' &&
         `${dataIn.followee_username}`
       } */}
-
-      
-      {dataIn.followee_first_name} {dataIn.followee_last_name}
+        {dataIn.followee_first_name} {dataIn.followee_last_name}
         <ul>
           {dataIn.text_titles.map((text_titles) => (
             <Typography key={text_titles.text_title} color="inherit">
@@ -216,14 +227,18 @@ const Home = () => {
 
               <Box sx={{ '& button': { m: 1 } }}>
                 <Button
-                  size="small" color="primary"
+                  size="small"
+                  color="primary"
                   onClick={() =>
                     viewText(text_titles.text_id, dataIn.followee_username)
                   }
                 >
-                  View Article   
-                  <DoubleArrowIcon color="primary" 
-                  fontSize="small" padding="10px"/>
+                  View Article
+                  <DoubleArrowIcon
+                    color="primary"
+                    fontSize="small"
+                    padding="10px"
+                  />
                 </Button>
               </Box>
             </Typography>
@@ -233,7 +248,7 @@ const Home = () => {
       </div>
     ));
 
-    return resume;
+    return feed;
   };
 
   const classes = useStyles();
@@ -249,31 +264,30 @@ const Home = () => {
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
-              <Box> 
-                <Typography paragraph align="left" variant="h4" >
+              <Box>
+                <Typography paragraph align="left" variant="h4">
                   Home
                 </Typography>
-                </Box> 
-             <Box position='relative' display='inline-block'>
-                <Paper component="form" 
-                className={classes.root} >
-                <IconButton >
-                  <SearchIcon />
-                </IconButton>
-                <InputBase
-                  className={classes.input}
-                  placeholder="Search Articles"
-                  inputProps={{ 'aria-label': 'search articles' }}
-                  onChange={(e) => handleSearch(e)}
-                />
-              </Paper>
+              </Box>
+              <Box position="relative" display="inline-block">
+                <Paper component="form" className={classes.root}>
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                  <InputBase
+                    className={classes.input}
+                    placeholder="Search Articles"
+                    inputProps={{ 'aria-label': 'search articles' }}
+                    onKeyDown={(e) => setSearch(e)}
+                  />
+                </Paper>
               </Box>
             </Box>
             {data.length > 0 && (
-                  <ul>
-                    <RenderItems />
-                  </ul>
-                )}
+              <ul>
+                <RenderItems />
+              </ul>
+            )}
             <br />
             <br />
           </Box>

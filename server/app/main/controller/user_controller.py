@@ -18,6 +18,7 @@ from ..service.user_service import (
     article_search
 )
 from typing import Dict, Tuple
+import json
 
 
 api = UserDto.api
@@ -138,4 +139,8 @@ class ArticleSearch(Resource):
         """List searched titles"""
         search_string = request.args.get('search_string')
         # response, status = Auth.get_logged_in_user(request)
-        return article_search(username, search_string)
+        
+        word = json.loads(search_string)['words']
+        print('string', word)
+        res = article_search(username, word)
+        return res
