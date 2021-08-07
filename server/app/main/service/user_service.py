@@ -305,7 +305,7 @@ def get_matching_users(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     result = []
     for user in users:
         object = {}
-        object['public_id'] = user.public_id
+        object['id'] = user.public_id
         object['first_name'] = user.first_name
         object['last_name'] = user.last_name
         object['username'] = user.username

@@ -247,13 +247,17 @@ const UserNetwork = () => {
 
         if (resData.length > 0) {
           console.log('success');
-          setRows(resData.data);
+          setUsersHeader('Search results')
+          setRows(resData);
+
         } else {
           toast.warn(`${resData.message}`);
           setRows([]);
         }
-        const { rdata } = resData;
-        
+        setFirstNameSearch()
+        setLastNameSearch()
+        setUsernameSearch()
+        setEmailSearch()
         setUsersHeader('Search Results');
         console.log(rows);
         setLoadingState('done');
@@ -317,10 +321,10 @@ const UserNetwork = () => {
             <Box className={classes.titleDiv}>
             <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
-                  Users
+                  {usersHeader}
                 </Typography>
                 <Box className={classes.btnUiDiv}>
-                  <Tooltip title="Edit Profile">
+                  {/* <Tooltip title="Search for users"> */}
                     <Button
                       variant="outlined"
                       onClick={() => {
@@ -329,7 +333,7 @@ const UserNetwork = () => {
                     >
                       Search Users
                     </Button>
-                  </Tooltip>
+                  {/* </Tooltip> */}
                   <Dialog open={openSearch} 
                   maxWidth='xs'
                   onClose={handleCancel}>
@@ -338,36 +342,36 @@ const UserNetwork = () => {
                       <TextField
                         autoFocus
                         margin="dense"
-                        id="name"
+                        id="firstname"
                         label="First Name"
-                        type="name"
+                        type="firstname"
                         fullWidth
                         variant="standard"
                         onChange={(e) => setFirstNameSearch(e.target.value)}
                       />
                       <TextField
                         margin="dense"
-                        id="name"
+                        id="lastname"
                         label="Last Name"
-                        type="name"
+                        type="lastname"
                         fullWidth
                         variant="standard"
                         onChange={(e) => setLastNameSearch(e.target.value)}
                       />
                       <TextField
                         margin="dense"
-                        id="name"
+                        id="username"
                         label="username"
-                        type="name"
+                        type="username"
                         fullWidth
                         variant="standard"
                         onChange={(e) => setUsernameSearch(e.target.value)}
                       />
                       <TextField
                         margin="dense"
-                        id="name"
+                        id="email"
                         label="Email"
-                        type="name"
+                        type="email"
                         fullWidth
                         variant="standard"
                         onChange={(e) => setEmailSearch(e.target.value)}
