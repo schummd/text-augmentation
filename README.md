@@ -13,20 +13,35 @@ Very brief walkthrough [here](https://www.dropbox.com/s/ehvi9vrj7myk3qg/9323_vm_
 
 # Frontend
 
-Skeleton for fetching data from JSON db file served via an express server.
+## API Keys
+### Current Key Names
+This is a list of all API keys used in our project. If you incorporate a new key, update this list with its name ONLY. Only update this list when your code has been pushed to master.
+- REACT_APP_YT_KEY: API key for youtube [Getting a key](https://medium.com/swlh/how-to-get-youtubes-api-key-7c28b59b1154)
+
+In the /frontned folder, create a file named `.env`:
+
+```
+├── frontend
+│   └──.env
+```
+
+This is a private file included in .gitignore. Ensure no keys are pushed to the repo.
+CURRENT file:
+
+```
+REACT_APP_YT_KEY="XXXXXXXXXX"
+```
+
+
 ## Installation (only if not using VM)
 - Download an install [npm and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - Install [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
 
 ##  Usage
 1. In /frontend run `yarn install` then `yarn dev`
-2. In /frontend-dev-server run `yarn install` then `yarn server`
 
 - Frontend should be running on http://localhost:3000
-- frontend-dev-server should be running on http://localhost:3001
 
-## frontend-dev-server endpoints
-GET / - returns JSON object with contents of frontend-dev-server/db.json
 # Backend
 
 ## science-parse

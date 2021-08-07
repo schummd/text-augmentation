@@ -42,6 +42,7 @@ def retrieve_all_highlights(data: Dict[str, str]):
     response = {}
     # Get all highlights matching user id and text id
     highlights = Highlight.query.filter_by(user_public_id=data['user_public_id']).filter_by(text_id=data['text_id']).all()
+    
     return highlights, 200
 
 def delete_highlight(highlight_id: int, user: int) -> Tuple[Dict[str, str], int]:

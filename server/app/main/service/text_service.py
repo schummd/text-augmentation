@@ -36,7 +36,7 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
 
 def get_all_texts(username):
     text_ids = (
-        db.session.query(Text.text_id, Text.text_title, Text.text_body)
+        db.session.query(Text.text_id, Text.text_title, Text.text_body, Text.created_on)
         .join(User, Text.user_id == User.id)
         .filter(User.username == username)
         .all()
@@ -45,9 +45,11 @@ def get_all_texts(username):
 
     for col in text_ids:
         text = {}
+        text["id"] = col[0]
         text["text_id"] = col[0]
         text["text_title"] = col[1]
         text["text_body"] = col[2]
+        text["text_created"] = str(col[3])
         texts_list.append(text)
 
     response_object = {"status": "success", "data": texts_list}
@@ -55,11 +57,11 @@ def get_all_texts(username):
     return response_object, 200
 
 
-def get_a_text(username, text_id):
+def get_a_text_by_id(text_id):
     text = (
-        db.session.query(Text.text_id, Text.text_title, Text.text_body)
+        db.session.query(Text.text_id, Text.text_title, Text.text_body, Text.created_on, User.username)
         .join(User, Text.user_id == User.id)
-        .filter(User.username == username, Text.text_id == text_id)
+        .filter(Text.text_id == text_id)
         .first()
     )
 
@@ -70,6 +72,8 @@ def get_a_text(username, text_id):
         text["text_id"] = text_data[0]
         text["text_title"] = text_data[1]
         text["text_body"] = text_data[2]
+        text["text_created"] = str(text_data[3])
+        text["text_author"] = text_data[4]
 
         response_object = {"status": "success", "data": text}
 

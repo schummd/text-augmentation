@@ -1,5 +1,6 @@
+from re import search
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, reqparse
 from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
 from app.main.service.auth_helper import Auth
@@ -14,6 +15,8 @@ from ..service.user_service import (
     follow_a_user,
     get_all_following,
     get_newsfeed,
+    get_matching_users,
+    get_all_users_with_connection_status,
 )
 from typing import Dict, Tuple
 
@@ -22,12 +25,14 @@ api = UserDto.api
 _user = UserDto.user
 _update = UserDto.update
 _follower = UserDto.follower
+user_auth = AuthDto.user_auth
+_network_user = UserDto.netuser
 
 
 @api.route("/")
 class UserList(Resource):
     @api.doc("list_of_registered_users")
-    @admin_token_required
+    @token_required
     @api.marshal_list_with(_user, envelope="data")
     def get(self):
         """List all registered users"""
@@ -58,15 +63,14 @@ class UserList(Resource):
         return update_user_details(data=data)
 
 
-@api.route("/<public_id>")
-@api.param("public_id", "The User identifier")
+@api.route("/<username>")
 @api.response(404, "User not found.")
 class User(Resource):
     @api.doc("get a user")
     @api.marshal_with(_user)
-    def get(self, public_id):
+    def get(self, username):
         """get a user given its identifier"""
-        user = get_a_user(public_id)
+        user = get_a_user(username)
         if not user:
             api.abort(404)
         else:
@@ -83,8 +87,10 @@ class Follow(Resource):
     def patch(self, username):
         """follow another user"""
         data = request.json
+        print(data)
         user_to_follow = data["user_to_follow"]
         return follow_a_user(username, user_to_follow)
+
 
     # GET /user/{username}/following
     @api.doc("users a user following")
@@ -102,5 +108,35 @@ class Newsfeed(Resource):
     @api.doc("newsfeed")
     def get(self, username):
         """List all titles"""
+        print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
+search_parser = reqparse.RequestParser()
+search_parser.add_argument('firstname')
+search_parser.add_argument('lastname')
+search_parser.add_argument('username')
+search_parser.add_argument('email')
+
+@api.route("/search")
+@api.response(200, "User(s) retrieved")
+@api.expect(search_parser, validate=True)
+class Search(Resource):
+    @api.doc("Retrieve a list of users from a search request")
+    def get(self):
+        data = search_parser.parse_args()
+        return get_matching_users(data)
+
+# GET /user/{username}/network
+@token_required
+@api.route("/<username>/network")
+@api.param("username", "My username")
+@api.response(404, "User not found.")
+class Network(Resource):
+    @api.doc("network")
+    @api.marshal_list_with(_network_user, envelope="data")
+    def get(self, username):
+        """List all users"""
+        response, status = Auth.get_logged_in_user(request)
+        # user_id =response['data']['user_id']
+        print("Response to request", status)
+        return get_all_users_with_connection_status(username)

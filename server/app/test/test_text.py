@@ -125,7 +125,7 @@ class TestText(BaseTestCase):
             user_add_text(self, response_login, "test title 1", "hello world")
             user_add_text(self, response_login, "test title 2", "test another text")
             # send get request
-            response_get_texts = self.client.get("/text/alex")
+            response_get_texts = self.client.get("/text/fetchall/alex")
             # assert get request response
             data_get_texts = json.loads(response_get_texts.data.decode())
             self.assertEqual(response_get_texts.status_code, 200)
@@ -141,7 +141,7 @@ class TestText(BaseTestCase):
         with self.client:
             register_user_text(self)
             # don't add any texts to the user
-            response_get_texts = self.client.get("/text/alex")
+            response_get_texts = self.client.get("/text/fetchall/alex")
             self.assertEqual(response_get_texts.status_code, 200)
             data_get_texts = json.loads(response_get_texts.data.decode())
             self.assertTrue(data_get_texts["status"] == "success")
@@ -157,7 +157,7 @@ class TestText(BaseTestCase):
             )
             text_id = json.loads(add_text.data.decode())["text_id"]
             # request text for registered user
-            response_get_text = self.client.get(f"/text/alex/{text_id}")
+            response_get_text = self.client.get(f"/text/{text_id}")
             # response
             self.assertEqual(response_get_text.status_code, 200)
             data_get_text = json.loads(response_get_text.data.decode())
@@ -170,7 +170,7 @@ class TestText(BaseTestCase):
             register_user_text(self)
             response_login = login_user_text(self)
             # request invalid text id for registered user
-            response_get_text = self.client.get("/text/alex/12345")
+            response_get_text = self.client.get("/text/12345")
             self.assertEqual(response_get_text.status_code, 404)
             data_get_text = json.loads(response_get_text.data.decode())
             self.assertTrue(data_get_text["status"] == "fail")

@@ -11,6 +11,7 @@ import {
   ButtonGroup,
   Tooltip,
   Grid,
+  Typography,
 } from '@material-ui/core';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -30,19 +31,31 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '14px',
     textTransform: 'capitalize',
   },
-  readMoreLogo: {
+  logoUserDiv: {
+    display: 'flex',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  readMoreLogoDiv: {
     display: 'flex',
     alignItems: 'center',
-    width: '100%',
     justifyContent: 'flex-start',
-    paddingLeft: '24px',
+    paddingLeft: '8px',
+    marginRight: '1em',
   },
   img: {
     maxWidth: '64px',
   },
+  usernameDiv: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    width: '100%',
+    marginLeft: '1em',
+  },
 }));
 
-const Navigation = () => {
+const Navigation = ({ page }) => {
   const context = React.useContext(StoreContext);
   const urlBase = context.urlBase;
   const history = useHistory();
@@ -91,6 +104,13 @@ const Navigation = () => {
         setUsername(null);
       });
   };
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const [usersname, setUsersname] = React.useState(storedUser.username);
+
+  const btnProfile = () => {
+    const profileUrl = "/user/" + usersname
+    history.push(profileUrl);
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -104,38 +124,54 @@ const Navigation = () => {
             align="center"
           >
             <Grid container item xs={4} align="flex-start" justify="flex-start">
-              <Box className={classes.readMoreLogo}>
-                <Tooltip title="ReadMore">
-                  <img
-                    className={classes.img}
-                    src={ReadMoreLogo}
-                    alt="ReadMore logo"
-                  />
-                </Tooltip>
+              <Box className={classes.logoUserDiv}>
+                <Box className={classes.readMoreLogoDiv}>
+                  <Tooltip title="ReadMore">
+                    <img
+                      className={classes.img}
+                      src={ReadMoreLogo}
+                      alt="ReadMore logo"
+                    />
+                  </Tooltip>
+                </Box>
+                <Box className={classes.usernameDiv}>
+                  <Box>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {`User: ${usersname}`}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
             </Grid>
 
             <Grid item xs={4} align="center">
               <ButtonGroup>
-                <Tooltip title="Home">
+                <Tooltip title="Read Mode">
                   <Button
-                    id="home-button"
+                    id="new-article-button"
                     variant="contained"
-                    color="default"
+                    color={
+                      page.includes('articles') === true
+                        ? "primary"
+                        : "default"
+                    }
                     className={classes.btnText}
                     onClick={() => {
-                      history.push('/home');
+                      history.push('/articles/new');
                     }}
                   >
-                    Home
+                    Reader
                   </Button>
                 </Tooltip>
-
                 <Tooltip title="My Reads">
                   <Button
                     id="texts-button"
                     variant="contained"
-                    color="default"
+                    color={
+                      page === '/myreads'
+                        ? "primary"
+                        : "default"
+                    }
                     className={classes.btnText}
                     onClick={() => {
                       history.push('/myreads');
@@ -144,24 +180,61 @@ const Navigation = () => {
                     My Reads
                   </Button>
                 </Tooltip>
-
-                <Tooltip title="New Read">
+                <Tooltip title="User Network">
                   <Button
-                    id="new-article-button"
+                    id="profile-button"
                     variant="contained"
-                    color="primary"
+                    color={
+                      page === '/user/network'
+                        ? "primary"
+                        : "default"
+                    }
                     className={classes.btnText}
                     onClick={() => {
-                      history.push('/articles/new');
+                      history.push('/user/network');
                     }}
                   >
-                    New Read
+                    Network 
+                  </Button>
+                </Tooltip>
+                <Tooltip title="News Feed">
+                  <Button
+                    id="home-button"
+                    variant="contained"
+                    color={
+                      page === '/newsfeed'
+                        ? "primary"
+                        : "default"
+                    }
+                    className={classes.btnText}
+                    onClick={() => {
+                      history.push('/home');
+                    }}
+                  >
+                    News Feed
                   </Button>
                 </Tooltip>
               </ButtonGroup>
             </Grid>
 
             <Grid container item xs={4} align="flex-end" justify="flex-end">
+              <Tooltip title="My Profile">
+                <Button
+                  id="profile-button"
+                  variant="contained"
+                  color={
+                    page === `/user/${usersname}`
+                      ? "primary"
+                      : "default"
+                  }
+                  className={classes.btnText}
+                  onClick={() => {
+                    btnProfile();
+                  }}
+                >
+                  Profile
+                </Button>
+              </Tooltip>             
               <Tooltip title="Logout">
                 <Button
                   id="logout-button"
