@@ -11,7 +11,7 @@ from app.main.model.follower import Follower
 from app.main.model.text import Text
 from app.main.service.auth_helper import Auth
 from flask.globals import request
-
+from sqlalchemy import func
 
 def save_new_user(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     user = User.query.filter_by(email=data["email"]).first()
@@ -294,10 +294,77 @@ def get_newsfeed(username):
 
         return response_object, 200
 
-# def article_search(username, search_string):
 
-#     words = search_string.split(' ').split
-#     search_string.rstrip(" ")
+def _processing_text_id(text_ids, ids, word):
+    for id in text_ids:
+        if not id.text_id in ids:  # checking if this text has alreadu been counted in
+            ids[id.text_id] = [id.text_title, word]
+        else:
+            if not word in ids[id.text_id]:
+                ids[id.text_id].append(word)
+    return ids
+
+def _analyse_results(ids):
+    titles = []
+    item = {}
+    # print(ids)
+    for title in ids:
+        print('Element of ids', title)
+        t = {}
+        t["text_title"] = ids[title][0]
+        t["text_id"] = title
+        titles.append(t)
+    item["text_titles"] = titles
+    print(item)
+    return {"status": "success", "data": item}
+
+
+        
+
+def article_search(username, search_string):
+    search_string = search_string.lower()
+    new_string = ''
+    for ch in search_string:
+        if ord(ch) == 32 or (ord(ch) >= 97 and ord(ch) <= 122):
+            new_string = new_string + ch
+    words = new_string.split(' ')
+
+
+    users = Follower.query.filter_by(user_name=username).all()
+    # user follower someone
+    if len(users) != 0:
+
+        newsfeed = []
+        # statistics of all textx found with dictionary t["text_title"],["text_id"] as a key 
+        ids = {}  # all text ids key: text_id, value: [words]
+        for user in users:
+            person_username = user.following
+            followee = User.query.filter_by(username=person_username).first()
+  
+            for word in words:
+                text_ids = (
+                            db.session.query(Text.text_id, Text.text_title)
+                            .join(User, Text.user_id == User.id)
+                            .filter(User.username == person_username) #| (User.username == username) 
+                            .filter(func.lower(Text.text_title).contains(word.lower()))
+                            .all()
+                        )
+                # print(followee, words, text_ids, ids)
+                ids = _processing_text_id(text_ids, ids, word)
+          
+        for word in words:
+    
+            text_ids = (
+                        db.session.query(Text.text_id, Text.text_title)
+                        .join(User, Text.user_id == User.id)
+                        .filter(User.username == username) 
+                        .filter(func.lower(Text.text_title).contains(word.lower()))
+                        .all()
+                    )
+            ids = _processing_text_id(text_ids, ids, word)
+
+        return _analyse_results(ids)
+
 
 def save_changes(data: User) -> None:
     db.session.add(data)

@@ -15,6 +15,7 @@ from ..service.user_service import (
     get_all_following,
     get_newsfeed,
     get_all_users_with_connection_status,
+    article_search
 )
 from typing import Dict, Tuple
 
@@ -132,9 +133,9 @@ class Network(Resource):
 @api.param("search_string", "Search String")
 @api.response(404, "User not found.")
 class ArticleSearch(Resource):
-    @api.doc("article search")
-    @api.marshal_list_with(_network_user, envelope="data")
-    def get(self, username, search_string):
-        """List all users"""
+    @api.doc(params={"search_string" : {"description": "article search"}})
+    def get(self, username):
+        """List searched titles"""
+        search_string = request.args.get('search_string')
         # response, status = Auth.get_logged_in_user(request)
-        # return article_search(username, search_string)
+        return article_search(username, search_string)
