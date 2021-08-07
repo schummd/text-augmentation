@@ -124,3 +124,17 @@ class Network(Resource):
         # user_id =response['data']['user_id']
         print("Response to request", status)
         return get_all_users_with_connection_status(username)
+
+
+# GET /user/{username}/search
+@token_required
+@api.route("/<username>/search")
+@api.param("search_string", "Search String")
+@api.response(404, "User not found.")
+class ArticleSearch(Resource):
+    @api.doc("article search")
+    @api.marshal_list_with(_network_user, envelope="data")
+    def get(self, username, search_string):
+        """List all users"""
+        # response, status = Auth.get_logged_in_user(request)
+        # return article_search(username, search_string)

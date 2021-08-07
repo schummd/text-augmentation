@@ -294,6 +294,10 @@ def get_newsfeed(username):
 
         return response_object, 200
 
+# def article_search(username, search_string):
+
+#     words = search_string.split(' ').split
+#     search_string.rstrip(" ")
 
 def save_changes(data: User) -> None:
     db.session.add(data)
