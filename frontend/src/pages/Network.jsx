@@ -29,6 +29,11 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
+import Paper from '@material-ui/core/Paper';
+
+
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -69,6 +74,19 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
+  },
+  root: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    width: 400,
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1,
+  },
+  iconButton: {
+    padding: 10,
   },
 }));
 
@@ -245,15 +263,25 @@ const UserNetwork = () => {
               <Box>
                 <Typography paragraph align="left" variant="h4">
                   Users
-                  {/* <Box className={classes.btnUiDiv}>
-                    <Button
-                      variant="outlined"
-                      //  onClick={() => handleUserSearch()};
-                    >
-                      Search Users
-                    </Button> 
-                  </Box>*/}
-                </Typography>
+                  {/* <Box position="relative" 
+                  display="inline-block"
+                  padding="30px"
+                  > */}
+                   </Typography>
+                <Paper component="form" className={classes.root}>
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                  <InputBase
+                    className={classes.input}
+                    placeholder="Search Articles"
+                    inputProps={{ 'aria-label': 'search articles' }}
+                    // onKeyDown={(e) => setSearch(e)}
+                  />
+                </Paper>
+                <br></br>
+              {/* </Box> */}
+             
               </Box>
               <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
                 <div style={{ display: 'flex', height: '100%' }}>

@@ -126,6 +126,7 @@ class Search(Resource):
     @api.doc("Retrieve a list of users from a search request")
     def get(self):
         data = search_parser.parse_args()
+        print(data)
         return get_matching_users(data)
 
 # GET /user/{username}/network
