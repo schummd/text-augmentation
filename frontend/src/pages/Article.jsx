@@ -302,11 +302,10 @@ const Article = () => {
 
   const [uiBtn, setUiBtn] = React.useState('analyse');
 
-  const [defineQuery, setDefineQuery] = React.useState('');
   const [articleOwner, setArticleOwner] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
-  const [analysisSummary, setAnalysisSummary] = React.useState('summary');
-  const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
+  const [analysisSummary, setAnalysisSummary] = React.useState('');
+  const [analysisKeywords, setAnalysisKeywords] = React.useState('');
   const [searchTerm, setSearchTerm] = React.useState('');
 
   const [rawPdf, setRawPdf] = React.useState(null);

@@ -8,7 +8,6 @@ import Paper from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
-import PageviewIcon from '@material-ui/icons/Pageview';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 const useStyles = makeStyles((theme) => ({
@@ -65,6 +64,7 @@ const PdfModal = ({ rawPdf, open, setOpen, loading }) => {
             ></iframe>
           )}
           {loading && (
+            //placeholder text required to render skeleton correctly
             <Skeleton animation="wave" variant="rectangle">
               <Box className={classes.root}>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do

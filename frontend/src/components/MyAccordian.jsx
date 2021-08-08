@@ -35,6 +35,11 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 300,
     backgroundColor: theme.palette.background.paper,
   },
+  wikiSummary: {
+    textAlign: 'left',
+    padding: '1rem',
+    fontStyle: 'italic',
+  },
 }));
 
 export default function ControlledAccordions({ searchTerm }) {
@@ -169,7 +174,7 @@ export default function ControlledAccordions({ searchTerm }) {
 
     if (searchTerm) {
       const formattedSearchTerm = searchTerm.replace(/[^A-Za-z0-9]+/g, '%20');
-      getYoutubeVideos(formattedSearchTerm);
+      // getYoutubeVideos(formattedSearchTerm);
       getNewsApiArticles(formattedSearchTerm);
       getAcadamicPapers(formattedSearchTerm);
       getWikipediaEntry(formattedSearchTerm);
@@ -247,7 +252,11 @@ export default function ControlledAccordions({ searchTerm }) {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          {wikipediaSummary && wikipediaSummary}
+          {wikipediaSummary && (
+            <Typography className={classes.wikiSummary}>
+              {wikipediaSummary}
+            </Typography>
+          )}
         </AccordionDetails>
       </Accordion>
       <Accordion
@@ -298,7 +307,7 @@ export default function ControlledAccordions({ searchTerm }) {
           id="panel5bh-header"
         >
           <Typography className={classes.secondaryHeading}>
-            Scientific Papers
+            Academic Resources
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -309,15 +318,6 @@ export default function ControlledAccordions({ searchTerm }) {
                   {academicPapers.map((paper) => (
                     <ListItem>
                       <Link
-                        href={paper.response.best_oa_location.url_for_pdf}
-                        rel="noopener noreferrer"
-                        variant="body1"
-                        target="_blank"
-                      >
-                        {paper.response.title}
-                      </Link>
-
-                      <Link
                         variant="body1"
                         onClick={() => {
                           setPdfLoading(true);
@@ -327,7 +327,9 @@ export default function ControlledAccordions({ searchTerm }) {
                         }}
                         component="button"
                       >
-                        {'VIEW PDF'}
+                        <Typography align="left">
+                          {paper.response.title}
+                        </Typography>
                       </Link>
                     </ListItem>
                   ))}
