@@ -11,6 +11,8 @@ import * as youtubeSearch from 'youtube-search';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { StoreContext } from '../utils/store';
+import { dataUrlToFile } from '../utils/utils';
+import PdfModal from '../components/PdfModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,6 +44,9 @@ export default function ControlledAccordions({ searchTerm }) {
   const [wikipediaSummary, setWikipediaSummary] = React.useState(false);
   const [newsApiArticles, setNewsApiArticles] = React.useState(false);
   const [academicPapers, setAcademicPapers] = React.useState(false);
+  const [rawPdf, setRawpdf] = React.useState(false);
+  const [openPdfModal, setOpenPdfModal] = React.useState(false);
+  const [pdfLoading, setPdfLoading] = React.useState(false);
 
   const context = React.useContext(StoreContext);
   const [token] = context.token;
@@ -129,8 +134,18 @@ export default function ControlledAccordions({ searchTerm }) {
 
       const res = await instance.get(url);
       const papers = res.data.results;
-      console.log(papers);
-      setAcademicPapers(papers);
+      const papersWithFullPdfs = papers.filter(
+        (paper) => paper.response.best_oa_location.url_for_pdf
+      );
+      console.log(papersWithFullPdfs);
+
+      // Get first 10 results
+      const slicedPapers =
+        papersWithFullPdfs.length > 10
+          ? papersWithFullPdfs.slice(0, 10)
+          : papersWithFullPdfs;
+
+      setAcademicPapers(slicedPapers);
     };
 
     const getWikipediaEntry = async (keyword) => {
@@ -161,8 +176,38 @@ export default function ControlledAccordions({ searchTerm }) {
     }
   }, [searchTerm]);
 
+  const handleDisplayPdf = async (url) => {
+    setPdfLoading(true);
+    setOpenPdfModal(true);
+    const payload = {
+      method: `POST`,
+      url: `/parse/urltopdf`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${token}`,
+      },
+      data: { url },
+    };
+    console.log(payload);
+    try {
+      const res = await axios(payload);
+      const data = res.data;
+      const file = await dataUrlToFile(data.data);
+      setRawpdf(file);
+      setPdfLoading(false);
+    } catch (error) {
+      toast.error('error reading pdf link');
+    }
+  };
+
   return (
     <div className={classes.root}>
+      <PdfModal
+        rawPdf={rawPdf}
+        open={openPdfModal}
+        setOpen={setOpenPdfModal}
+        loading={pdfLoading}
+      />
       <Accordion
         expanded={expanded === 'panel1'}
         onChange={handleChange('panel1')}
@@ -270,6 +315,19 @@ export default function ControlledAccordions({ searchTerm }) {
                         target="_blank"
                       >
                         {paper.response.title}
+                      </Link>
+
+                      <Link
+                        variant="body1"
+                        onClick={() => {
+                          setPdfLoading(true);
+                          handleDisplayPdf(
+                            paper.response.best_oa_location.url_for_pdf
+                          );
+                        }}
+                        component="button"
+                      >
+                        {'VIEW PDF'}
                       </Link>
                     </ListItem>
                   ))}

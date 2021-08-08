@@ -3,6 +3,7 @@ import json
 import os
 from typing import Dict
 import base64
+import requests
 
 
 def parse_paper(encoded_pdf: str) -> Dict[str, str]:
@@ -49,5 +50,32 @@ def parse_paper(encoded_pdf: str) -> Dict[str, str]:
     }
 
     os.remove(TEMP_FILENAME)
+
+    return response_object, 200
+
+
+def url_to_pdf(url: str) -> Dict[str, str]:
+
+    r = requests.get(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36"
+        },
+    )
+
+    if r.status_code != 200:
+        response_object = {
+            "status": "fail",
+            "message": "Error retrieving object.",
+        }
+        return response_object, 500
+
+    encoded_pdf = f"data:application/pdf;base64,{base64.b64encode(r.content).decode()}"
+
+    response_object = {
+        "status": "success",
+        "message": "Successfully parsed PDF.",
+        "data": encoded_pdf,
+    }
 
     return response_object, 200

@@ -43,6 +43,7 @@ import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import search from 'youtube-search';
+import PageviewIcon from '@material-ui/icons/Pageview';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -484,6 +485,8 @@ const Article = () => {
     setOpenDeleteDialog(false);
   };
 
+  const [openPdfModal, setOpenPdfModal] = React.useState(false);
+
   const classes = useStyles();
 
   return (
@@ -515,7 +518,23 @@ const Article = () => {
 
                   {rawPdf && (
                     <Box className={classes.titleDivMultipleBtn}>
-                      {<PdfModal rawPdf={rawPdf} />}
+                      <Box className={classes.titleDivSingleBtn}>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => setOpenPdfModal(true)}
+                        >
+                          Vew original PDF <PageviewIcon></PageviewIcon>
+                        </Button>
+                      </Box>
+                      {
+                        <PdfModal
+                          rawPdf={rawPdf}
+                          open={openPdfModal}
+                          setOpen={setOpenPdfModal}
+                          loading={false}
+                        />
+                      }
                     </Box>
                   )}
 
