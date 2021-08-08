@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
-import PageviewIcon from '@material-ui/icons/Pageview';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,14 +34,8 @@ const PaperComponent = (props) => {
   );
 };
 
-const PdfModal = ({ rawPdf }) => {
+const PdfModal = ({ rawPdf, open, setOpen, loading }) => {
   const classes = useStyles();
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -49,12 +43,6 @@ const PdfModal = ({ rawPdf }) => {
 
   return (
     <div>
-      <Box className={classes.titleDivSingleBtn}>
-        <Button variant="outlined" color="secondary" onClick={handleClickOpen}>
-          Vew original PDF <PageviewIcon></PageviewIcon>
-        </Button>
-      </Box>
-
       <Dialog
         open={open}
         onClose={handleClose}
@@ -62,16 +50,33 @@ const PdfModal = ({ rawPdf }) => {
         classes={{ paper: classes.paper }}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          Uploaded PDF
-        </DialogTitle>
+        <DialogTitle
+          style={{ cursor: 'move' }}
+          id="draggable-dialog-title"
+        ></DialogTitle>
         <DialogContent>
-          <iframe
-            className={classes.root}
-            title="pdf-viewer"
-            src={URL.createObjectURL(rawPdf)}
-            frameborder="0"
-          ></iframe>
+          {!loading && rawPdf && (
+            <iframe
+              className={classes.root}
+              title="pdf-viewer"
+              src={URL.createObjectURL(rawPdf)}
+              frameborder="0"
+            ></iframe>
+          )}
+          {loading && (
+            //placeholder text required to render skeleton correctly
+            <Skeleton animation="wave" variant="rectangle">
+              <Box className={classes.root}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </Box>
+            </Skeleton>
+          )}
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">

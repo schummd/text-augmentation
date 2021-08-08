@@ -13,7 +13,6 @@ class UserDto:
             "first_name": fields.String(description="user first name"),
             "last_name": fields.String(description="user last name"),
             # "following": fields.Boolean(required=False, description="following current user or not"),
-
         },
     )
     follower = api.model(
@@ -34,11 +33,11 @@ class UserDto:
             "password": fields.String(required=True, description="user password"),
             "first_name": fields.String(description="user first name"),
             "last_name": fields.String(description="user last name"),
-            "following": fields.Boolean(required=False, description="following current user or not"),
-
+            "following": fields.Boolean(
+                required=False, description="following current user or not"
+            ),
         },
     )
-  
 
     update = api.model(
         "update",
@@ -106,9 +105,16 @@ class DefinitionDto:
 
 class ParseDto:
     api = Namespace("parse", description="Parsing papers")
-    pdf = api.model(
-        "pdf",
-        {"data": fields.String(required=True, description="base64 encoded PDF"),},
+    pdf = (
+        api.model(
+            "pdf",
+            {"data": fields.String(required=True, description="base64 encoded PDF"),},
+        ),
+    )
+    url = (
+        api.model(
+            "url", {"url": fields.String(required=True, description="URL of pdf"),},
+        ),
     )
 
 
