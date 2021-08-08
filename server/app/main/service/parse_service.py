@@ -5,6 +5,11 @@ from typing import Dict
 import base64
 import requests
 
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv("server.env"))
+SCIENCE_PARSE_URL = os.environ.get("SCIENCE_PARSE_URL")
+
 
 def parse_paper(encoded_pdf: str) -> Dict[str, str]:
 
@@ -23,7 +28,7 @@ def parse_paper(encoded_pdf: str) -> Dict[str, str]:
             "Content-type: application/pdf",
             "--data-binary",
             f"@{TEMP_FILENAME}",
-            "http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/v1",
+            SCIENCE_PARSE_URL,
         ],
         stdin=PIPE,
         stdout=PIPE,
