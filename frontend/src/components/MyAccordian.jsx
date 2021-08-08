@@ -152,12 +152,13 @@ export default function ControlledAccordions({ searchTerm }) {
       }
     };
 
-    const formattedSearchTerm = searchTerm.replace(/[^A-Za-z0-9]+/g, '%20');
-
-    getYoutubeVideos(formattedSearchTerm);
-    getNewsApiArticles(formattedSearchTerm);
-    getAcadamicPapers(formattedSearchTerm);
-    getWikipediaEntry(formattedSearchTerm);
+    if (searchTerm) {
+      const formattedSearchTerm = searchTerm.replace(/[^A-Za-z0-9]+/g, '%20');
+      getYoutubeVideos(formattedSearchTerm);
+      getNewsApiArticles(formattedSearchTerm);
+      getAcadamicPapers(formattedSearchTerm);
+      getWikipediaEntry(formattedSearchTerm);
+    }
   }, [searchTerm]);
 
   return (
