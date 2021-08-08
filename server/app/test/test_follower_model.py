@@ -81,8 +81,7 @@ class TestFollowerModel(BaseTestCase):
             self.assertEqual(show_response.status_code, 200)
             show_all_response = json.loads(show_response.data.decode())
             self.assertTrue(show_all_response["status"] == "success")
-            self.assertTrue(show_all_response["data"][0]["user_name"] == "daria")
-            self.assertTrue(show_all_response["data"][0]["following"] == "alice")
+            self.assertTrue(show_all_response["data"][0] == "alice")
 
     def test_get_user_following_empty(self):
         with self.client:

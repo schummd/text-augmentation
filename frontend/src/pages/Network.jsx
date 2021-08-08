@@ -226,7 +226,7 @@ const UserNetwork = () => {
       try {
         const payload = {
           method: 'GET',
-          url: `/user/${username}/search`,
+          url: `/user/${username}/usersearch`,
           headers: {
             'Content-Type': 'application/json',
           },

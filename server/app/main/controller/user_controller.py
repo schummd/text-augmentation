@@ -120,7 +120,7 @@ search_parser.add_argument('lastname')
 search_parser.add_argument('username')
 search_parser.add_argument('email')
 
-@api.route("/<username>/search")
+@api.route("/<username>/usersearch")
 @api.response(200, "User(s) retrieved")
 @api.expect(search_parser, validate=True)
 class Search(Resource):
