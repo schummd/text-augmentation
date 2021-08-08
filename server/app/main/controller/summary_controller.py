@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 api = SummaryDto.api
-_user = UserDto.user
 _summary_text = SummaryDto.summary_text
 
 
@@ -22,7 +21,7 @@ class Summarize(Resource):
     @token_required
     @api.expect(_summary_text, validate=True)
     def post(self):
+        """Obtain text summary from the Meaning Cloud"""
         data = request.json
-        summary = summarize(data=data)
-        return summary
+        return summarize(data=data)
 

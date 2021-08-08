@@ -94,7 +94,6 @@ class Follow(Resource):
         return follow_a_user(username, user_to_follow)
 
 
-    # GET /user/{username}/following
     @api.doc("users a user following")
     def get(self, username):
         """Get all users a user following"""
@@ -128,12 +127,9 @@ class Search(Resource):
     def get(self, username):
         data = search_parser.parse_args()
         print("REQUEST IS", data)
-        res = get_matching_users(username, data)
-        print(res)
-        return res
+        return get_matching_users(username, data)
+ 
 
-
-# GET /user/{username}/network
 @token_required
 @api.route("/<username>/network")
 @api.param("username", "My username")
@@ -143,13 +139,10 @@ class Network(Resource):
     @api.marshal_list_with(_network_user, envelope="data")
     def get(self, username):
         """List all users"""
-        response, status = Auth.get_logged_in_user(request)
-        # user_id =response['data']['user_id']
-        print("Response to request", status)
         return get_all_users_with_connection_status(username)
 
 
-# GET /user/{username}/search
+
 @token_required
 @api.route("/<username>/search")
 @api.param("search_string", "Search String")

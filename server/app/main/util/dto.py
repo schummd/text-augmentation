@@ -96,7 +96,6 @@ class DefinitionDto:
     definition = api.model(
         "definition",
         {
-            "word": fields.String(required=True, description="Word"),
             "definition": fields.String(
                 required=True, description="Definition of the word"
             ),

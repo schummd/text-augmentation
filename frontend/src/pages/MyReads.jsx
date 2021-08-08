@@ -1,10 +1,7 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
 import Navigation from '../components/Navigation';
-import { Redirect, useHistory } from 'react-router-dom';
-
-import Divider from '@material-ui/core/Divider';
-import DescriptionIcon from '@material-ui/icons/Description';
+import { useHistory } from 'react-router-dom';
 import { DataGrid } from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import DeleteDialog from '../components/DeleteDialog';
@@ -76,12 +73,12 @@ const MyReads = () => {
   const [deletedRead, setDeletedRead] = React.useState(false);
   const history = useHistory();
   const [deletionId, setDeletionId] = React.useState('');
-  const [pageSize, setPageSize] = React.useState(10);
+  const [pageSize, setPageSize] = React.useState(20);
   const [pageNumber, setPageNumber] = React.useState(0);
   const handlePageSizeChange = (params) => {
     setPageSize(params.pageSize);
   };
-
+  // defining columns for the grid
   const columns = [
     { field: 'id', headerName: 'Id', width: 150, hide: true },
     { field: 'text_id', headerName: 'Text Id', width: 150, hide: true },
@@ -120,6 +117,7 @@ const MyReads = () => {
   ];
   const [rows, setRows] = React.useState([]);
 
+  // fetching default articles
   React.useEffect(() => {
     setPage('/myreads');
     setLoadingState('loading');
@@ -163,7 +161,7 @@ const MyReads = () => {
     }
     event.stopPropagation();
   };
-
+  // managing article deletion
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const handleClickDeleteRead = () => {
     setOpenDeleteDialog(true);
@@ -204,7 +202,7 @@ const MyReads = () => {
                         }}
                         onRowClick={handleRowClick}
                         onCellClick={handleCellClick}
-                        // autoHeight
+                        autoHeight
                         rows={rows}
                         columns={columns}
                         pagination

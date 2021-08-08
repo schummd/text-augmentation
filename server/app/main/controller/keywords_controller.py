@@ -18,7 +18,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 api = KeywordsDto.api
-_user = UserDto.user
 _keywords_text = KeywordsDto.keywords_text
 
 
@@ -30,7 +29,7 @@ class RetrieveKeywords(Resource):
     @token_required
     @api.expect(_keywords_text, validate=True)
     def post(self):
+        '''Obtain keywords analysis from IBM-Watson'''
         data = request.json
-        keywords = find_keywords(data=data)
-        return keywords  # a list
+        return find_keywords(data=data)  
 
