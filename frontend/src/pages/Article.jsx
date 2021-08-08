@@ -151,11 +151,13 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '0.5em',
   },
   uiSummary: {
-    width: '100%',
-    height: '100%',
-    minHeight: '528px',
+    width: '91%',
+    height: '90%',
+    minHeight: '493px',
     marginBottom: '0.5em',
     backgroundColor: '#F0F0F0',
+    textAlign: 'left',
+    padding: '1rem',
   },
   btnUiWrapper: {
     display: 'flex',
@@ -832,7 +834,7 @@ const Article = () => {
                         aria-labelledby={`analyse-tab-panel-0`}
                       >
                         <Paper variant="outlined" className={classes.uiSummary}>
-                          <Typography align="left" variant="p">
+                          <Typography align="left">
                             {analysisSummary}
                           </Typography>
                         </Paper>
