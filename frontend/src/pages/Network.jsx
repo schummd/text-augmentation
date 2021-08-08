@@ -364,7 +364,7 @@ const UserNetwork = () => {
                       <TextField
                         margin="dense"
                         id="username"
-                        label="username"
+                        label="Username"
                         type="username"
                         fullWidth
                         variant="standard"
