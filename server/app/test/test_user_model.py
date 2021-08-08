@@ -23,8 +23,8 @@ def login_user_search(self, email):
         content_type="application/json",
     )
 
-def search_users(self, first_name, last_name, username, email):
-    endpoint = "/user/search"
+def search_users(self, logged_in_username, first_name, last_name, username, email):
+    endpoint = "/user/"+ logged_in_username +"/usersearch"
     if first_name is not None or last_name is not None or username is not None or email is not None:
         endpoint += "?"
     check = False
@@ -150,14 +150,19 @@ class TestUserSearch(BaseTestCase):
     def test_whole_first_name_match(self):
         register_response = register_user_search(self, "abc", "b", "c", "d")
         user_public_id = json.loads(register_response.data.decode())['user_public_id']
-        login_response = login_user_search(self, "d")
-        search_response = search_users(self, "abc", None, None, None)
-        data_search = json.loads(search_response.data.decode())
+        # login_response = login_user_search(self, "d")
+        #logged_in_username, first_name, last_name, username, email):
+        register_response = register_user_search(self, "def", "g", "h", "k")
+        # user_public_id = json.loads(register_response.data.decode())['user_public_id']
+        login_response = login_user_search(self, "k")
 
+        search_response = search_users(self, "def", 'abc', None, None, None)
+        data_search = json.loads(search_response.data.decode())
+        print("Whole First Name", data_search[0]) 
         self.assertEqual(search_response.status_code, 200)
         self.assertEqual(len(data_search), 1)
         self.assertTrue(data_search[0] == {
-            'public_id': user_public_id,
+            'id': user_public_id,
             'first_name': "abc",
             'last_name': "b",
             "username": "c",
