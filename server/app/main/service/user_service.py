@@ -225,7 +225,7 @@ def get_all_following(username):
 
 
 def get_newsfeed(username):
-    NUMBER_OF_DAYS_BACK = 3
+    # NUMBER_OF_DAYS_BACK = 3
 
     # check if user exists
     exists = User.query.filter_by(username=username).first()
@@ -259,16 +259,16 @@ def get_newsfeed(username):
             item["followee_last_name"] = followee_last_name
             item["followee_first_name"] = followee_first_name
 
-            today = datetime.datetime.utcnow()
-            current = datetime.datetime(today.year, today.month, today.day)
-            days_ago = current - datetime.timedelta(days=NUMBER_OF_DAYS_BACK)
-            n_days_ago = datetime.datetime(days_ago.year, days_ago.month, days_ago.day)
+            # today = datetime.datetime.utcnow()
+            # current = datetime.datetime(today.year, today.month, today.day)
+            # days_ago = current - datetime.timedelta(days=NUMBER_OF_DAYS_BACK)
+            # n_days_ago = datetime.datetime(days_ago.year, days_ago.month, days_ago.day)
 
             text_ids = (
                 db.session.query(Text.text_id, Text.text_title, Text.created_on)
                 .join(User, Text.user_id == User.id)
                 .filter(User.username == followee_username)
-                .filter(Text.created_on >= n_days_ago)
+                # .filter(Text.created_on >= n_days_ago)
                 .order_by(Text.created_on)
                 .all()
             )
