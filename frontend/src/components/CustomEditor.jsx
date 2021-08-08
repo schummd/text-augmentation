@@ -164,8 +164,6 @@ const CustomEditor = ({ ...children }) => {
     setDefinition(definitionResponse);
     setPopoverOpen(false);
     setDefineOpen(true);
-    setDefinition(resultNotFoundMessage);
-    setDefineOpen(true);
   };
 
   const handleGetWebInfo = async () => {

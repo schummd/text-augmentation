@@ -106,14 +106,14 @@ const Navigation = ({ page }) => {
   };
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const [usersname, setUsersname] = React.useState(storedUser.username);
-  const [search, setSearch] = context.search
-  const [header, setHeader] = context.header
-  const [usersHeader, setUsersHeader] = context.usersHeader
+  const [search, setSearch] = context.search;
+  const [header, setHeader] = context.header;
+  const [usersHeader, setUsersHeader] = context.usersHeader;
 
   const btnProfile = () => {
-    const profileUrl = "/user/" + usersname
+    const profileUrl = '/user/' + usersname;
     history.push(profileUrl);
-  }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -154,27 +154,21 @@ const Navigation = ({ page }) => {
                     id="new-article-button"
                     variant="contained"
                     color={
-                      page.includes('articles') === true
-                        ? "primary"
-                        : "default"
+                      page.includes('articles') === true ? 'primary' : 'default'
                     }
                     className={classes.btnText}
                     onClick={() => {
                       history.push('/articles/new');
                     }}
                   >
-                    Reader
+                    New Read
                   </Button>
                 </Tooltip>
                 <Tooltip title="My Reads">
                   <Button
                     id="texts-button"
                     variant="contained"
-                    color={
-                      page === '/myreads'
-                        ? "primary"
-                        : "default"
-                    }
+                    color={page === '/myreads' ? 'primary' : 'default'}
                     className={classes.btnText}
                     onClick={() => {
                       history.push('/myreads');
@@ -187,34 +181,26 @@ const Navigation = ({ page }) => {
                   <Button
                     id="profile-button"
                     variant="contained"
-                    color={
-                      page === '/user/network'
-                        ? "primary"
-                        : "default"
-                    }
+                    color={page === '/user/network' ? 'primary' : 'default'}
                     className={classes.btnText}
                     onClick={() => {
-                      setSearch(false)
-                      setUsersHeader('Users')
+                      setSearch(false);
+                      setUsersHeader('Users');
                       history.push('/user/network');
                     }}
                   >
-                    Network 
+                    User list
                   </Button>
                 </Tooltip>
                 <Tooltip title="News Feed">
                   <Button
                     id="home-button"
                     variant="contained"
-                    color={
-                      page === '/newsfeed'
-                        ? "primary"
-                        : "default"
-                    }
+                    color={page === '/newsfeed' ? 'primary' : 'default'}
                     className={classes.btnText}
                     onClick={() => {
-                      setSearch(false)
-                      setHeader('News Feed')
+                      setSearch(false);
+                      setHeader('News Feed');
                       history.push('/home');
                     }}
                   >
@@ -229,11 +215,7 @@ const Navigation = ({ page }) => {
                 <Button
                   id="profile-button"
                   variant="contained"
-                  color={
-                    page === `/user/${usersname}`
-                      ? "primary"
-                      : "default"
-                  }
+                  color={page === `/user/${usersname}` ? 'primary' : 'default'}
                   className={classes.btnText}
                   onClick={() => {
                     btnProfile();
@@ -241,7 +223,7 @@ const Navigation = ({ page }) => {
                 >
                   Profile
                 </Button>
-              </Tooltip>             
+              </Tooltip>
               <Tooltip title="Logout">
                 <Button
                   id="logout-button"
