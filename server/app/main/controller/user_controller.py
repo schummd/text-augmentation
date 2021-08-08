@@ -119,6 +119,7 @@ search_parser.add_argument('lastname')
 search_parser.add_argument('username')
 search_parser.add_argument('email')
 
+@token_required
 @api.route("/<username>/usersearch")
 @api.response(200, "User(s) retrieved")
 @api.expect(search_parser, validate=True)

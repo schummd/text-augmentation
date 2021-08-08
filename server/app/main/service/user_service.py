@@ -285,7 +285,7 @@ def get_matching_users(username, data: Dict[str, str]) -> Tuple[Dict[str, str], 
                       .filter(func.lower(User.last_name).contains(data_updated['lastname'].lower()))\
                       .filter(func.lower(User.username).contains(data_updated['username'].lower()))\
                       .filter(func.lower(User.email).contains(data_updated['email'].lower()))\
-                      .filter(User.username != username)\
+                      .filter(func.lower(User.username) != username)\
                       .all()
 
     following_list = _find_all_following(username)
