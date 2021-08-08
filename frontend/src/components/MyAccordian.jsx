@@ -174,7 +174,7 @@ export default function ControlledAccordions({ searchTerm }) {
 
     if (searchTerm) {
       const formattedSearchTerm = searchTerm.replace(/[^A-Za-z0-9]+/g, '%20');
-      // getYoutubeVideos(formattedSearchTerm);
+      getYoutubeVideos(formattedSearchTerm);
       getNewsApiArticles(formattedSearchTerm);
       getAcadamicPapers(formattedSearchTerm);
       getWikipediaEntry(formattedSearchTerm);
