@@ -83,7 +83,7 @@ const MyReads = () => {
     { field: 'id', headerName: 'Id', width: 150, hide: true },
     { field: 'text_id', headerName: 'Text Id', width: 150, hide: true },
     {
-      field: 'text_title', headerName: 'Title', width: 600,
+      field: 'text_title', headerName: 'Title', width: 800,
       renderCell: (params) =>
         <Box className={classes.cellBtn}>
           <Tooltip title="Go to Read">

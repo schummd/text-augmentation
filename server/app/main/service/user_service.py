@@ -50,12 +50,13 @@ def get_all_users():
 
 
 def get_all_users_with_connection_status(username):
+    ''' gets all the users with the indication of who logged-in user is following'''
     following_list = Follower.query.filter_by(user_name=username).all()
     followees = set()
     for followee in following_list:
         followees.add(followee.following)
     all_users = User.query.filter(User.username != username).all()
-    print(all_users)
+
     for user in all_users:
         if user.username in followees:
             user.following = True
@@ -63,13 +64,6 @@ def get_all_users_with_connection_status(username):
 
 
 def get_a_user(username):
-    #TODO: modify frontend to accept this object
-    # query_result = User.query.filter_by(username=username).first()
-    # response_object = {
-    #     "status": "success",
-    #     "message": "Successfully retrieved.",
-    #     "data": query_result,
-    # }
     return User.query.filter_by(username=username).first()
 
 
@@ -146,6 +140,8 @@ def generate_token(user: User) -> Tuple[Dict[str, str], int]:
 
 
 def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], int]:
+    '''Changes "following" status to the opposite of what it is'''
+
     # Checking if the user tries to follow himself
     if user_to_follow == username:
 
@@ -153,7 +149,6 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
             "status": "fail",
             "message": "You cannot follow yourself.",
         }
-
         return response_object, 400
 
     # check if the user we try to follow exists
@@ -213,10 +208,6 @@ def _find_all_following(username):
 
     for user in following:
         following_list.append(user.following) 
-        # follow = {}
-        # follow["user_name"] = user.user_name
-        # follow["following"] = user.following
-        # following_list.append(follow)
     return following_list
 
 def get_all_following(username):
@@ -225,7 +216,7 @@ def get_all_following(username):
 
 
 def get_newsfeed(username):
-    # NUMBER_OF_DAYS_BACK = 3
+    '''Get newsfeed of followee's article titles'''
 
     # check if user exists
     exists = User.query.filter_by(username=username).first()
@@ -246,7 +237,6 @@ def get_newsfeed(username):
 
         newsfeed = []
         for user in following:
-            print("USER", user)
             item = {}
             titles = []
             followee_username = user.following
@@ -259,16 +249,10 @@ def get_newsfeed(username):
             item["followee_last_name"] = followee_last_name
             item["followee_first_name"] = followee_first_name
 
-            # today = datetime.datetime.utcnow()
-            # current = datetime.datetime(today.year, today.month, today.day)
-            # days_ago = current - datetime.timedelta(days=NUMBER_OF_DAYS_BACK)
-            # n_days_ago = datetime.datetime(days_ago.year, days_ago.month, days_ago.day)
-
             text_ids = (
                 db.session.query(Text.text_id, Text.text_title, Text.created_on)
                 .join(User, Text.user_id == User.id)
                 .filter(User.username == followee_username)
-                # .filter(Text.created_on >= n_days_ago)
                 .order_by(Text.created_on)
                 .all()
             )
@@ -287,15 +271,15 @@ def get_newsfeed(username):
 
     # user does not follow anyone, data empty, nothing to display
     else:
-
         response_object = {
             "status": "success",
             "data": "",
         }
-
         return response_object, 200
 
+
 def get_matching_users(username, data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
+    '''Implements user search'''
     data_updated = check_search_parameters(data)
     users = User.query.filter(func.lower(User.first_name).contains(data_updated['firstname'].lower()))\
                       .filter(func.lower(User.last_name).contains(data_updated['lastname'].lower()))\
@@ -362,8 +346,8 @@ def _analyse_results(ids, number_of_words):
         
 def article_search(username, search_string):
     '''Search for article titles with one or more words. Returns titles in which all 
-    words are present. Articles searched are those of the logged in user and also 
-    of those who the user follows.'''
+    words are present. Articles searched are those of followees'''
+
     new_string = ''
     # input validation
     for ch in search_string:
@@ -371,7 +355,7 @@ def article_search(username, search_string):
             new_string = new_string + ch
     words = new_string.split(' ')
     number_of_words = len(words)
-    ids = {}  # all text ids key: text_id, value: [text_title, word1, word2]
+    ids = {}  # all text ids, key: text_id, value: [text_title, word1, word2]
     users = Follower.query.filter_by(user_name=username).all()
     if len(users) != 0:
 
@@ -387,24 +371,7 @@ def article_search(username, search_string):
                         )
                 
                 ids = _processing_text_id(texts, ids, word)
-    # search in the articles of logged in user  
-    # for word in words:
-
-    #     texts = (
-    #                 db.session.query(Text.text_id, Text.text_title)
-    #                 .join(User, Text.user_id == User.id)
-    #                 .filter(User.username == username) 
-    #                 .filter(func.lower(Text.text_title).contains(word.lower()))
-    #                 .all()
-    #             )
-    #     ids = _processing_text_id(texts, ids, word)
-
-    
-
     return _analyse_results(ids, number_of_words)
-
-
-
 
 
 def save_changes(data: User) -> None:
