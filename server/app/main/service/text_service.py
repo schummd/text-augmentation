@@ -17,7 +17,6 @@ def save_new_text(data: Dict[str, str]) -> Dict[str, str]:
     text = str(uuid.uuid4())
 
     new_text = Text(
-        # user_id=user.id,
         user_id=logged_in_user["user_id"],
         text_id=text,
         created_on=datetime.datetime.utcnow(),

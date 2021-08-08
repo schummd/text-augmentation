@@ -13,9 +13,7 @@ def get_summary(word):
         + "redirect=true"
     )
     r = requests.get(url)
-    # print("RESPONSE", r)
     wiki_dict = json.loads(r.text)
-    # print(wiki_dict)
     try:
         if wiki_dict["type"] == "disambiguation":
             relevant_link = wiki_dict["content_urls"]["desktop"]["page"]

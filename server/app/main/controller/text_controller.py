@@ -15,24 +15,19 @@ api = TextDto.api
 _text = TextDto.text
 
 
-# POST /text
+
 @api.route("/")
 class Text(Resource):
     @api.expect(_text, validate=True)
     @token_required
     @api.response(201, "Text successfully saved.")
     @api.doc("create a new text")
-    # @api.header("hello", "test")
     def post(self) -> Dict[str, str]:
         """Saves a new text"""
         data = request.json
-        print(data)
         return save_new_text(data=data)
 
 
-# GET /text/{text_id}
-# PUT /text/{text_id}
-# DELETE /text/{text_id}
 @api.route("/<text_id>")
 @api.param("text_id", "The Text identifier")
 @api.response(404, "Text not found")
@@ -59,13 +54,12 @@ class TextUser(Resource):
         return delete_a_text(text_id)
 
 
-# GET /text/fetchall/{username}
+
 @api.route("/fetchall/<username>")
 @api.param("username", "The User identifier")
 @api.response(404, "User not found.")
 class TextList(Resource):
     @api.doc("get all texts")
-    # @api.expect(_textID)
     def get(self, username):
         """Get list of all texts for user"""
         return get_all_texts(username)

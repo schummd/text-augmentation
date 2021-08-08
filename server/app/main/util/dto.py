@@ -9,10 +9,8 @@ class UserDto:
             "id": fields.String(required=False, description="id"),
             "email": fields.String(required=True, description="user email address"),
             "username": fields.String(required=True, description="user username"),
-            # "password": fields.String(required=True, description="user password"),
             "first_name": fields.String(description="user first name"),
             "last_name": fields.String(description="user last name"),
-            # "following": fields.Boolean(required=False, description="following current user or not"),
         },
     )
     follower = api.model(
@@ -95,7 +93,6 @@ class DefinitionDto:
     definition = api.model(
         "definition",
         {
-            "word": fields.String(required=True, description="Word"),
             "definition": fields.String(
                 required=True, description="Definition of the word"
             ),

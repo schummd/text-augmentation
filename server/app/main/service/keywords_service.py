@@ -41,9 +41,6 @@ def watson_keywords(text_to_analyse):
 
 
 def find_keywords(data: Dict[str, str]):
-    # print(Auth.get_logged_in_user(request)[0])
-    # logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    # print(logged_in_user["user_id"], text_id, requestedText.text_body)
     text_body = data["text_body"]
     try:
         return watson_keywords(text_body)

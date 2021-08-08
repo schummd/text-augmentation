@@ -9,9 +9,6 @@ import {
   Typography,
   CircularProgress,
 } from '@material-ui/core';
-// import axios from 'axios';
-// import { toast } from 'react-toastify';
-import ReactDOM from 'react-dom';
 import { toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
@@ -65,21 +62,18 @@ const Home = () => {
   const context = React.useContext(StoreContext);
   const token = context.token[0];
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  // const [token, setToken] = React.useState(storedUser.token);
   const [username, setUsername] = React.useState(storedUser.username);
   const [search, setSearch] = context.search
   const [header, setHeader] = context.header
- 
+  const [page, setPage] = context.pageState;
+  const [loadingState, setLoadingState] = React.useState('load');
+  const [myReads, setMyReads] = context.myReads;
+
   React.useEffect(() => {
     if (token === null) {
       return <Redirect to={{ pathname: '/login' }} />;
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const [page, setPage] = context.pageState;
-  const [loadingState, setLoadingState] = React.useState('load');
-  // const [username] = context.username;
-  const [myReads, setMyReads] = context.myReads;
 
   // view text of another reader
   const viewText = async (text_id, followee_username) => {
