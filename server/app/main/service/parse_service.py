@@ -10,6 +10,10 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv("server.env"))
 SCIENCE_PARSE_URL = os.environ.get("SCIENCE_PARSE_URL")
 
+## Fallback for testing
+if not SCIENCE_PARSE_URL:
+    SCIENCE_PARSE_URL="http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/v1"
+
 
 def parse_paper(encoded_pdf: str) -> Dict[str, str]:
 
