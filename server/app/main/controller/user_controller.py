@@ -17,8 +17,10 @@ from ..service.user_service import (
     get_newsfeed,
     get_matching_users,
     get_all_users_with_connection_status,
+    article_search
 )
 from typing import Dict, Tuple
+import json
 
 
 api = UserDto.api
@@ -111,20 +113,25 @@ class Newsfeed(Resource):
         print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
+
 search_parser = reqparse.RequestParser()
 search_parser.add_argument('firstname')
 search_parser.add_argument('lastname')
 search_parser.add_argument('username')
 search_parser.add_argument('email')
 
-@api.route("/search")
+@api.route("/<username>/usersearch")
 @api.response(200, "User(s) retrieved")
 @api.expect(search_parser, validate=True)
 class Search(Resource):
     @api.doc("Retrieve a list of users from a search request")
-    def get(self):
+    def get(self, username):
         data = search_parser.parse_args()
-        return get_matching_users(data)
+        print("REQUEST IS", data)
+        res = get_matching_users(username, data)
+        print(res)
+        return res
+
 
 # GET /user/{username}/network
 @token_required
@@ -140,3 +147,18 @@ class Network(Resource):
         # user_id =response['data']['user_id']
         print("Response to request", status)
         return get_all_users_with_connection_status(username)
+
+
+# GET /user/{username}/search
+@token_required
+@api.route("/<username>/search")
+@api.param("search_string", "Search String")
+@api.response(404, "User not found.")
+class ArticleSearch(Resource):
+    @api.doc(params={"search_string" : {"description": "article search"}})
+    def get(self, username):
+        """List searched titles"""
+        search_string = request.args.get('search_string')
+        word = json.loads(search_string)['words']
+        return article_search(username, word)
+ 

@@ -29,6 +29,9 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
+import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -59,9 +62,16 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: '4px',
     paddingLeft: '50px',
   },
+  titleAndBtnDiv: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   cellBtn: {
     display: 'flex',
-    width:' 100%',
+    width: ' 100%',
     justifyContent: 'flex-start',
   },
   btnText: {
@@ -69,6 +79,19 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
+  },
+  root: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    width: 400,
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1,
+  },
+  iconButton: {
+    padding: 10,
   },
 }));
 
@@ -79,14 +102,8 @@ const UserNetwork = () => {
   const [username, setUsername] = React.useState(storedUser.username);
   // const username = context.username;
   // console.log("Context data", token, username)
-
-
-  React.useEffect(() => {
-    if (token === null) {
-      return <Redirect to={{ pathname: '/login' }} />;
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  const [search, setSearch] = context.search;
+  const [usersHeader, setUsersHeader] = context.usersHeader;
   const [page, setPage] = context.pageState;
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
@@ -99,30 +116,43 @@ const UserNetwork = () => {
   const [pageNumber, setPageNumber] = React.useState(0);
   const [requestToFollow, setRequestToFollow] = React.useState(false);
 
+  const [firstNameSearch, setFirstNameSearch] = React.useState()
+  const [lastNameSearch, setLastNameSearch] = React.useState()
+  const [usernameSearch, setUsernameSearch] = React.useState()
+  const [emailSearch, setEmailSearch] = React.useState()
+  const [openSearch, setOpenSearch] = React.useState(false);
+
   const handlePageSizeChange = (params) => {
     setPageSize(params.pageSize);
   };
+
+  React.useEffect(() => {
+    if (token === null) {
+      return <Redirect to={{ pathname: '/login' }} />;
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const columns = [
     { field: 'id', headerName: 'id', width: 150, hide: true },
     { field: 'first_name', headerName: 'First Name', width: 150 },
     { field: 'last_name', headerName: 'Last Name', width: 150 },
-    { 
+    {
       field: 'username',
       headerName: 'Username',
       width: 150,
-      renderCell: (params) => 
+      renderCell: (params) => (
         <Box className={classes.cellBtn}>
           <Button
             className={classes.btnText}
-            onClick={()=>{
+            onClick={() => {
               history.push(`/user/${params.row.username}`);
             }}
           >
             {`${params.formattedValue}`}
           </Button>
         </Box>
-      
+      ),
     },
     { field: 'email', headerName: 'Email', width: 150 },
     {
@@ -146,56 +176,104 @@ const UserNetwork = () => {
     },
   ];
 
+
+  // setting up users
   React.useEffect(() => {
     setPage('/user/network');
-    async function setupHome() {
-      setLoadingState('loading');
-      console.log('Profile page', username, token);
+    if (!search) {
+    setupHome();
+    }
+  }, [requestToFollow, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
-      // getting all users information
+  async function setupHome() {
+    setLoadingState('loading');
+    console.log('Profile page', username, token);
+
+    // getting all users information
+    try {
+      const payload = {
+        method: 'GET',
+        url: `/user/${username}/network`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Authorization: ${token}`,
+        },
+      };
+      console.log('Payload', payload);
+      const ulist = await axios(payload);
+      const userlist = ulist.data;
+      console.log('User List', userlist.data);
+      // if (resData.status === 'success') {
+      if (userlist.data.length > 0) {
+        // toast.success(`Retrieved User information from server.`);
+        setRows(userlist.data);
+        console.log('User List', rows);
+        setRequestToFollow(false);
+        setLoadingState('done');
+      } else {
+        toast.warn(`${userlist.message}`);
+      }
+    } catch (error) {
+      toast.error('Error retrieving User data from server.');
+    }
+  }
+
+  // search for users
+  const handleUserSearch = async (e) => {
+    setSearch(true);
+      setLoadingState('loading');
+      console.log(firstNameSearch)
       try {
         const payload = {
           method: 'GET',
-          url: '/user/' + username + '/network',
+          url: `/user/${username}/usersearch`,
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Authorization: ${token}`,
           },
+          params: {"firstname": firstNameSearch,
+                   "lastname": lastNameSearch,
+                   "username": usernameSearch,
+                   "email": emailSearch
+                  }
         };
-        console.log('Payload', payload);
-        const ulist = await axios(payload);
-        const userlist = ulist.data;
-        console.log('User List', userlist.data);
-        // if (resData.status === 'success') {
-        if (userlist.data.length > 0) {
-          // toast.success(`Retrieved User information from server.`);
-          setRows(userlist.data);
-          console.log('User List', rows);
-          setRequestToFollow(false)
-          setLoadingState('done');
+        console.log(payload);
+        const res = await axios(payload);
+        const resData = res.data;
+        console.log("Request returned", resData);
+
+        if (resData.length > 0) {
+          console.log('success');
+          setUsersHeader('Search results')
+          setRows(resData);
+
         } else {
-          toast.warn(`${userlist.message}`);
+          setUsersHeader('Search results')
+          setRows([]);
         }
+        setFirstNameSearch()
+        setLastNameSearch()
+        setUsernameSearch()
+        setEmailSearch()
+        setUsersHeader('Search Results');
+        console.log(rows);
+        setLoadingState('done');
+        setOpenSearch(false)
       } catch (error) {
-        toast.error('Error retrieving User data from server.');
+        toast.error('Error retrieving Reads from server.');
       }
     }
-
-    setupHome();
-  }, [requestToFollow]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // TODO: add button actions to search for users and edit profile
  
-  const [openEditProfile, setEditProfileOpen] = React.useState(false);
-  const [openSearchUsers, setEditSearchUsers] = React.useState(false);
+    const handleClickOpen = () => {
+      setOpenSearch(true);
+    };
+    const handleCancel = () => {
+      setOpenSearch(false);
+    };
+  
+  
 
-  const [searchUsersOperate, setSearchUsersOperate] = React.useState();
-  const handleUserSearch = async () => {
-    React.setOpenSearchUsers(true);
-    // React.setSearchUsersOperate(<SearchUsersButton />);
-    // return searchUsersOperate;
-  };
 
+  // follow or unfollow another user
   const handleCellClick = async (param, event) => {
     console.log(param);
     console.log(event);
@@ -214,16 +292,15 @@ const UserNetwork = () => {
           'Content-Type': 'application/json',
           Authorization: token,
         },
-        data: { 'user_to_follow': networkUsername },
+        data: { user_to_follow: networkUsername },
       };
       console.log('Payload', payload);
       const response = await axios(payload);
-      console.log("Response", response);
+      console.log('Response', response);
       if (response.status === 201) {
         toast.success(`Changed connection status.`);
         setRequestToFollow(true);
-        console.log("Params", param)
-     
+        console.log('Params', param);
       } else {
         toast.error('Error retrieving response from server.');
       }
@@ -245,18 +322,72 @@ const UserNetwork = () => {
         {loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
-              <Box>
+            <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
-                  Users
-                  {/* <Box className={classes.btnUiDiv}>
+                  {usersHeader}
+                </Typography>
+                <Box className={classes.btnUiDiv}>
+                  {/* <Tooltip title="Search for users"> */}
                     <Button
                       variant="outlined"
-                      //  onClick={() => handleUserSearch()};
+                      onClick={() => {
+                        handleClickOpen();
+                      }}
                     >
                       Search Users
-                    </Button> 
-                  </Box>*/}
-                </Typography>
+                    </Button>
+                  {/* </Tooltip> */}
+                  <Dialog open={openSearch} 
+                  maxWidth='xs'
+                  onClose={handleCancel}>
+                    <DialogTitle>Search Users</DialogTitle>
+                    <DialogContent>
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="firstname"
+                        label="First Name"
+                        type="firstname"
+                        fullWidth
+                        variant="standard"
+                        onChange={(e) => setFirstNameSearch(e.target.value)}
+                      />
+                      <TextField
+                        margin="dense"
+                        id="lastname"
+                        label="Last Name"
+                        type="lastname"
+                        fullWidth
+                        variant="standard"
+                        onChange={(e) => setLastNameSearch(e.target.value)}
+                      />
+                      <TextField
+                        margin="dense"
+                        id="username"
+                        label="username"
+                        type="username"
+                        fullWidth
+                        variant="standard"
+                        onChange={(e) => setUsernameSearch(e.target.value)}
+                      />
+                      <TextField
+                        margin="dense"
+                        id="email"
+                        label="Email"
+                        type="email"
+                        fullWidth
+                        variant="standard"
+                        onChange={(e) => setEmailSearch(e.target.value)}
+                      />
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleUserSearch}>Search</Button>
+                    </DialogActions>
+                  </Dialog>
+                </Box>
+
+                <br></br>
+                {/* </Box> */}
               </Box>
               <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
                 <div style={{ display: 'flex', height: '100%' }}>
@@ -275,7 +406,6 @@ const UserNetwork = () => {
                       onPageSizeChange={handlePageSizeChange}
                       rowsPerPageOptions={[5, 10, 20]}
                       rowCount={rows.length}
-                      
                     />
                   </div>
                 </div>

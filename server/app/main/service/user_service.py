@@ -12,7 +12,7 @@ from app.main.model.text import Text
 from sqlalchemy import func
 from app.main.service.auth_helper import Auth
 from flask.globals import request
-
+from sqlalchemy import func
 
 def save_new_user(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     user = User.query.filter_by(email=data["email"]).first()
@@ -207,25 +207,25 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
 
         return response_object, 404
 
-
-def get_all_following(username):
+def _find_all_following(username):
     following = Follower.query.filter_by(user_name=username).all()
-
     following_list = []
 
     for user in following:
-        follow = {}
-        follow["user_name"] = user.user_name
-        follow["following"] = user.following
-        following_list.append(follow)
+        following_list.append(user.following) 
+        # follow = {}
+        # follow["user_name"] = user.user_name
+        # follow["following"] = user.following
+        # following_list.append(follow)
+    return following_list
 
-    response_object = {"status": "success", "data": following_list}
-
-    return response_object, 200
+def get_all_following(username):
+    following_list = _find_all_following(username)
+    return {"status": "success", "data": following_list}, 200
 
 
 def get_newsfeed(username):
-    NUMBER_OF_DAYS_BACK = 3
+    # NUMBER_OF_DAYS_BACK = 3
 
     # check if user exists
     exists = User.query.filter_by(username=username).first()
@@ -259,16 +259,16 @@ def get_newsfeed(username):
             item["followee_last_name"] = followee_last_name
             item["followee_first_name"] = followee_first_name
 
-            today = datetime.datetime.utcnow()
-            current = datetime.datetime(today.year, today.month, today.day)
-            days_ago = current - datetime.timedelta(days=NUMBER_OF_DAYS_BACK)
-            n_days_ago = datetime.datetime(days_ago.year, days_ago.month, days_ago.day)
+            # today = datetime.datetime.utcnow()
+            # current = datetime.datetime(today.year, today.month, today.day)
+            # days_ago = current - datetime.timedelta(days=NUMBER_OF_DAYS_BACK)
+            # n_days_ago = datetime.datetime(days_ago.year, days_ago.month, days_ago.day)
 
             text_ids = (
                 db.session.query(Text.text_id, Text.text_title, Text.created_on)
                 .join(User, Text.user_id == User.id)
                 .filter(User.username == followee_username)
-                .filter(Text.created_on >= n_days_ago)
+                # .filter(Text.created_on >= n_days_ago)
                 .order_by(Text.created_on)
                 .all()
             )
@@ -295,21 +295,26 @@ def get_newsfeed(username):
 
         return response_object, 200
 
-def get_matching_users(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
+def get_matching_users(username, data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     data_updated = check_search_parameters(data)
     users = User.query.filter(func.lower(User.first_name).contains(data_updated['firstname'].lower()))\
                       .filter(func.lower(User.last_name).contains(data_updated['lastname'].lower()))\
                       .filter(func.lower(User.username).contains(data_updated['username'].lower()))\
-                      .filter(func.lower(User.email).contains(data_updated['email'].lower())).all()
+                      .filter(func.lower(User.email).contains(data_updated['email'].lower()))\
+                      .filter(User.username != username)\
+                      .all()
 
+    following_list = _find_all_following(username)
     result = []
     for user in users:
         object = {}
-        object['public_id'] = user.public_id
+        object['id'] = user.public_id
         object['first_name'] = user.first_name
         object['last_name'] = user.last_name
         object['username'] = user.username
         object['email'] = user.email
+        if user.username in following_list:
+            object['following'] = True
         result.append(object)
 
     return result, 200
@@ -324,6 +329,83 @@ def check_search_parameters(data: Dict[str, str]) -> Dict[str, str]:
     if data['email'] is None:
         data['email'] = ''
     return data
+
+def _processing_text_id(text_ids, ids, word):
+    '''collecting results of the search'''
+    for id in text_ids:
+        if not id.text_id in ids:  # checking if this text has alreadu been counted in
+            ids[id.text_id] = [id.text_title, word]
+        else:
+            if not word in ids[id.text_id]:
+                ids[id.text_id].append(word)
+    return ids
+
+
+def _analyse_results(ids, number_of_words):
+    '''selecting results where all words are present'''
+    titles = []
+    item = {}
+
+    for id in ids:
+        if len(ids[id])-1 == number_of_words:
+            t = {}
+            t["text_title"] = ids[id][0]
+            t["text_id"] = id
+            titles.append(t)
+    item["followee_username"] = ' ',
+    item["followee_last_name"] = ' ',
+    item["followee_first_name"] = ' ',    
+    item["text_titles"] = titles
+    return {"status": "success", "data": [item]}
+
+
+        
+def article_search(username, search_string):
+    '''Search for article titles with one or more words. Returns titles in which all 
+    words are present. Articles searched are those of the logged in user and also 
+    of those who the user follows.'''
+    new_string = ''
+    # input validation
+    for ch in search_string:
+        if ord(ch) == 32 or (ord(ch) >= 97 and ord(ch) <= 122):
+            new_string = new_string + ch
+    words = new_string.split(' ')
+    number_of_words = len(words)
+    ids = {}  # all text ids key: text_id, value: [text_title, word1, word2]
+    users = Follower.query.filter_by(user_name=username).all()
+    if len(users) != 0:
+
+        for user in users:
+            person_username = user.following
+            for word in words:
+                texts = (
+                            db.session.query(Text.text_id, Text.text_title)
+                            .join(User, Text.user_id == User.id)
+                            .filter(User.username == person_username) 
+                            .filter(func.lower(Text.text_title).contains(word.lower()))
+                            .all()
+                        )
+                
+                ids = _processing_text_id(texts, ids, word)
+    # search in the articles of logged in user  
+    # for word in words:
+
+    #     texts = (
+    #                 db.session.query(Text.text_id, Text.text_title)
+    #                 .join(User, Text.user_id == User.id)
+    #                 .filter(User.username == username) 
+    #                 .filter(func.lower(Text.text_title).contains(word.lower()))
+    #                 .all()
+    #             )
+    #     ids = _processing_text_id(texts, ids, word)
+
+    
+
+    return _analyse_results(ids, number_of_words)
+
+
+
+
 
 def save_changes(data: User) -> None:
     db.session.add(data)

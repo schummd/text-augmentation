@@ -17,6 +17,10 @@ const Context = ({ children }) => {
   const [editorState, setEditorState] = React.useState(
     EditorState.createEmpty()
   );
+  const [search, setSearch] = React.useState(false);
+  const [header, setHeader] = React.useState('News Feed')
+  const [usersHeader, setUsersHeader] = React.useState('Users')
+
 
   const blankEditorState = () => {
     return EditorState.createEmpty();
@@ -28,6 +32,9 @@ const Context = ({ children }) => {
     username: [username, setUsername],
     pageState: [page, setPage],
     myReads: [myReads, setMyReads],
+    search: [search, setSearch],
+    header: [header, setHeader],
+    usersHeader: [usersHeader, setUsersHeader],
     singularRead: [singularRead, setSingularRead],
     editorState: [editorState, setEditorState],
     blankEditorState,
