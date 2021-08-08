@@ -193,7 +193,7 @@ const UserNetwork = () => {
     try {
       const payload = {
         method: 'GET',
-        url: '/user/' + username + '/network',
+        url: `/user/${username}/network`,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Authorization: ${token}`,
@@ -226,7 +226,7 @@ const UserNetwork = () => {
       try {
         const payload = {
           method: 'GET',
-          url: `/user/search`,
+          url: `/user/${username}/search`,
           headers: {
             'Content-Type': 'application/json',
           },

@@ -207,21 +207,21 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
 
         return response_object, 404
 
-
-def get_all_following(username):
+def _find_all_following(username):
     following = Follower.query.filter_by(user_name=username).all()
-
     following_list = []
 
     for user in following:
-        follow = {}
-        follow["user_name"] = user.user_name
-        follow["following"] = user.following
-        following_list.append(follow)
+        following_list.append(user.following) 
+        # follow = {}
+        # follow["user_name"] = user.user_name
+        # follow["following"] = user.following
+        # following_list.append(follow)
+    return following_list
 
-    response_object = {"status": "success", "data": following_list}
-
-    return response_object, 200
+def get_all_following(username):
+    following_list = _find_all_following(username)
+    return {"status": "success", "data": following_list}, 200
 
 
 def get_newsfeed(username):
@@ -295,13 +295,16 @@ def get_newsfeed(username):
 
         return response_object, 200
 
-def get_matching_users(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
+def get_matching_users(username, data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     data_updated = check_search_parameters(data)
     users = User.query.filter(func.lower(User.first_name).contains(data_updated['firstname'].lower()))\
                       .filter(func.lower(User.last_name).contains(data_updated['lastname'].lower()))\
                       .filter(func.lower(User.username).contains(data_updated['username'].lower()))\
-                      .filter(func.lower(User.email).contains(data_updated['email'].lower())).all()
+                      .filter(func.lower(User.email).contains(data_updated['email'].lower()))\
+                      .filter(User.username != username)\
+                      .all()
 
+    following_list = _find_all_following(username)
     result = []
     for user in users:
         object = {}
@@ -310,6 +313,8 @@ def get_matching_users(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
         object['last_name'] = user.last_name
         object['username'] = user.username
         object['email'] = user.email
+        if user.username in following_list:
+            object['following'] = True
         result.append(object)
 
     return result, 200

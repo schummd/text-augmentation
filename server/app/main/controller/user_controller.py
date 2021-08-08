@@ -120,15 +120,15 @@ search_parser.add_argument('lastname')
 search_parser.add_argument('username')
 search_parser.add_argument('email')
 
-@api.route("/search")
+@api.route("/<username>/search")
 @api.response(200, "User(s) retrieved")
 @api.expect(search_parser, validate=True)
 class Search(Resource):
     @api.doc("Retrieve a list of users from a search request")
-    def get(self):
+    def get(self, username):
         data = search_parser.parse_args()
         print("REQUEST IS", data)
-        res = get_matching_users(data)
+        res = get_matching_users(username, data)
         print(res)
         return res
 
