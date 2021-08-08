@@ -43,6 +43,7 @@ import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import search from 'youtube-search';
+import PageviewIcon from '@material-ui/icons/Pageview';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -150,11 +151,13 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '0.5em',
   },
   uiSummary: {
-    width: '100%',
-    height: '100%',
-    minHeight: '528px',
+    width: '91%',
+    height: '90%',
+    minHeight: '493px',
     marginBottom: '0.5em',
     backgroundColor: '#F0F0F0',
+    textAlign: 'left',
+    padding: '1rem',
   },
   btnUiWrapper: {
     display: 'flex',
@@ -301,11 +304,10 @@ const Article = () => {
 
   const [uiBtn, setUiBtn] = React.useState('analyse');
 
-  const [defineQuery, setDefineQuery] = React.useState('');
   const [articleOwner, setArticleOwner] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
-  const [analysisSummary, setAnalysisSummary] = React.useState('summary');
-  const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
+  const [analysisSummary, setAnalysisSummary] = React.useState('');
+  const [analysisKeywords, setAnalysisKeywords] = React.useState('');
   const [searchTerm, setSearchTerm] = React.useState('');
 
   const [rawPdf, setRawPdf] = React.useState(null);
@@ -484,6 +486,8 @@ const Article = () => {
     setOpenDeleteDialog(false);
   };
 
+  const [openPdfModal, setOpenPdfModal] = React.useState(false);
+
   const classes = useStyles();
 
   return (
@@ -515,7 +519,23 @@ const Article = () => {
 
                   {rawPdf && (
                     <Box className={classes.titleDivMultipleBtn}>
-                      {<PdfModal rawPdf={rawPdf} />}
+                      <Box className={classes.titleDivSingleBtn}>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => setOpenPdfModal(true)}
+                        >
+                          Vew original PDF <PageviewIcon></PageviewIcon>
+                        </Button>
+                      </Box>
+                      {
+                        <PdfModal
+                          rawPdf={rawPdf}
+                          open={openPdfModal}
+                          setOpen={setOpenPdfModal}
+                          loading={false}
+                        />
+                      }
                     </Box>
                   )}
 
@@ -814,7 +834,7 @@ const Article = () => {
                         aria-labelledby={`analyse-tab-panel-0`}
                       >
                         <Paper variant="outlined" className={classes.uiSummary}>
-                          <Typography align="left" variant="p">
+                          <Typography align="left">
                             {analysisSummary}
                           </Typography>
                         </Paper>

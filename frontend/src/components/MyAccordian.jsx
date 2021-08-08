@@ -11,6 +11,8 @@ import * as youtubeSearch from 'youtube-search';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { StoreContext } from '../utils/store';
+import { dataUrlToFile } from '../utils/utils';
+import PdfModal from '../components/PdfModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,6 +35,11 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 300,
     backgroundColor: theme.palette.background.paper,
   },
+  wikiSummary: {
+    textAlign: 'left',
+    padding: '1rem',
+    fontStyle: 'italic',
+  },
 }));
 
 export default function ControlledAccordions({ searchTerm }) {
@@ -42,6 +49,9 @@ export default function ControlledAccordions({ searchTerm }) {
   const [wikipediaSummary, setWikipediaSummary] = React.useState(false);
   const [newsApiArticles, setNewsApiArticles] = React.useState(false);
   const [academicPapers, setAcademicPapers] = React.useState(false);
+  const [rawPdf, setRawpdf] = React.useState(false);
+  const [openPdfModal, setOpenPdfModal] = React.useState(false);
+  const [pdfLoading, setPdfLoading] = React.useState(false);
 
   const context = React.useContext(StoreContext);
   const [token] = context.token;
@@ -79,7 +89,7 @@ export default function ControlledAccordions({ searchTerm }) {
       }
       const url =
         'https://newsapi.org/v2/everything?' +
-        `q=${keyword}&` +
+        `q=${keyword}%20science&` +
         'sortBy=popularity&' +
         `apiKey=${process.env.REACT_APP_NEWSAPI_KEY}`;
 
@@ -102,7 +112,11 @@ export default function ControlledAccordions({ searchTerm }) {
         const data = res.data;
         console.log(data);
         const articles = res.data.articles;
-        setNewsApiArticles(articles);
+
+        // Get first 10 results
+        const slicedArticles =
+          articles.length > 10 ? articles.slice(0, 10) : articles;
+        setNewsApiArticles(slicedArticles);
       } else {
         toast.error('Error fetchiing news articles.');
       }
@@ -129,8 +143,18 @@ export default function ControlledAccordions({ searchTerm }) {
 
       const res = await instance.get(url);
       const papers = res.data.results;
-      console.log(papers);
-      setAcademicPapers(papers);
+      const papersWithFullPdfs = papers.filter(
+        (paper) => paper.response.best_oa_location.url_for_pdf
+      );
+      console.log(papersWithFullPdfs);
+
+      // Get first 10 results
+      const slicedPapers =
+        papersWithFullPdfs.length > 10
+          ? papersWithFullPdfs.slice(0, 10)
+          : papersWithFullPdfs;
+
+      setAcademicPapers(slicedPapers);
     };
 
     const getWikipediaEntry = async (keyword) => {
@@ -161,8 +185,38 @@ export default function ControlledAccordions({ searchTerm }) {
     }
   }, [searchTerm]);
 
+  const handleDisplayPdf = async (url) => {
+    setPdfLoading(true);
+    setOpenPdfModal(true);
+    const payload = {
+      method: `POST`,
+      url: `/parse/urltopdf`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${token}`,
+      },
+      data: { url },
+    };
+    console.log(payload);
+    try {
+      const res = await axios(payload);
+      const data = res.data;
+      const file = await dataUrlToFile(data.data);
+      setRawpdf(file);
+      setPdfLoading(false);
+    } catch (error) {
+      toast.error('error reading pdf link');
+    }
+  };
+
   return (
     <div className={classes.root}>
+      <PdfModal
+        rawPdf={rawPdf}
+        open={openPdfModal}
+        setOpen={setOpenPdfModal}
+        loading={pdfLoading}
+      />
       <Accordion
         expanded={expanded === 'panel1'}
         onChange={handleChange('panel1')}
@@ -202,7 +256,11 @@ export default function ControlledAccordions({ searchTerm }) {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          {wikipediaSummary && wikipediaSummary}
+          {wikipediaSummary && (
+            <Typography className={classes.wikiSummary}>
+              {wikipediaSummary}
+            </Typography>
+          )}
         </AccordionDetails>
       </Accordion>
       <Accordion
@@ -253,7 +311,7 @@ export default function ControlledAccordions({ searchTerm }) {
           id="panel5bh-header"
         >
           <Typography className={classes.secondaryHeading}>
-            Scientific Papers
+            Academic Resources
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -264,12 +322,18 @@ export default function ControlledAccordions({ searchTerm }) {
                   {academicPapers.map((paper) => (
                     <ListItem>
                       <Link
-                        href={paper.response.best_oa_location.url_for_pdf}
-                        rel="noopener noreferrer"
                         variant="body1"
-                        target="_blank"
+                        onClick={() => {
+                          setPdfLoading(true);
+                          handleDisplayPdf(
+                            paper.response.best_oa_location.url_for_pdf
+                          );
+                        }}
+                        component="button"
                       >
-                        {paper.response.title}
+                        <Typography align="left">
+                          {paper.response.title}
+                        </Typography>
                       </Link>
                     </ListItem>
                   ))}
