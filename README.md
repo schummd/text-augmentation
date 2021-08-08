@@ -1,4 +1,6 @@
-# VM (Optional)
+## Requirements
+
+### Using VM
 
 1. Obtain a license (free for CSE students) and download Vmware Fusion Pro (mac) or Vmware Workstation Pro/player (windows) [here](https://e5.onthehub.com/WebStore/Welcome.aspx?ws=7c113c30-5d8b-de11-8cd1-0030487d8897)
 
@@ -8,14 +10,26 @@ If you have issues installing or using the VMWare software, then use VirtualBox 
 - VirtualBox Installation [guide](https://wikis.utexas.edu/display/MSBTech/Installing+VirtualBox)
 - Installing OVA files in VirtualBox [guide](https://wikis.utexas.edu/display/MSBTech/Installing+OVA+files+using+VirtualBox)
 
-# Frontend
+### Locally
+
+- [NPM and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
+- [Python v3.8.5](https://www.python.org/downloads/release/python-385/) (+ [pip](https://pypi.org/project/pip/) and [virtualenv](https://pypi.org/project/virtualenv/))
+
+## Installation
+1. In /frontend run `yarn install`
+2. In /backend run `make install`
+##  Usage
+
+- Ensure API keys have been loaded as described below.
+- In /server run `make migrate` followed by `make run`. Server should be running on port 5000. See swagger docs at http://127.0.0.1:5000/
+- In /frontend run `yarn dev`. Frontend should be running on http://localhost:3000
 
 ## API Keys
-### Current Key Names
-This is a list of all API keys used in our project. If you incorporate a new key, update this list with its name ONLY. Only update this list when your code has been pushed to master.
-- REACT_APP_YT_KEY: API key for youtube [Getting a key](https://medium.com/swlh/how-to-get-youtubes-api-key-7c28b59b1154)
-- REACT_APP_NEWSAPI_KEY: API key for newsapi.org [Get a key](https://newsapi.org/)
-- REACT_APP_UNPAYWALL_EMAIL: your email for unpaywall requests.
+
+Two env files are requied. One for frontend, and one for backend.
+
+### Frontend (/frontend/.env)
 
 In the /frontned folder, create a file named `.env`:
 
@@ -24,52 +38,14 @@ In the /frontned folder, create a file named `.env`:
 │   └──.env
 ```
 
-This is a private file included in .gitignore. Ensure no keys are pushed to the repo.
-CURRENT file:
-
+Contents of `frontend/.env`:
 ```
 REACT_APP_YT_KEY="XXXXXXXXXX"
 REACT_APP_NEWSAPI_KEY="XXXXXXXXXX"
 REACT_APP_UNPAYWALL_EMAIL="XXXXXXXXXX"
 ```
 
-
-## Installation (only if not using VM)
-- Download an install [npm and node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-- Install [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
-
-##  Usage
-1. In /frontend run `yarn install` then `yarn dev`
-
-- Frontend should be running on http://localhost:3000
-
-# Backend
-
-## Boilerplate: FLASK RESTX BOILER-PLATE WITH JWT
-
-Full description and guide [here](https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563)
-## Usage
-Note: make sure you have `pip` and `virtualenv` installed (If not using VM).
-
-    Initial installation: make install
-
-    To run tests: make tests
-
-    To run application: make run
-
-
-Make sure to run the initial migration commands to update the database.
-
-    `make migrate`
-
-
-## Viewing the app ###
-
-    Open the following url on your browser to view swagger documentation
-    http://127.0.0.1:5000/
-
-
-## API Keys
+### Server (/server/server.env)
 
 In the /server folder, create a file named `server.env`:
 
@@ -78,8 +54,7 @@ In the /server folder, create a file named `server.env`:
 │   └── server.env
 ```
 
-This is a private file included in .gitignore. Ensure no keys are pushed to the repo.
-Current file:
+Contents of `server/server.env`:
 
 ```
 IBM_WATSON_API_KEY="XXXXXXXX"
@@ -89,4 +64,9 @@ OXFORD_API_KEY="XXXXXXXX"
 OXFORD_ID="XXXXXXXX"
 SCIENCE_PARSE_URL="http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/v1"
 ```
+
+## Credits 
+
+- Backend boilerplate used from [here](https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563)
+- Scientific paper parsing library used for parsing PDFs. Taken from [here](https://github.com/stoposto/science-parse) which is our fork of [science-parse](https://github.com/allenai/science-parse). Due to high resource usage and operational overhead required to provide a reliable local instance, it has been deployed [here](http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/) on a load balanced AWS ECS service.
 
