@@ -13,15 +13,15 @@ import { toast } from 'react-toastify';
 import { getSummary, fetchDefinition } from '../utils/utils';
 
 const DraftOuterWrapper = styled.div`
-display: flex;
-justify-content: center;
-width: 100%;
-height: 85vh;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 85vh;
 `;
 
 const DraftInnerWrapper = styled.div`
-width: 1200px;
-height: 100%;
+  width: 1200px;
+  height: 100%;
 `;
 
 const useStyles = makeStyles((theme) => ({
@@ -111,8 +111,6 @@ const CustomEditorFullScreen = ({ ...children }) => {
     });
   }, [editorState]);
 
-
-
   return (
     <div>
       <Popper
@@ -194,32 +192,32 @@ const CustomEditorFullScreen = ({ ...children }) => {
             }}
             editorStyle={
               darkMode !== true
-              ? {
-                  backgroundColor: '#fff',
-                  border: '1px solid gray',
-                  padding: '0.75rem',
-                  overflow: 'auto',
-                  height: '89%',
-                }
-              : {
-                  backgroundColor: 'gray',
-                  border: '1px solid gray',
-                  padding: '0.75rem',
-                  overflow: 'auto',
-                  height: '89%',
-                  color: 'white',
-                }
+                ? {
+                    backgroundColor: '#fff',
+                    border: '1px solid gray',
+                    padding: '0.75rem',
+                    overflow: 'auto',
+                    height: '89%',
+                  }
+                : {
+                    backgroundColor: 'gray',
+                    border: '1px solid gray',
+                    padding: '0.75rem',
+                    overflow: 'auto',
+                    height: '89%',
+                    color: 'white',
+                  }
             }
             toolbarStyle={
               darkMode !== true
-              ? {
-                  backgroundColor: '#fff',
-                  border: '1px solid gray',
-                }
-              : {
-                  backgroundColor: 'gray',
-                  border: '1px solid gray',
-                }
+                ? {
+                    backgroundColor: '#fff',
+                    border: '1px solid gray',
+                  }
+                : {
+                    backgroundColor: 'gray',
+                    border: '1px solid gray',
+                  }
             }
           />
         </DraftInnerWrapper>

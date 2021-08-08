@@ -26,7 +26,7 @@ export const fetchDefinition = async (urlBase, token, word) => {
     return Definition;
   } catch (error) {
     console.log(error);
-    toast.error('Error retrieving definition');
+    return false;
   }
 };
 

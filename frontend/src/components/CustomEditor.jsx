@@ -95,6 +95,7 @@ const CustomEditor = ({ ...children }) => {
   const [defineOpen, setDefineOpen] = React.useState(false);
   const [definition, setDefinition] = React.useState('');
   const [isSingleWordSelected, setIsSingleWordSelected] = React.useState(false);
+  const resultNotFoundMessage = `Oops. Nothing found...please try some other terms 😢`;
 
   const handleEditorChange = (state) => {
     setEditorState(state);
@@ -148,18 +149,23 @@ const CustomEditor = ({ ...children }) => {
 
   const handleDefineQuery = async (defineQuery) => {
     const selectedText = window.getSelection().toString();
-    if (selectedText) {
-      const definitionResponse = await fetchDefinition(
-        urlBase,
-        token,
-        selectedText
-      );
-      setDefinition(definitionResponse);
-      setPopoverOpen(false);
+    const definitionResponse = await fetchDefinition(
+      urlBase,
+      token,
+      selectedText
+    );
+
+    if (!definitionResponse) {
+      setDefinition(resultNotFoundMessage);
       setDefineOpen(true);
-    } else {
-      toast.warn('No text selected for definition.');
+      return;
     }
+
+    setDefinition(definitionResponse);
+    setPopoverOpen(false);
+    setDefineOpen(true);
+    setDefinition(resultNotFoundMessage);
+    setDefineOpen(true);
   };
 
   const handleGetWebInfo = async () => {
