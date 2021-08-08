@@ -88,14 +88,30 @@ const Register = () => {
           style: toastErrorStyle
         }
       );
-    } else if (data.name === '') {
+    } else if (data.username === '') {
       toast.error(
-        'Please enter your Name', {
+        'Please enter your Username', {
           position: 'top-right',
           hideProgressBar: true,
           style: toastErrorStyle
         }
       );
+    } else if (data.firstname === '') {
+      toast.error(
+        'Please enter your First Name', {
+          position: 'top-right',
+          hideProgressBar: true,
+          style: toastErrorStyle
+        }
+      );
+    } else if (data.lastname === '') {
+      toast.error(
+        'Please enter your Last Name', {
+          position: 'top-right',
+          hideProgressBar: true,
+          style: toastErrorStyle
+        }
+      );            
     } else {
       axios({
         method: 'POST',
@@ -107,7 +123,9 @@ const Register = () => {
         data: {
           email: data.email,
           password: data.password,
-          username: data.username
+          username: data.username,
+          first_name: data.firstname,
+          last_name: data.lastname,
         }
       })
         .then((response) => {
@@ -174,6 +192,7 @@ const Register = () => {
               name="email"
               control={control}
               defaultValue=""
+              required
               render={({ field }) => (
                 <TextField
                   label="Email"
@@ -191,6 +210,7 @@ const Register = () => {
               name="password"
               control={control}
               defaultValue=""
+              required
               render={({ field }) => (
                 <TextField
                   type="password"
@@ -209,6 +229,7 @@ const Register = () => {
               name="username"
               control={control}
               defaultValue=""
+              required
               render={({ field }) => (
                 <TextField
                   label="Username"
@@ -220,6 +241,42 @@ const Register = () => {
             />
           </FormControl>
         </Box>
+        <Box className={classes.box}>
+          <FormControl>
+            <Controller
+              name="firstname"
+              control={control}
+              defaultValue=""
+              required
+              render={({ field }) => (
+                <TextField
+                  label="First Name"
+                  color="primary"
+                  variant="filled"
+                  {...field}
+                />
+              )}
+            />
+          </FormControl>
+        </Box>
+        <Box className={classes.box}>
+          <FormControl>
+            <Controller
+              name="lastname"
+              control={control}
+              defaultValue=""
+              required
+              render={({ field }) => (
+                <TextField
+                  label="Last Name"
+                  color="primary"
+                  variant="filled"
+                  {...field}
+                />
+              )}
+            />
+          </FormControl>
+        </Box>                
         <br />
         <Tooltip title="Sign Up" aria-label="sign up">
           <Button

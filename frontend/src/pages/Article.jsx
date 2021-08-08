@@ -367,13 +367,15 @@ const Article = () => {
         const rawEditorState = convertFromRaw(
           JSON.parse(thisRead.text_body).editorState
         );
+
         const originalPdfDataUrl = JSON.parse(
           thisRead.text_body
         ).uploadedPdfDataUrl;
-        dataUrlToFile(originalPdfDataUrl).then((res) => {
-          setRawPdf(res);
-        });
-
+        if (originalPdfDataUrl !== null) {
+          dataUrlToFile(originalPdfDataUrl).then((res) => {
+            setRawPdf(res);
+          });
+        }
         setEditorState(EditorState.createWithContent(rawEditorState));
       } else {
         setArticleOwner(username);
@@ -509,24 +511,31 @@ const Article = () => {
                   </Typography>
                 </Box>
                 <Box className={classes.titleDivBtns}>
-                  <Box className={classes.titleDivMultipleBtn}>
-                    <UploadDialog
-                      setParseLoad={setParseLoad}
-                      setRawPdf={setRawPdf}
-                      setRawDataUrl={setRawDataUrl}
-                    />
-                  </Box>
-
-                  {rawPdf && (
+                  {
+                    articleOwner === username &&
+                    <Box className={classes.titleDivMultipleBtn}>
+                      <UploadDialog
+                        setParseLoad={setParseLoad}
+                        setRawPdf={setRawPdf}
+                        setRawDataUrl={setRawDataUrl}
+                      />
+                    </Box>
+                  }
+                  {
+                    rawPdf !== null && (
                     <Box className={classes.titleDivMultipleBtn}>
                       <Box className={classes.titleDivSingleBtn}>
-                        <Button
-                          variant="outlined"
-                          color="secondary"
-                          onClick={() => setOpenPdfModal(true)}
-                        >
-                          Vew original PDF <PageviewIcon></PageviewIcon>
-                        </Button>
+                        <Tooltip title={'View Original PDF'}>
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => setOpenPdfModal(true)}
+                            endIcon={<PageviewIcon/>}
+                            className={classes.btnSaveText}
+                          >
+                            View original PDF
+                          </Button>
+                        </Tooltip>
                       </Box>
                       {
                         <PdfModal

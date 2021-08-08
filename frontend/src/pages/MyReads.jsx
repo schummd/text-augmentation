@@ -60,6 +60,18 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    "& span": {
+      // overflow: 'hidden',
+    },
+    "& .MuiButton-label": {
+      overflow: 'hidden',
+    }
+  },
+  myReadNotFoundDiv: {
+    margin: '2em 0em',
   },
 }));
 
@@ -88,6 +100,7 @@ const MyReads = () => {
         <Box className={classes.cellBtn}>
           <Tooltip title="Go to Read">
             <Button
+              variant="outlined"
               className={classes.btnText}
             >
               {`${params.formattedValue}`}
@@ -96,7 +109,7 @@ const MyReads = () => {
         </Box>
     },
     { field: 'text_created', headerName: 'Created At', width: 200 },
-    { field: 'delete_text', headerName: 'Delete', width: 150,
+    { field: 'delete_text', headerName: 'Delete', width: 75,
     renderCell: (params) =>
       (
         <Box className={classes.cellBtn}>
@@ -214,6 +227,14 @@ const MyReads = () => {
                     </div>
                   </div>
                 </div>
+              }
+              {
+                rows.length === 0 &&
+                <Box className={classes.myReadNotFoundDiv}>
+                  <Typography className={classes.myReadNotFoundText}>
+                    {`You have no Reads. Try creating a new one by clicking 'Reader'.`}
+                  </Typography>
+                </Box>
               }
               <DeleteDialog
                 open={openDeleteDialog}

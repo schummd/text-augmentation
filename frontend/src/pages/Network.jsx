@@ -68,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: '1em',
   },
   cellBtn: {
     display: 'flex',
@@ -79,6 +80,12 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',    
+    "& .MuiButton-label": {
+      overflow: 'hidden',
+    }    
   },
   root: {
     padding: '2px 4px',
@@ -93,6 +100,9 @@ const useStyles = makeStyles((theme) => ({
   iconButton: {
     padding: 10,
   },
+  usersNotFoundDiv: {
+    margin: '2em 0em',
+  },  
 }));
 
 const UserNetwork = () => {
@@ -135,53 +145,60 @@ const UserNetwork = () => {
 
   const columns = [
     { field: 'id', headerName: 'id', width: 150, hide: true },
-    { field: 'first_name', headerName: 'First Name', width: 150 },
-    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'first_name', headerName: 'First Name', width: 200 },
+    { field: 'last_name', headerName: 'Last Name', width: 200 },
     {
       field: 'username',
       headerName: 'Username',
-      width: 150,
+      width: 300,
       renderCell: (params) => (
         <Box className={classes.cellBtn}>
-          <Button
-            className={classes.btnText}
-            onClick={() => {
-              history.push(`/user/${params.row.username}`);
-            }}
-          >
-            {`${params.formattedValue}`}
-          </Button>
+          <Tooltip title={`Go to ${params.row.username}'s Profile`}>
+            <Button
+              color="primary"
+              variant="outlined"
+              className={classes.btnText}
+              onClick={() => {
+                history.push(`/user/${params.row.username}`);
+              }}
+            >
+              {`${params.formattedValue}`}
+            </Button>
+          </Tooltip>
         </Box>
       ),
     },
-    { field: 'email', headerName: 'Email', width: 250 },
+    { field: 'email', headerName: 'Email', width: 275 },
     {
       field: 'following',
       headerName: 'Following',
-      width: 150,
+      width: 140,
       renderCell: (params) =>
         params.value ? (
           <Box className={classes.cellBtn}>
-            <IconButton>
-              <CheckCircleIcon color="primary" />
-            </IconButton>
+            <Tooltip title={`Unfollow ${params.row.username}`}>
+              <IconButton>
+                <CheckCircleIcon color="primary" />
+              </IconButton>
+            </Tooltip>
           </Box>
         ) : (
           <Box className={classes.cellBtn}>
-            <IconButton>
-              <CheckCircleOutlineIcon color="primary" />
-            </IconButton>
+            <Tooltip title={`Follow ${params.row.username}`}>
+              <IconButton>
+                <CheckCircleOutlineIcon color="primary" />
+              </IconButton>
+            </Tooltip>
           </Box>
         ),
     },
   ];
 
-
   // setting up users
   React.useEffect(() => {
     setPage('/user/network');
     if (!search) {
-    setupHome();
+      setupHome();
     }
   }, [requestToFollow, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -203,16 +220,12 @@ const UserNetwork = () => {
       const ulist = await axios(payload);
       const userlist = ulist.data;
       console.log('User List', userlist.data);
-      // if (resData.status === 'success') {
       if (userlist.data.length > 0) {
-        // toast.success(`Retrieved User information from server.`);
         setRows(userlist.data);
         console.log('User List', rows);
         setRequestToFollow(false);
-        setLoadingState('done');
-      } else {
-        toast.warn(`${userlist.message}`);
       }
+      setLoadingState('done');
     } catch (error) {
       toast.error('Error retrieving User data from server.');
     }
@@ -221,57 +234,54 @@ const UserNetwork = () => {
   // search for users
   const handleUserSearch = async (e) => {
     setSearch(true);
-      setLoadingState('loading');
-      console.log(firstNameSearch)
-      try {
-        const payload = {
-          method: 'GET',
-          url: `/user/${username}/usersearch`,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          params: {"firstname": firstNameSearch,
-                   "lastname": lastNameSearch,
-                   "username": usernameSearch,
-                   "email": emailSearch
-                  }
-        };
-        console.log(payload);
-        const res = await axios(payload);
-        const resData = res.data;
-        console.log("Request returned", resData);
+    setLoadingState('loading');
+    console.log(firstNameSearch)
+    try {
+      const payload = {
+        method: 'GET',
+        url: `/user/${username}/usersearch`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        params: {"firstname": firstNameSearch,
+                  "lastname": lastNameSearch,
+                  "username": usernameSearch,
+                  "email": emailSearch
+                }
+      };
+      console.log(payload);
+      const res = await axios(payload);
+      const resData = res.data;
+      console.log("Request returned", resData);
 
-        if (resData.length > 0) {
-          console.log('success');
-          setUsersHeader('Search results')
-          setRows(resData);
+      if (resData.length > 0) {
+        console.log('success');
+        setUsersHeader('Search results')
+        setRows(resData);
 
-        } else {
-          setUsersHeader('Search results')
-          setRows([]);
-        }
-        setFirstNameSearch()
-        setLastNameSearch()
-        setUsernameSearch()
-        setEmailSearch()
-        setUsersHeader('Search Results');
-        console.log(rows);
-        setLoadingState('done');
-        setOpenSearch(false)
-      } catch (error) {
-        toast.error('Error retrieving Reads from server.');
+      } else {
+        setUsersHeader('Search results')
+        setRows([]);
       }
-    }
- 
-    const handleClickOpen = () => {
-      setOpenSearch(true);
-    };
-    const handleCancel = () => {
+      setFirstNameSearch()
+      setLastNameSearch()
+      setUsernameSearch()
+      setEmailSearch()
+      setUsersHeader('Search Results');
+      console.log(rows);
+      setLoadingState('done');
       setOpenSearch(false);
-    };
-  
-  
-
+    } catch (error) {
+      toast.error('Error retrieving Reads from server.');
+    }
+  }
+ 
+  const handleClickOpen = () => {
+    setOpenSearch(true);
+  };
+  const handleCancel = () => {
+    setOpenSearch(false);
+  };
 
   // follow or unfollow another user
   const handleCellClick = async (param, event) => {
@@ -298,7 +308,6 @@ const UserNetwork = () => {
       const response = await axios(payload);
       console.log('Response', response);
       if (response.status === 201) {
-        toast.success(`Changed connection status.`);
         setRequestToFollow(true);
         console.log('Params', param);
       } else {
@@ -314,102 +323,127 @@ const UserNetwork = () => {
     <Container>
       <Navigation page={page} />
       <Container className={classes.container}>
-        {loadingState !== 'done' && (
+        {
+          loadingState !== 'done' && (
           <div>
             <CircularProgress color="primary" />
           </div>
         )}
-        {loadingState === 'done' && (
+        {
+          loadingState === 'done' && (
           <Box className={classes.containerDiv}>
             <Box className={classes.titleDiv}>
-            <Box className={classes.titleAndBtnDiv}>
+              <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
                   {usersHeader}
                 </Typography>
-                <Box className={classes.btnUiDiv}>
-                  {/* <Tooltip title="Search for users"> */}
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        handleClickOpen();
-                      }}
+                {
+                  rows.length > 0 &&
+                  <Box className={classes.btnUiDiv}>
+                    <Tooltip title="Search Users" compoonen={'span'}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          handleClickOpen();
+                        }}
+                      >
+                        Search Users
+                      </Button>
+                    </Tooltip>
+                    <Dialog open={openSearch} 
+                      maxWidth='xs'
+                      onClose={handleCancel}
                     >
-                      Search Users
-                    </Button>
-                  {/* </Tooltip> */}
-                  <Dialog open={openSearch} 
-                  maxWidth='xs'
-                  onClose={handleCancel}>
-                    <DialogTitle>Search Users</DialogTitle>
-                    <DialogContent>
-                      <TextField
-                        autoFocus
-                        margin="dense"
-                        id="firstname"
-                        label="First Name"
-                        type="firstname"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setFirstNameSearch(e.target.value)}
-                      />
-                      <TextField
-                        margin="dense"
-                        id="lastname"
-                        label="Last Name"
-                        type="lastname"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setLastNameSearch(e.target.value)}
-                      />
-                      <TextField
-                        margin="dense"
-                        id="username"
-                        label="Username"
-                        type="username"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setUsernameSearch(e.target.value)}
-                      />
-                      <TextField
-                        margin="dense"
-                        id="email"
-                        label="Email"
-                        type="email"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setEmailSearch(e.target.value)}
-                      />
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleUserSearch}>Search</Button>
-                    </DialogActions>
-                  </Dialog>
-                </Box>
-
-                <br></br>
-                {/* </Box> */}
+                      <DialogTitle>
+                        Search for Users
+                      </DialogTitle>
+                      <DialogContent>
+                        <TextField
+                          autoFocus
+                          margin="dense"
+                          id="firstname"
+                          label="First Name"
+                          type="firstname"
+                          fullWidth
+                          variant="standard"
+                          onChange={(e) => setFirstNameSearch(e.target.value)}
+                        />
+                        <TextField
+                          margin="dense"
+                          id="lastname"
+                          label="Last Name"
+                          type="lastname"
+                          fullWidth
+                          variant="standard"
+                          onChange={(e) => setLastNameSearch(e.target.value)}
+                        />
+                        <TextField
+                          margin="dense"
+                          id="username"
+                          label="Username"
+                          type="username"
+                          fullWidth
+                          variant="standard"
+                          onChange={(e) => setUsernameSearch(e.target.value)}
+                        />
+                        <TextField
+                          margin="dense"
+                          id="email"
+                          label="Email"
+                          type="email"
+                          fullWidth
+                          variant="standard"
+                          onChange={(e) => setEmailSearch(e.target.value)}
+                        />
+                      </DialogContent>
+                      <DialogActions>
+                        <Tooltip title="Cancel Search">
+                          <Button onClick={handleCancel}>
+                            Cancel
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title="Search">
+                          <Button onClick={handleUserSearch}>
+                            Search
+                          </Button>
+                        </Tooltip>
+                      </DialogActions>
+                    </Dialog>
+                  </Box>
+                }
               </Box>
-              <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
-                <div style={{ display: 'flex', height: '100%' }}>
-                  <div style={{ flexGrow: 1 }}>
-                    <DataGrid
-                      page={pageNumber}
-                      onPageChange={(params) => {
-                        setPageNumber(params.pageNumber);
-                      }}
-                      onCellClick={handleCellClick}
-                      // autoHeight
-                      rows={rows}
-                      columns={columns}
-                      pagination
-                      pageSize={pageSize}
-                      onPageSizeChange={handlePageSizeChange}
-                      rowsPerPageOptions={[5, 10, 20]}
-                      rowCount={rows.length}
-                    />
+              {
+                rows.length > 0 &&
+                <div style={{ height: 400, width: '95%', marginLeft: 40 }}>
+                  <div style={{ display: 'flex', height: '100%' }}>
+                    <div style={{ flexGrow: 1 }}>
+                      <DataGrid
+                        page={pageNumber}
+                        onPageChange={(params) => {
+                          setPageNumber(params.pageNumber);
+                        }}
+                        onCellClick={handleCellClick}
+                        // autoHeight
+                        rows={rows}
+                        columns={columns}
+                        pagination
+                        pageSize={pageSize}
+                        onPageSizeChange={handlePageSizeChange}
+                        rowsPerPageOptions={[5, 10, 20]}
+                        rowCount={rows.length}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              }
+              {
+                rows.length === 0 &&
+                <Box className={classes.usersNotFoundDiv}>
+                  <Typography className={classes.usersNotFoundText}>
+                    {`There are no other users currently registered on ReadMore.`}
+                  </Typography>
+                </Box>
+              }              
             </Box>
             <br />
             <br />

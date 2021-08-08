@@ -228,11 +228,12 @@ const UserProfile = () => {
     { field: 'id', headerName: 'Id', width: 150, hide: true },
     { field: 'text_id', headerName: 'Text Id', width: 150, hide: true },
     {
-      field: 'text_title', headerName: 'Title', width: 600,
+      field: 'text_title', headerName: 'Title', width: 800,
       renderCell: (params) =>
         <Box className={classes.cellBtn}>
           <Tooltip title="Go to Read">
             <Button
+              variant="outlined"
               className={classes.btnText}
             >
               {`${params.formattedValue}`}
@@ -375,7 +376,7 @@ const UserProfile = () => {
                         <b>Username</b>{' '}
                       </TableCell>
                       <TableCell align="left" style={{ maxWidth: '304px' }}>
-                        {username}
+                        {currentProfileUsername}
                       </TableCell>
                     </TableRow>
                   </TableBody>

@@ -8,16 +8,18 @@ import {
   Container,
   Typography,
   CircularProgress,
+  Tooltip,
+  Button,
+  Paper,
+  InputBase,
+  IconButton,
+  Divider,
 } from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import { toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
-import { Button } from '@material-ui/core';
-import Paper from '@material-ui/core/Paper';
-import InputBase from '@material-ui/core/InputBase';
-import IconButton from '@material-ui/core/IconButton';
-import SearchIcon from '@material-ui/icons/Search';
-import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -55,6 +57,19 @@ const useStyles = makeStyles((theme) => ({
   },
   iconButton: {
     padding: 10,
+  },
+  searchTextfieldDiv: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: '0.5em 0em',
+  },
+  feedNotFoundDiv: {
+    margin: '1em 0em',
+  },
+  feedDivider: {
+    margin: '0.25em 0em',
   },
 }));
 
@@ -192,51 +207,12 @@ const Home = () => {
   }
 
   console.log('data', data);
-  const RenderItems = () => {
+  // const RenderItems = () => {
     
-    const feed = data.map((dataIn) => (
-     <Box > 
-      <div key={dataIn.followee_username}>
-        {dataIn.followee_username}
-        <ul>
-          {
-            dataIn.text_titles.length > 0 &&
-            dataIn.text_titles.map((text_titles) => (
-            <li key={text_titles.text_title}>
-              {text_titles.text_title}
 
-              <Box sx={{ '& button': { m: 1 } }}>
-                <Button
-                  size="small"
-                  color="primary"
-                  onClick={() =>
-                    viewText(text_titles.text_id, dataIn.followee_username)
-                  }
-                >
-                  View Article
-                  <DoubleArrowIcon
-                    color="primary"
-                    fontSize="small"
-                    padding="10px"
-                  />
-                </Button>
-              </Box>
-            </li> 
-          ))}
-          {
-            dataIn.text_titles.length === 0 &&
-            <Typography variant="subtitle2" color="textSecondary">
-              {`${dataIn.followee_username} has no saved Reads.`}
-            </Typography>
-          }
-        </ul>
-        <br />
-      </div>
-      </Box>
-    ));
 
-    return feed;
-  };
+  //   return feed;
+  // };
 
   const classes = useStyles();
   return (
@@ -256,25 +232,77 @@ const Home = () => {
                   {header}
                 </Typography>
               </Box>
-              <Box position="relative" display="inline-block">
-                <Paper component="form" className={classes.root}>
-                  <IconButton>
-                    <SearchIcon />
-                  </IconButton>
-                  <InputBase
-                    className={classes.input}
-                    placeholder="Search Articles"
-                    inputProps={{ 'aria-label': 'search articles' }}
-                    onKeyDown={(e) => setSearch(e)}
-                  />
-                </Paper>
-              </Box>
+              {
+                data.length > 0 &&
+                <Box className={classes.searchTextfieldDiv}>
+                  <Paper component="form" className={classes.root}>
+                    <IconButton>
+                      <SearchIcon />
+                    </IconButton>
+                    <InputBase
+                      className={classes.input}
+                      placeholder="Search Reads"
+                      inputProps={{ 'aria-label': 'search articles' }}
+                      onKeyDown={(e) => setSearch(e)}
+                    />
+                  </Paper>
+                </Box>
+              }
             </Box>
-            {data.length > 0 && (
-              <ul>
-                <RenderItems />
-              </ul>
+            {
+              data.length > 0 && (
+              data.map((dataIn) => (
+                <div key={dataIn.followee_username}>
+                  <Typography variant="h6" component={'span'}>
+                    {`${dataIn.followee_first_name} ${dataIn.followee_last_name}`}
+                  </Typography>
+                  <ul>
+                    {
+                      dataIn.text_titles.length > 0 &&
+                      dataIn.text_titles.map((text_titles) => (
+                      <li key={text_titles.text_title}>
+                        {text_titles.text_title}
+
+                        <Box sx={{ '& button': { m: 1 } }}>
+                          <Tooltip title="Go to Read">
+                            <Button
+                              size="small"
+                              color="primary"
+                              onClick={() =>
+                                viewText(text_titles.text_id, dataIn.followee_username)
+                              }
+                            >
+                              View Read
+                              <DoubleArrowIcon
+                                color="primary"
+                                fontSize="small"
+                                padding="10px"
+                              />
+                            </Button>
+                          </Tooltip>
+                        </Box>
+                        
+                      </li> 
+                    ))}
+                    {
+                      dataIn.text_titles.length === 0 &&
+                      <Typography variant="subtitle2" color="textSecondary">
+                        {`${dataIn.followee_username} has no saved Reads.`}
+                      </Typography>
+                    }
+                  </ul>
+                  <Divider className={classes.feedDivider} />
+                </div>
+              ))
             )}
+            {
+              data.length === 0 &&
+              <Box className={classes.feedNotFoundDiv}>
+                <Typography className={classes.feedNotFoundText}>
+                  {`Your News Feed is empty. Try following other users within the User Network.`}
+                </Typography>
+              </Box>
+            }
             <br />
             <br />
           </Box>
