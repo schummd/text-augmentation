@@ -89,7 +89,7 @@ export default function ControlledAccordions({ searchTerm }) {
       }
       const url =
         'https://newsapi.org/v2/everything?' +
-        `q=${keyword}&` +
+        `q=${keyword}%20science&` +
         'sortBy=popularity&' +
         `apiKey=${process.env.REACT_APP_NEWSAPI_KEY}`;
 
@@ -112,7 +112,11 @@ export default function ControlledAccordions({ searchTerm }) {
         const data = res.data;
         console.log(data);
         const articles = res.data.articles;
-        setNewsApiArticles(articles);
+
+        // Get first 10 results
+        const slicedArticles =
+          articles.length > 10 ? articles.slice(0, 10) : articles;
+        setNewsApiArticles(slicedArticles);
       } else {
         toast.error('Error fetchiing news articles.');
       }
