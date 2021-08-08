@@ -18,7 +18,7 @@ If you have issues installing or using the VMWare software, then use VirtualBox 
 
 ## Installation
 1. In /frontend run `yarn install`
-2. In /backend run `make install`
+2. In /server run `make install`
 ##  Usage
 
 - Ensure API keys have been loaded as described below.
