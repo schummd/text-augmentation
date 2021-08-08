@@ -1,18 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReadMoreLogo from '../assets/readmore-logo.png';
 import { StoreContext } from '../utils/store';
-import { convertToRaw, convertFromRaw, EditorState, Modifier } from 'draft-js';
-import {
-  createTextObject,
-  fetchDefinition,
-  getSummary,
-  getArticles,
-  dataUrlToFile,
-} from '../utils/utils';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import { createTextObject, getArticles, dataUrlToFile } from '../utils/utils';
 import Navigation from '../components/Navigation';
 import PdfModal from '../components/PdfModal';
 import MyAccordian from '../components/MyAccordian';
-import { Redirect, useParams, useHistory, Link } from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import {
   makeStyles,
@@ -246,7 +240,6 @@ const useStyles = makeStyles((theme) => ({
   fullScreenCloseDiv: {
     display: 'flex',
     width: '100%',
-    // justifyContent: 'flex-end',
     alignItems: 'center',
   },
   fullScreenUiInputTextDiv: {
@@ -311,7 +304,6 @@ const Article = () => {
   const [defineQuery, setDefineQuery] = React.useState('');
   const [articleOwner, setArticleOwner] = React.useState('');
   const [twitterQuery, setTwitterQuery] = React.useState('');
-  const [definitionVal, setDefinitionVal] = React.useState('');
   const [analysisSummary, setAnalysisSummary] = React.useState('summary');
   const [analysisKeywords, setAnalysisKeywords] = React.useState('keywords');
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -343,7 +335,7 @@ const Article = () => {
   }, []);
 
   React.useEffect(() => {
-    setPage('/articles/')
+    setPage('/articles/');
     let thisRead = null;
     const getReadFunc = async () => {
       if (readId !== 'new') {
@@ -355,7 +347,7 @@ const Article = () => {
               accept: 'application/json',
               'Content-Type': 'application/json',
             },
-          })
+          });
           thisRead = response.data.data;
           console.log('this read is:', thisRead);
         } catch (error) {
@@ -385,7 +377,7 @@ const Article = () => {
         setArticleOwner(username);
       }
       setLoadingState('done');
-    }
+    };
     getReadFunc();
   }, []);
 
@@ -404,7 +396,6 @@ const Article = () => {
       `${titleRef.current.value || singularRead.text_title || 'New Read'}`,
       JSON.stringify({
         editorState: rawEditorState,
-        // notes: notesRef.current.value,
         uploadedPdfDataUrl: rawDataUrl,
       })
     );
@@ -524,7 +515,7 @@ const Article = () => {
 
                   {rawPdf && (
                     <Box className={classes.titleDivMultipleBtn}>
-                      <PdfModal rawPdf={rawPdf} />
+                      {<PdfModal rawPdf={rawPdf} />}
                     </Box>
                   )}
 
@@ -538,19 +529,15 @@ const Article = () => {
                           saveArticle(editorState, rawPdf, rawDataUrl)
                         }
                       >
-                        {
-                          readId === 'new'
-                            ? 'Save New Read'
-                            : articleOwner === username
-                                ? 'Update Read'
-                                : 'Save As Yours'
-                        }
+                        {readId === 'new'
+                          ? 'Save New Read'
+                          : articleOwner === username
+                          ? 'Update Read'
+                          : 'Save As Yours'}
                       </Button>
                     </Tooltip>
                   </Box>
-                  {
-                    articleOwner === username &&
-                    readId !== 'new' &&
+                  {articleOwner === username && readId !== 'new' && (
                     <Box className={classes.titleDivSingleBtn}>
                       <Tooltip title="Delete Read">
                         <IconButton
@@ -571,7 +558,7 @@ const Article = () => {
                         deleteUuid={readId}
                       />
                     </Box>
-                  }
+                  )}
                 </Box>
               </Box>
             </Box>

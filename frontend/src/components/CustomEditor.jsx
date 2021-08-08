@@ -8,9 +8,17 @@ import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
-import { Box, Button, Link, Paper, Typography } from '@material-ui/core';
+import {
+  Box,
+  Button,
+  Link,
+  List,
+  ListItem,
+  Paper,
+  Tooltip,
+  Typography,
+} from '@material-ui/core';
 import { toast } from 'react-toastify';
-import * as youtubeSearch from 'youtube-search';
 
 import { getSummary, fetchDefinition, getKeywords } from '../utils/utils';
 
@@ -27,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     backgroundColor: '#5461AA',
     color: '#fff',
+    maxWidth: '300px',
   },
   paper: {
     opacity: 1,
@@ -72,7 +81,6 @@ const CustomEditor = ({ ...children }) => {
     setAnalysisSummary,
     setAnalysisKeywords,
     setAnalyseTabValue,
-    defineRef,
     setUiBtn,
     token,
     setSearchTerm,
@@ -96,7 +104,6 @@ const CustomEditor = ({ ...children }) => {
 
   const handleGetSumary = async () => {
     const selectedText = window.getSelection().toString();
-    console.log('ST: ', selectedText);
     if (selectedText) {
       const summary = await getSummary(selectedText, token);
       console.log(summary);
@@ -109,26 +116,28 @@ const CustomEditor = ({ ...children }) => {
 
   const handleGetKeywords = async (text) => {
     const selectedText = window.getSelection().toString();
-    console.log('ST: ', selectedText);
     if (selectedText) {
       const keywords = await getKeywords(selectedText, token);
       console.log(keywords);
       const formattedKeywords = (
-        <div>
+        <Box>
           {keywords.map((keyword) => (
-            <p>
-              <Link
-                onClick={() => {
-                  setSearchTerm(keyword);
-                  setUiBtn('weblinks');
-                }}
-                component="button"
-              >
-                {keyword}
-              </Link>
-            </p>
+            <List>
+              <ListItem>
+                <Link
+                  variant="body1"
+                  onClick={() => {
+                    setSearchTerm(keyword);
+                    setUiBtn('weblinks');
+                  }}
+                  component="button"
+                >
+                  {keyword}
+                </Link>
+              </ListItem>
+            </List>
           ))}
-        </div>
+        </Box>
       );
       setAnalysisKeywords(formattedKeywords);
       setPopoverOpen(false);
@@ -145,7 +154,6 @@ const CustomEditor = ({ ...children }) => {
         token,
         selectedText
       );
-      console.log(definition);
       setDefinition(definitionResponse);
       setPopoverOpen(false);
       setDefineOpen(true);
@@ -154,12 +162,22 @@ const CustomEditor = ({ ...children }) => {
     }
   };
 
+  const handleGetWebInfo = async () => {
+    const selectedText = window.getSelection().toString();
+    if (selectedText) {
+      setSearchTerm(selectedText);
+      setUiBtn('weblinks');
+      setPopoverOpen(false);
+    } else {
+      toast.warn('No text selected for web info.');
+    }
+  };
+
   React.useEffect(() => {
     const selection = window.getSelection();
+
     const numWords = selection.toString().trim().split(' ');
-    console.log(numWords);
     if (numWords.length === 1) setIsSingleWordSelected(true);
-    console.log('ES: ', editorState);
 
     // Resets when the selection has a length of 0
     if (!selection || selection.anchorOffset === selection.focusOffset) {
@@ -264,7 +282,7 @@ const CustomEditor = ({ ...children }) => {
                   className={classes.btnWebInfo}
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    setUiBtn('weblinks');
+                    handleGetWebInfo();
                   }}
                   variant="contained"
                   color="primary"

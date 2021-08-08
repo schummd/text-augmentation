@@ -6,9 +6,11 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Youtube from './Youtube';
-import { Box, List, ListItem } from '@material-ui/core';
+import { Box, Link, List, ListItem } from '@material-ui/core';
 import * as youtubeSearch from 'youtube-search';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { StoreContext } from '../utils/store';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,6 +39,14 @@ export default function ControlledAccordions({ searchTerm }) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
   const [videoIds, setVideoIds] = React.useState(false);
+  const [wikipediaSummary, setWikipediaSummary] = React.useState(false);
+  const [newsApiArticles, setNewsApiArticles] = React.useState(false);
+  const [academicPapers, setAcademicPapers] = React.useState(false);
+
+  const context = React.useContext(StoreContext);
+  const [token] = context.token;
+
+  const resultNotFoundMessage = `Oops. Nothing found...please try some other terms 😢`;
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -44,21 +54,110 @@ export default function ControlledAccordions({ searchTerm }) {
 
   React.useEffect(() => {
     const getYoutubeVideos = async (keyword) => {
+      if (!process.env.REACT_APP_YT_KEY) {
+        toast.error('Youtube API key not found.');
+        return;
+      }
       const opts = {
-        maxResults: 3,
+        maxResults: 4,
         key: process.env.REACT_APP_YT_KEY,
       };
 
       try {
-        const { results } = await youtubeSearch(keyword, opts);
-        console.log('RES: ', results);
+        const { results } = await youtubeSearch(`${keyword} scientific`, opts);
         const res = results.map((result) => result.id);
         setVideoIds(res);
       } catch (error) {
         toast.error('error retrieving youtube videos.');
       }
     };
-    getYoutubeVideos(searchTerm);
+
+    const getNewsApiArticles = async (keyword) => {
+      if (!process.env.REACT_APP_NEWSAPI_KEY) {
+        toast.error('newsapi key not found');
+        return;
+      }
+      const url =
+        'https://newsapi.org/v2/everything?' +
+        `q=${keyword}&` +
+        'sortBy=popularity&' +
+        `apiKey=${process.env.REACT_APP_NEWSAPI_KEY}`;
+
+      const instance = axios.create({
+        timeout: 5000,
+      });
+
+      instance.interceptors.response.use(
+        function (res) {
+          return res;
+        },
+        (err) => {
+          console.log(err);
+          toast.error(err);
+        }
+      );
+
+      const res = await instance.get(url);
+      if (res) {
+        const data = res.data;
+        console.log(data);
+        const articles = res.data.articles;
+        setNewsApiArticles(articles);
+      } else {
+        toast.error('Error fetchiing news articles.');
+      }
+    };
+
+    const getAcadamicPapers = async (keyword) => {
+      if (!process.env.REACT_APP_UNPAYWALL_EMAIL) {
+        toast.error('Email environemnt variable for Unpaywalled not found.');
+        return;
+      }
+      const url = `https://api.unpaywall.org/v2/search/?query=${keyword}&is_oa=true&email=${process.env.REACT_APP_UNPAYWALL_EMAIL}`;
+      const instance = axios.create({
+        timeout: 5000,
+      });
+
+      instance.interceptors.response.use(
+        function (res) {
+          return res;
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+
+      const res = await instance.get(url);
+      const papers = res.data.results;
+      console.log(papers);
+      setAcademicPapers(papers);
+    };
+
+    const getWikipediaEntry = async (keyword) => {
+      const payload = {
+        method: `GET`,
+        url: `/wikipedia/${keyword}`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+        },
+      };
+      console.log(payload);
+      try {
+        const res = await axios(payload);
+        const summary = res.data.Summary;
+        setWikipediaSummary(summary);
+      } catch (error) {
+        setWikipediaSummary(resultNotFoundMessage);
+      }
+    };
+
+    const formattedSearchTerm = searchTerm.replace(/[^A-Za-z0-9]+/g, '%20');
+
+    getYoutubeVideos(formattedSearchTerm);
+    getNewsApiArticles(formattedSearchTerm);
+    getAcadamicPapers(formattedSearchTerm);
+    getWikipediaEntry(formattedSearchTerm);
   }, [searchTerm]);
 
   return (
@@ -79,36 +178,106 @@ export default function ControlledAccordions({ searchTerm }) {
         <AccordionDetails>
           <Box className={classes.videosDiv}>
             {videoIds && (
-              <List>
+              <Box>
                 {videoIds.map((id) => (
-                  <ListItem key={id}>
-                    <Youtube embedId={id} />
-                  </ListItem>
+                  <Youtube embedId={id} />
                 ))}
-              </List>
+              </Box>
             )}
           </Box>
         </AccordionDetails>
       </Accordion>
       <Accordion
-        expanded={expanded === 'panel2'}
-        onChange={handleChange('panel2')}
+        expanded={expanded === 'panel3'}
+        onChange={handleChange('panel3')}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel2bh-content"
-          id="panel2bh-header"
+          aria-controls="panel3bh-content"
+          id="panel3bh-header"
         >
           <Typography className={classes.secondaryHeading}>
-            External links
+            Wikipedia Summary
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
-            Donec placerat, lectus sed mattis semper, neque lectus feugiat
-            lectus, varius pulvinar diam eros in elit. Pellentesque convallis
-            laoreet laoreet.
+          {wikipediaSummary && wikipediaSummary}
+        </AccordionDetails>
+      </Accordion>
+      <Accordion
+        expanded={expanded === 'panel4'}
+        onChange={handleChange('panel4')}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel4bh-content"
+          id="panel4bh-header"
+        >
+          <Typography className={classes.secondaryHeading}>
+            In the news
           </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {newsApiArticles && (
+            <Box>
+              {newsApiArticles.length > 0 ? (
+                <List>
+                  {newsApiArticles.map((article) => (
+                    <ListItem>
+                      <Link
+                        href={article.url}
+                        rel="noopener noreferrer"
+                        variant="body1"
+                        target="_blank"
+                      >
+                        {article.title}
+                      </Link>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                resultNotFoundMessage
+              )}
+            </Box>
+          )}
+        </AccordionDetails>
+      </Accordion>
+      <Accordion
+        expanded={expanded === 'panel5'}
+        onChange={handleChange('panel5')}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel5bh-content"
+          id="panel5bh-header"
+        >
+          <Typography className={classes.secondaryHeading}>
+            Scientific Papers
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {academicPapers && (
+            <Box>
+              {academicPapers.length > 0 ? (
+                <List>
+                  {academicPapers.map((paper) => (
+                    <ListItem>
+                      <Link
+                        href={paper.response.best_oa_location.url_for_pdf}
+                        rel="noopener noreferrer"
+                        variant="body1"
+                        target="_blank"
+                      >
+                        {paper.response.title}
+                      </Link>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                resultNotFoundMessage
+              )}
+            </Box>
+          )}
         </AccordionDetails>
       </Accordion>
     </div>
