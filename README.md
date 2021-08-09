@@ -74,3 +74,6 @@ SCIENCE_PARSE_URL="http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.ama
 - Backend boilerplate used from [here](https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563)
 - Scientific paper parsing library used for parsing PDFs. Taken from [here](https://github.com/stoposto/science-parse) which is our fork of [science-parse](https://github.com/allenai/science-parse). Due to high resource usage and operational overhead required to provide a reliable local instance, it has been deployed [here](http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/) on a load balanced AWS ECS service.
 
+## Unused
+
+- The highlight models and endpoints were initially used to store manual and automatic highlights as well as a user's notes. However our vision of the project changed as we progressed so the idea was scrapped but the endpoints still exist in the backend. We decided to leave this endpoint as it is since it could be used for any possible future features that may relate to this idea
