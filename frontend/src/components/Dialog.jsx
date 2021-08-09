@@ -62,7 +62,7 @@ const UploadDialog = ({ setParseLoad, setRawPdf, setRawDataUrl }) => {
   const classes = useStyles();
 
   const fileRef = React.useRef();
-  const [pdf, setPdf] = React.useState(false);
+  const [pdf, setPdf] = React.useState(false); // eslint-disable-line no-unused-vars
 
   const [formState, setFormState] = React.useState({
     title: true,

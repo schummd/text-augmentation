@@ -184,7 +184,7 @@ export default function ControlledAccordions({ searchTerm }) {
       getAcadamicPapers(formattedSearchTerm);
       getWikipediaEntry(formattedSearchTerm);
     }
-  }, [searchTerm]);
+  }, [searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDisplayPdf = async (url) => {
     setPdfLoading(true);

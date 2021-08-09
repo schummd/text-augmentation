@@ -15,7 +15,6 @@ import {
   List,
   ListItem,
   Paper,
-  Tooltip,
   Typography,
 } from '@material-ui/core';
 import { toast } from 'react-toastify';

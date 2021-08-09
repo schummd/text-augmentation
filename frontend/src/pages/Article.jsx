@@ -42,7 +42,6 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { toast } from 'react-toastify';
 import UploadDialog from '../components/Dialog';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import search from 'youtube-search';
 import PageviewIcon from '@material-ui/icons/Pageview';
 
 const useStyles = makeStyles((theme) => ({
@@ -292,7 +291,7 @@ const Article = () => {
   const [username, setUsername] = context.username;
   const [editorState, setEditorState] = context.editorState;
   const [singularRead, setSingularRead] = context.singularRead;
-  const [myReads, setMyReads] = context.myReads;
+  const [myReads, setMyReads] = context.myReads; // eslint-disable-line no-unused-vars
   const [page, setPage] = context.pageState;
   const { blankEditorState } = context;
 
@@ -334,7 +333,7 @@ const Article = () => {
       setUsername(parsedStoredUser.username);
       setToken(parsedStoredUser.token);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     setPage('/articles/');
@@ -383,7 +382,7 @@ const Article = () => {
       setLoadingState('done');
     };
     getReadFunc();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     if (readId === 'new') {
@@ -392,7 +391,7 @@ const Article = () => {
       setRawPdf(null);
       setRawDataUrl(null);
     }
-  }, [readId]);
+  }, [readId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveArticle = async (editorState, rawPdf = null, rawDataUrl = null) => {
     const rawEditorState = convertToRaw(editorState.getCurrentContent());

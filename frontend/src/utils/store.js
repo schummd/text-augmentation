@@ -1,8 +1,6 @@
 import React from 'react';
 import Backend from '../backend.json';
 import { EditorState } from 'draft-js';
-import axios from 'axios';
-import { toast } from 'react-toastify';
 
 export const StoreContext = React.createContext(null);
 

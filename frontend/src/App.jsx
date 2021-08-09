@@ -2,10 +2,10 @@ import React from 'react';
 import './App.css';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/Home';
+import NewsFeed from './pages/NewsFeed';
 import MyReads from './pages/MyReads';
 import Article from './pages/Article';
-import UserNetwork from './pages/Network';
+import UserList from './pages/UserList';
 import UserProfile from './pages/UserProfile';
 import {
   BrowserRouter as Router,
@@ -51,8 +51,8 @@ function App() {
               <Route exact path="/register">
                 <Register />
               </Route>
-              <Route exact path="/home">
-                <Home />
+              <Route exact path="/newsfeed">
+                <NewsFeed />
               </Route>
               <Route exact path="/myreads">
                 <MyReads />
@@ -60,8 +60,8 @@ function App() {
               <Route exact path="/articles/:id">
                 <Article />
               </Route>
-              <Route exact path="/user/network">
-                <UserNetwork />
+              <Route exact path="/userlist">
+                <UserList />
               </Route>
               <Route exact path="/user/:username">
                 <UserProfile />

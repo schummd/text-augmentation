@@ -77,9 +77,8 @@ const useStyles = makeStyles((theme) => ({
 
 const MyReads = () => {
   const context = React.useContext(StoreContext);
-  const token = context.token[0];
   const username = context.username[0];
-  const [myReads, setMyReads] = context.myReads;
+  const [myReads, setMyReads] = context.myReads; // eslint-disable-line no-unused-vars
   const [page, setPage] = context.pageState;
   const [loadingState, setLoadingState] = React.useState('load');
   const [deletedRead, setDeletedRead] = React.useState(false);

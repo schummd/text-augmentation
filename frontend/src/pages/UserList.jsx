@@ -8,12 +8,12 @@ import {
   Typography,
   CircularProgress,
   IconButton,
+  Dialog,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
+  TextField,
 } from '@material-ui/core';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
 import { StoreContext } from '../utils/store';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -21,17 +21,7 @@ import { Tooltip } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import { DataGrid } from '@material-ui/data-grid';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import Icon from '@material-ui/core/Icon';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-import TextField from '@material-ui/core/TextField';
-import { FormControl } from '@material-ui/core/';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from '@material-ui/icons/Search';
-import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -105,27 +95,20 @@ const useStyles = makeStyles((theme) => ({
   },  
 }));
 
-const UserNetwork = () => {
+const UserList = () => {
   const context = React.useContext(StoreContext);
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  const [token, setToken] = React.useState(storedUser.token);
-  const [username, setUsername] = React.useState(storedUser.username);
-  // const username = context.username;
-  // console.log("Context data", token, username)
+  const [token, setToken] = React.useState(storedUser.token); // eslint-disable-line no-unused-vars
+  const [username, setUsername] = React.useState(storedUser.username); // eslint-disable-line no-unused-vars
   const [search, setSearch] = context.search;
   const [usersHeader, setUsersHeader] = context.usersHeader;
   const [page, setPage] = context.pageState;
   const history = useHistory();
   const [loadingState, setLoadingState] = React.useState('load');
-  const [firstName, setFirstName] = React.useState('not provided');
-  const [lastName, setLastName] = React.useState('not provided');
-  const [email, setEmail] = React.useState('');
   const [rows, setRows] = React.useState([]);
-  const [gridPage, setGridPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
   const [pageNumber, setPageNumber] = React.useState(0);
   const [requestToFollow, setRequestToFollow] = React.useState(false);
-
   const [firstNameSearch, setFirstNameSearch] = React.useState()
   const [lastNameSearch, setLastNameSearch] = React.useState()
   const [usernameSearch, setUsernameSearch] = React.useState()
@@ -141,7 +124,6 @@ const UserNetwork = () => {
       return <Redirect to={{ pathname: '/login' }} />;
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
 
   const columns = [
     { field: 'id', headerName: 'id', width: 150, hide: true },
@@ -454,4 +436,4 @@ const UserNetwork = () => {
   );
 };
 
-export default UserNetwork;
+export default UserList;

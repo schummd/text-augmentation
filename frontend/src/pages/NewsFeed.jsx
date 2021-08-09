@@ -73,16 +73,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Home = () => {
+const NewsFeed = () => {
   const context = React.useContext(StoreContext);
   const token = context.token[0];
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  const [username, setUsername] = React.useState(storedUser.username);
+  const [username, setUsername] = React.useState(storedUser.username); // eslint-disable-line no-unused-vars
   const [search, setSearch] = context.search
   const [header, setHeader] = context.header
   const [page, setPage] = context.pageState;
   const [loadingState, setLoadingState] = React.useState('load');
-  const [myReads, setMyReads] = context.myReads;
+  const [myReads, setMyReads] = context.myReads; // eslint-disable-line no-unused-vars
 
   React.useEffect(() => {
     if (token === null) {
@@ -102,10 +102,8 @@ const Home = () => {
           'Content-Type': 'application/json',
         },
       };
-      console.log(payload);
       const res = await axios(payload);
       const resData = res.data;
-      console.log(resData);
       if (resData.status === 'success') {
         console.log('success');
       } else {
@@ -118,7 +116,6 @@ const Home = () => {
     } catch (error) {
       toast.error('Error retrieving Reads from server.');
     }
-    console.log('View Text', text_id);
     history.push(`/articles/${text_id}`);
   };
 
@@ -137,18 +134,14 @@ const Home = () => {
           'Content-Type': 'application/json',
         },
       };
-      console.log(payload);
       const res = await axios(payload);
       const resData = res.data;
-      console.log(resData);
       if (resData.status === 'success') {
         console.log('success');
       } else {
         toast.warn(`${resData.message}`);
       }
-      const { rdata } = resData;
       setData(resData.data);
-      console.log(data);
       setLoadingState('done');
     } catch (error) {
       toast.error('Error retrieving Reads from server.');
@@ -160,11 +153,8 @@ const Home = () => {
     setPage('/newsfeed');
     if (search) {
       handleSearch(search);
-      console.log("Search is", search)
-      
     } else {
       getArticles();
-      console.log("Search is", search)
     }
   }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -185,20 +175,15 @@ const Home = () => {
           },
           params: {"search_string": {words}}
         };
-        console.log(payload);
         const res = await axios(payload);
         const resData = res.data;
-        console.log(resData);
- 
         if (resData.status === 'success') {
           console.log('success');
         } else {
           toast.warn(`${resData.message}`);
         }
-        const { rdata } = resData;
         setData(resData.data);
         setHeader('Search Results') 
-        console.log(data);
         setLoadingState('done');
       } catch (error) {
         toast.error('Error retrieving Reads from server.');
@@ -206,15 +191,8 @@ const Home = () => {
     }
   }
 
-  console.log('data', data);
-  // const RenderItems = () => {
-    
-
-
-  //   return feed;
-  // };
-
   const classes = useStyles();
+
   return (
     <Container>
       <Navigation page={page} />
@@ -299,7 +277,7 @@ const Home = () => {
               data.length === 0 &&
               <Box className={classes.feedNotFoundDiv}>
                 <Typography className={classes.feedNotFoundText}>
-                  {`Your News Feed is empty. Try following other users within the User Network.`}
+                  {`Your News Feed is empty. Try following other users within the User List.`}
                 </Typography>
               </Box>
             }
@@ -312,4 +290,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default NewsFeed;

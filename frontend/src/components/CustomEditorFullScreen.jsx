@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 const CustomEditorFullScreen = ({ ...children }) => {
   const {
     analysisSummaryRef,
-    analysisKeywordsRef,
+    analysisKeywordsRef, // eslint-disable-line no-unused-vars
     setAnalyseTabValue,
     defineRef,
     setUiBtn,
