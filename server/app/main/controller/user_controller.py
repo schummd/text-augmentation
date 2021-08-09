@@ -17,7 +17,7 @@ from ..service.user_service import (
     get_newsfeed,
     get_matching_users,
     get_all_users_with_connection_status,
-    article_search
+    article_search,
 )
 from typing import Dict, Tuple
 import json
@@ -30,6 +30,7 @@ _follower = UserDto.follower
 user_auth = AuthDto.user_auth
 _network_user = UserDto.netuser
 _search_titles = UserDto.search_titles
+
 
 @api.route("/")
 class UserList(Resource):
@@ -89,10 +90,8 @@ class Follow(Resource):
     def patch(self, username):
         """follow another user"""
         data = request.json
-        print(data)
         user_to_follow = data["user_to_follow"]
         return follow_a_user(username, user_to_follow)
-
 
     @api.doc("users a user following")
     def get(self, username):
@@ -109,15 +108,15 @@ class Newsfeed(Resource):
     @api.doc("newsfeed")
     def get(self, username):
         """List all titles"""
-        print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
 
 search_parser = reqparse.RequestParser()
-search_parser.add_argument('firstname')
-search_parser.add_argument('lastname')
-search_parser.add_argument('username')
-search_parser.add_argument('email')
+search_parser.add_argument("firstname")
+search_parser.add_argument("lastname")
+search_parser.add_argument("username")
+search_parser.add_argument("email")
+
 
 @token_required
 @api.route("/<logged_in_username>/usersearch")
@@ -128,9 +127,8 @@ class Search(Resource):
     def get(self, logged_in_username):
         """Retrieve a list of users from a search request"""
         data = search_parser.parse_args()
-        print("REQUEST IS", data)
         return get_matching_users(logged_in_username, data)
- 
+
 
 @token_required
 @api.route("/<username>/network")
@@ -145,22 +143,20 @@ class Network(Resource):
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('words')
+parser.add_argument("words")
+
 
 @token_required
 @api.route("/<username>/search")
 @api.response(404, "User not found.")
 @api.expect(parser, validate=True)
 class ArticleSearch(Resource):
-    
     def get(self, username):
         """List searched titles"""
-        search_string = request.args.get('search_string')
+        search_string = request.args.get("search_string")
         words = parser.parse_args()
-        print(search_string, words)
         if search_string:
-            word = json.loads(search_string)['words']
+            word = json.loads(search_string)["words"]
         else:
-            word = words['words'] 
+            word = words["words"]
         return article_search(username, word)
- 
