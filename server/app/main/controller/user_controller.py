@@ -1,6 +1,6 @@
 from re import search
 from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource, reqparse, inputs
 from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
 from app.main.service.auth_helper import Auth
@@ -29,7 +29,7 @@ _update = UserDto.update
 _follower = UserDto.follower
 user_auth = AuthDto.user_auth
 _network_user = UserDto.netuser
-
+_search_titles = UserDto.search_titles
 
 @api.route("/")
 class UserList(Resource):
@@ -144,16 +144,23 @@ class Network(Resource):
         return get_all_users_with_connection_status(username)
 
 
+parser = reqparse.RequestParser()
+parser.add_argument('words')
 
 @token_required
 @api.route("/<username>/search")
-@api.param("search_string", "Search String")
 @api.response(404, "User not found.")
+@api.expect(parser, validate=True)
 class ArticleSearch(Resource):
-    @api.doc(params={"search_string" : {"description": "article search"}})
+    
     def get(self, username):
         """List searched titles"""
         search_string = request.args.get('search_string')
-        word = json.loads(search_string)['words']
+        words = parser.parse_args()
+        print(search_string, words)
+        if search_string:
+            word = json.loads(search_string)['words']
+        else:
+            word = words['words'] 
         return article_search(username, word)
  

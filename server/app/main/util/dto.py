@@ -49,6 +49,12 @@ class UserDto:
             "last_name": fields.String(required=False, description="update last name"),
         },
     )
+    search_titles = api.model(
+        "search_string",
+        {
+            "word": fields.String(required=True, description="find titles"),
+        }
+    )
 
 
 class AuthDto:
