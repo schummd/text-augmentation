@@ -65,6 +65,10 @@ OXFORD_ID="XXXXXXXX"
 SCIENCE_PARSE_URL="http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.amazonaws.com/v1"
 ```
 
+### Obtaining keys
+- REACT_APP_YT_KEY: API key for youtube [Getting a key](https://medium.com/swlh/how-to-get-youtubes-api-key-7c28b59b1154)
+- REACT_APP_NEWSAPI_KEY: API key for newsapi.org [Get a key](https://newsapi.org/)
+
 ## Credits 
 
 - Backend boilerplate used from [here](https://medium.freecodecamp.org/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563)
