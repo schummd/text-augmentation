@@ -1,6 +1,6 @@
 from re import search
 from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource, reqparse, inputs
 from app.main.util.decorator import token_required
 from app.main.util.decorator import admin_token_required
 from app.main.service.auth_helper import Auth
@@ -11,13 +11,12 @@ from ..service.user_service import (
     get_all_users,
     get_a_user,
     update_user_details,
-    delete_a_user,
     follow_a_user,
     get_all_following,
     get_newsfeed,
     get_matching_users,
     get_all_users_with_connection_status,
-    article_search
+    article_search,
 )
 from typing import Dict, Tuple
 import json
@@ -29,6 +28,7 @@ _update = UserDto.update
 _follower = UserDto.follower
 user_auth = AuthDto.user_auth
 _network_user = UserDto.netuser
+_search_titles = UserDto.search_titles
 
 
 @api.route("/")
@@ -47,13 +47,6 @@ class UserList(Resource):
         """Creates a new User """
         data = request.json
         return save_new_user(data=data)
-
-    @api.doc("delete a user")
-    @token_required
-    @api.response(404, "User not found.")
-    def delete(self):
-        """Delete a user profile"""
-        return delete_a_user()
 
     @api.doc("update a user")
     @token_required
@@ -89,10 +82,8 @@ class Follow(Resource):
     def patch(self, username):
         """follow another user"""
         data = request.json
-        print(data)
         user_to_follow = data["user_to_follow"]
         return follow_a_user(username, user_to_follow)
-
 
     @api.doc("users a user following")
     def get(self, username):
@@ -109,27 +100,27 @@ class Newsfeed(Resource):
     @api.doc("newsfeed")
     def get(self, username):
         """List all titles"""
-        print("Received request for news", get_newsfeed(username))
         return get_newsfeed(username)
 
 
 search_parser = reqparse.RequestParser()
-search_parser.add_argument('firstname')
-search_parser.add_argument('lastname')
-search_parser.add_argument('username')
-search_parser.add_argument('email')
+search_parser.add_argument("firstname")
+search_parser.add_argument("lastname")
+search_parser.add_argument("username")
+search_parser.add_argument("email")
+
 
 @token_required
-@api.route("/<username>/usersearch")
+@api.route("/<logged_in_username>/usersearch")
 @api.response(200, "User(s) retrieved")
 @api.expect(search_parser, validate=True)
 class Search(Resource):
-    @api.doc("Retrieve a list of users from a search request")
-    def get(self, username):
+    @api.doc("user search")
+    def get(self, logged_in_username):
+        """Retrieve a list of users from a search request"""
         data = search_parser.parse_args()
-        print("REQUEST IS", data)
-        return get_matching_users(username, data)
- 
+        return get_matching_users(logged_in_username, data)
+
 
 @token_required
 @api.route("/<username>/network")
@@ -143,16 +134,21 @@ class Network(Resource):
         return get_all_users_with_connection_status(username)
 
 
+parser = reqparse.RequestParser()
+parser.add_argument("words")
+
 
 @token_required
 @api.route("/<username>/search")
-@api.param("search_string", "Search String")
 @api.response(404, "User not found.")
+@api.expect(parser, validate=True)
 class ArticleSearch(Resource):
-    @api.doc(params={"search_string" : {"description": "article search"}})
     def get(self, username):
         """List searched titles"""
-        search_string = request.args.get('search_string')
-        word = json.loads(search_string)['words']
+        search_string = request.args.get("search_string")
+        words = parser.parse_args()
+        if search_string:
+            word = json.loads(search_string)["words"]
+        else:
+            word = words["words"]
         return article_search(username, word)
- 

@@ -9,6 +9,7 @@ class UserDto:
             "id": fields.String(required=False, description="id"),
             "email": fields.String(required=True, description="user email address"),
             "username": fields.String(required=True, description="user username"),
+            "password" : fields.String(required=False, description="user password"),
             "first_name": fields.String(description="user first name"),
             "last_name": fields.String(description="user last name"),
         },
@@ -47,6 +48,12 @@ class UserDto:
             ),
             "last_name": fields.String(required=False, description="update last name"),
         },
+    )
+    search_titles = api.model(
+        "search_string",
+        {
+            "word": fields.String(required=True, description="find titles"),
+        }
     )
 
 

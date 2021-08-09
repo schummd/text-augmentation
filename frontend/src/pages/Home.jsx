@@ -285,7 +285,7 @@ const Home = () => {
                       </li> 
                     ))}
                     {
-                      dataIn.text_titles.length === 0 &&
+                      dataIn.text_titles.length === 0 && !search &&
                       <Typography variant="subtitle2" color="textSecondary">
                         {`${dataIn.followee_username} has no saved Reads.`}
                       </Typography>

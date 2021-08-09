@@ -423,7 +423,7 @@ const UserNetwork = () => {
                           setPageNumber(params.pageNumber);
                         }}
                         onCellClick={handleCellClick}
-                        // autoHeight
+                        autoHeight
                         rows={rows}
                         columns={columns}
                         pagination

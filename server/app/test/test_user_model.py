@@ -127,24 +127,7 @@ class TestUserModel(BaseTestCase):
         self.assertTrue(updated_name.first_name == "Dasha")
         self.assertTrue(updated_name.last_name == "Schumm")
 
-    def test_valid_delete_user(self):
-        register_user(self, "daria")
-        response_login = login_user(self, "daria")
 
-        response_delete_user = self.client.delete(
-            "/user/",
-            headers=dict(
-                Authorization=json.loads(response_login.data.decode())["Authorization"]
-            ),
-        )
-
-        self.assertEqual(response_delete_user.status_code, 200)
-        data_delete_user = json.loads(response_delete_user.data.decode())
-        self.assertTrue(data_delete_user["status"] == "success")
-
-        # check database for the update
-        find_user = User.query.filter_by(username="daria").first()
-        self.assertTrue(find_user == None)
 
 class TestUserSearch(BaseTestCase):
     def test_whole_first_name_match(self):

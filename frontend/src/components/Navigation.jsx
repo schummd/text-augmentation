@@ -90,13 +90,13 @@ const Navigation = ({ page }) => {
           ? (errorText = error.response.data.error)
           : (errorText = 'Invalid Auth token');
         toast.error(errorText, {
-          position: 'top-right',
-          hideProgressBar: true,
-          style: {
-            backgroundColor: '#cc0000',
-            opacity: 0.8,
-            textAlign: 'center',
-            fontSize: '18px',
+            position: 'top-right',
+            hideProgressBar: true,
+            style: {
+              backgroundColor: '#cc0000',
+              opacity: 0.8,
+              textAlign: 'center',
+              fontSize: '18px',
           },
         });
         setToken(null);

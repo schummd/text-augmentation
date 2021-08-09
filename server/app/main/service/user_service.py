@@ -3,6 +3,7 @@ import uuid
 import datetime
 from datetime import timedelta
 import flask
+from sqlalchemy.sql.functions import user
 from flask_restx.fields import Boolean
 from typing import Dict, Tuple
 from app.main import db
@@ -13,6 +14,7 @@ from sqlalchemy import func
 from app.main.service.auth_helper import Auth
 from flask.globals import request
 from sqlalchemy import func
+
 
 def save_new_user(data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
     user = User.query.filter_by(email=data["email"]).first()
@@ -50,7 +52,7 @@ def get_all_users():
 
 
 def get_all_users_with_connection_status(username):
-    ''' gets all the users with the indication of who logged-in user is following'''
+    """ gets all the users with the indication of who logged-in user is following"""
     following_list = Follower.query.filter_by(user_name=username).all()
     followees = set()
     for followee in following_list:
@@ -101,25 +103,6 @@ def update_user_details(data: Dict[str, str]):
         return response_object, 404
 
 
-def delete_a_user():
-    # Get user from provided auth token
-    logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    # get row to delete
-    row = User.query.filter_by(id=logged_in_user["user_id"]).first()
-    # if exists
-    if bool(row):
-
-        db.session.delete(row)
-        db.session.commit()
-
-        response_object = {"status": "success", "message": "Successfully deleted user."}
-        return response_object, 200
-
-    else:
-        response_object = {"status": "fail", "message": "User does not exist."}
-        return response_object, 404
-
-
 def generate_token(user: User) -> Tuple[Dict[str, str], int]:
     try:
         # generate the auth token
@@ -140,7 +123,7 @@ def generate_token(user: User) -> Tuple[Dict[str, str], int]:
 
 
 def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], int]:
-    '''Changes "following" status to the opposite of what it is'''
+    """Changes "following" status to the opposite of what it is"""
 
     # Checking if the user tries to follow himself
     if user_to_follow == username:
@@ -202,13 +185,15 @@ def follow_a_user(username: str, user_to_follow: str) -> Tuple[Dict[str, str], i
 
         return response_object, 404
 
+
 def _find_all_following(username):
     following = Follower.query.filter_by(user_name=username).all()
     following_list = []
 
     for user in following:
-        following_list.append(user.following) 
+        following_list.append(user.following)
     return following_list
+
 
 def get_all_following(username):
     following_list = _find_all_following(username)
@@ -216,7 +201,7 @@ def get_all_following(username):
 
 
 def get_newsfeed(username):
-    '''Get newsfeed of followee's article titles'''
+    """Get newsfeed of followee's article titles"""
 
     # check if user exists
     exists = User.query.filter_by(username=username).first()
@@ -279,43 +264,49 @@ def get_newsfeed(username):
 
 
 def get_matching_users(username, data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
-    '''Implements user search'''
+    """Implements user search"""
     data_updated = check_search_parameters(data)
-    users = User.query.filter(func.lower(User.first_name).contains(data_updated['firstname'].lower()))\
-                      .filter(func.lower(User.last_name).contains(data_updated['lastname'].lower()))\
-                      .filter(func.lower(User.username).contains(data_updated['username'].lower()))\
-                      .filter(func.lower(User.email).contains(data_updated['email'].lower()))\
-                      .filter(func.lower(User.username) != username)\
-                      .all()
+    users = (
+        User.query.filter(
+            func.lower(User.first_name).contains(data_updated["firstname"].lower())
+        )
+        .filter(func.lower(User.last_name).contains(data_updated["lastname"].lower()))
+        .filter(func.lower(User.username).contains(data_updated["username"].lower()))
+        .filter(func.lower(User.email).contains(data_updated["email"].lower()))
+        .filter(func.lower(User.username) != username)
+        .all()
+    )
 
     following_list = _find_all_following(username)
     result = []
     for user in users:
         object = {}
-        object['id'] = user.public_id
-        object['first_name'] = user.first_name
-        object['last_name'] = user.last_name
-        object['username'] = user.username
-        object['email'] = user.email
+        object["id"] = user.public_id
+        object["first_name"] = user.first_name
+        object["last_name"] = user.last_name
+        object["username"] = user.username
+        object["email"] = user.email
         if user.username in following_list:
-            object['following'] = True
+            object["following"] = True
         result.append(object)
 
     return result, 200
 
+
 def check_search_parameters(data: Dict[str, str]) -> Dict[str, str]:
-    if data['firstname'] is None:
-        data['firstname'] = ''
-    if data['lastname'] is None:
-        data['lastname'] = ''
-    if data['username'] is None:
-        data['username'] = ''
-    if data['email'] is None:
-        data['email'] = ''
+    if data["firstname"] is None:
+        data["firstname"] = ""
+    if data["lastname"] is None:
+        data["lastname"] = ""
+    if data["username"] is None:
+        data["username"] = ""
+    if data["email"] is None:
+        data["email"] = ""
     return data
 
+
 def _processing_text_id(text_ids, ids, word):
-    '''collecting results of the search'''
+    """collecting results of the search"""
     for id in text_ids:
         if not id.text_id in ids:  # checking if this text has alreadu been counted in
             ids[id.text_id] = [id.text_title, word]
@@ -326,34 +317,40 @@ def _processing_text_id(text_ids, ids, word):
 
 
 def _analyse_results(ids, number_of_words):
-    '''selecting results where all words are present'''
+    """selecting results where all words are present"""
     titles = []
     item = {}
 
     for id in ids:
-        if len(ids[id])-1 == number_of_words:
+        if len(ids[id]) - 1 == number_of_words:
             t = {}
             t["text_title"] = ids[id][0]
             t["text_id"] = id
             titles.append(t)
-    item["followee_username"] = ' ',
-    item["followee_last_name"] = ' ',
-    item["followee_first_name"] = ' ',    
+    item["followee_username"] = (" ",)
+    item["followee_last_name"] = (" ",)
+    item["followee_first_name"] = (" ",)
     item["text_titles"] = titles
     return {"status": "success", "data": [item]}
 
 
-        
 def article_search(username, search_string):
-    '''Search for article titles with one or more words. Returns titles in which all 
-    words are present. Articles searched are those of followees'''
+    """Search for article titles with one or more words. Returns titles in which all 
+    words are present. Articles searched are those of followees"""
 
-    new_string = ''
+    if search_string is None:
+        response_object = {
+            "status": "fail",
+            "message": "Please enter a text title.",
+        }
+        return response_object, 404
+
+    new_string = ""
     # input validation
     for ch in search_string:
         if ord(ch) == 32 or (ord(ch) >= 97 and ord(ch) <= 122):
             new_string = new_string + ch
-    words = new_string.split(' ')
+    words = new_string.split(" ")
     number_of_words = len(words)
     ids = {}  # all text ids, key: text_id, value: [text_title, word1, word2]
     users = Follower.query.filter_by(user_name=username).all()
@@ -363,13 +360,13 @@ def article_search(username, search_string):
             person_username = user.following
             for word in words:
                 texts = (
-                            db.session.query(Text.text_id, Text.text_title)
-                            .join(User, Text.user_id == User.id)
-                            .filter(User.username == person_username) 
-                            .filter(func.lower(Text.text_title).contains(word.lower()))
-                            .all()
-                        )
-                
+                    db.session.query(Text.text_id, Text.text_title)
+                    .join(User, Text.user_id == User.id)
+                    .filter(User.username == person_username)
+                    .filter(func.lower(Text.text_title).contains(word.lower()))
+                    .all()
+                )
+
                 ids = _processing_text_id(texts, ids, word)
     return _analyse_results(ids, number_of_words)
 

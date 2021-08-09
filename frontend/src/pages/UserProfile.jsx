@@ -1,11 +1,7 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
 import Navigation from '../components/Navigation';
-import {
-  Redirect,
-  useParams,
-  useHistory,
-} from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
 import {
   makeStyles,
   Box,
@@ -33,7 +29,6 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -81,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
   },
   cellBtn: {
     display: 'flex',
-    width:' 100%',
+    width: ' 100%',
     justifyContent: 'flex-start',
   },
   btnText: {
@@ -89,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
-  },  
+  },
 }));
 
 const UserProfile = () => {
@@ -171,7 +166,7 @@ const UserProfile = () => {
           }
         } catch (error) {
           toast.error('Error retrieving Reads from server.');
-        }        
+        }
       }
     }
     setupHome();
@@ -228,22 +223,22 @@ const UserProfile = () => {
     { field: 'id', headerName: 'Id', width: 150, hide: true },
     { field: 'text_id', headerName: 'Text Id', width: 150, hide: true },
     {
-      field: 'text_title', headerName: 'Title', width: 800,
-      renderCell: (params) =>
+      field: 'text_title',
+      headerName: 'Title',
+      width: 800,
+      renderCell: (params) => (
         <Box className={classes.cellBtn}>
           <Tooltip title="Go to Read">
-            <Button
-              variant="outlined"
-              className={classes.btnText}
-            >
+            <Button variant="outlined" className={classes.btnText}>
               {`${params.formattedValue}`}
             </Button>
           </Tooltip>
         </Box>
+      ),
     },
     { field: 'text_created', headerName: 'Created At', width: 200 },
   ];
-  
+
   const classes = useStyles();
 
   return (
@@ -260,14 +255,11 @@ const UserProfile = () => {
             <Box className={classes.titleDiv}>
               <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
-                  {
-                    currentProfileUsername === username
-                      ? 'My Profile'
-                      : 'User Profile'
-                  }
+                  {currentProfileUsername === username
+                    ? 'My Profile'
+                    : 'User Profile'}
                 </Typography>
-                {
-                  currentProfileUsername === username &&
+                {currentProfileUsername === username && (
                   <Box className={classes.btnUiDiv}>
                     <Tooltip title="Edit Profile">
                       <Button
@@ -283,10 +275,7 @@ const UserProfile = () => {
                         Edit Profile
                       </Button>
                     </Tooltip>
-                    <Dialog
-                      open={openEditProfile}
-                      onClose={handleCancel}
-                    >
+                    <Dialog open={openEditProfile} onClose={handleCancel}>
                       <DialogTitle>Edit Profile</DialogTitle>
                       <DialogContent>
                         <TextField
@@ -318,7 +307,7 @@ const UserProfile = () => {
                       </DialogActions>
                     </Dialog>
                   </Box>
-                }
+                )}
               </Box>
 
               <TableContainer className={classes.tableContainer}>
@@ -382,26 +371,33 @@ const UserProfile = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {
-                currentProfileUsername !== username &&
-                userArticles.length === 0 &&
-                <Box>
-                  <Box className={classes.titleDiv}>
-                    <Typography paragraph align="left" variant="h6" color="textSecondary">
-                      {'User Reads'}
+              {currentProfileUsername !== username &&
+                userArticles.length === 0 && (
+                  <Box>
+                    <Box className={classes.titleDiv}>
+                      <Typography
+                        paragraph
+                        align="left"
+                        variant="h6"
+                        color="textSecondary"
+                      >
+                        {'User Reads'}
+                      </Typography>
+                    </Box>
+                    <Typography>
+                      {`${currentProfileUsername} has no Reads.`}
                     </Typography>
                   </Box>
-                  <Typography>
-                    {`${currentProfileUsername} has no Reads.`}
-                  </Typography>
-                </Box>
-              }            
-              {
-                currentProfileUsername !== username &&
-                userArticles.length > 0 &&
+                )}
+              {currentProfileUsername !== username && userArticles.length > 0 && (
                 <Box className={classes.articlesContainer}>
                   <Box className={classes.titleDiv}>
-                    <Typography paragraph align="left" variant="h6" color="textSecondary">
+                    <Typography
+                      paragraph
+                      align="left"
+                      variant="h6"
+                      color="textSecondary"
+                    >
                       {'User Reads'}
                     </Typography>
                   </Box>
@@ -426,7 +422,7 @@ const UserProfile = () => {
                     </div>
                   </div>
                 </Box>
-              }
+              )}
             </Box>
           </Box>
         )}

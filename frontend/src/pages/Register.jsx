@@ -72,6 +72,7 @@ const Register = () => {
   };
   const { handleSubmit, control } = useForm();
   const onSubmit = (data) => {
+    console.log("Got data", data)
     if (data.email === '') {
       toast.error(
         'Please enter your Email address', {
@@ -113,6 +114,7 @@ const Register = () => {
         }
       );            
     } else {
+
       axios({
         method: 'POST',
         url: `${urlBase}/user/`,
@@ -125,13 +127,12 @@ const Register = () => {
           password: data.password,
           username: data.username,
           first_name: data.firstname,
-          last_name: data.lastname,
+          last_name: data.lastname
         }
       })
         .then((response) => {
 
           console.log(response);
-
           toast.success(
             'Successfully signed up to ReadMore', {
               position: 'top-right',
