@@ -1,11 +1,7 @@
 import React from 'react';
 import { StoreContext } from '../utils/store';
 import Navigation from '../components/Navigation';
-import {
-  Redirect,
-  useParams,
-  useHistory,
-} from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
 import {
   makeStyles,
   Box,
@@ -33,7 +29,6 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -81,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
   },
   cellBtn: {
     display: 'flex',
-    width:' 100%',
+    width: ' 100%',
     justifyContent: 'flex-start',
   },
   btnText: {
@@ -89,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     justifyContent: 'flex-start',
     width: '100%',
-  },  
+  },
 }));
 
 const UserProfile = () => {
@@ -116,6 +111,8 @@ const UserProfile = () => {
   const [email, setEmail] = React.useState('');
   const [userArticles, setUserArticles] = React.useState([]);
   const [rows, setRows] = React.useState([]);
+  const setToken = context.token[1];
+  const setUsername = context.username[1];
 
   React.useEffect(() => {
     setPage(`/user/${currentProfileUsername}`);
@@ -171,7 +168,7 @@ const UserProfile = () => {
           }
         } catch (error) {
           toast.error('Error retrieving Reads from server.');
-        }        
+        }
       }
     }
     setupHome();
@@ -218,6 +215,40 @@ const UserProfile = () => {
     handleCancel();
   };
 
+  const handleDelete = async () => {
+    const profilePayload = {
+      method: 'DELETE',
+      url: '/user/',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token,
+      },
+    };
+    const response = await axios(profilePayload);
+    console.log('Response', response);
+    if (response.status === 200) {
+      toast.success(`Deleted profile.`);
+
+      axios({
+        method: 'POST',
+        url: `/auth/logout`,
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          Authorization: `Authorization: ${token}`,
+        },
+      }).then(() => {
+        setToken(null);
+        history.push('/login');
+        setUsername(null);
+        localStorage.clear();
+      });
+    } else {
+      toast.error('Error retrieving response from server.');
+    }
+    handleCancel();
+  };
+
   const [pageSize, setPageSize] = React.useState(10);
   const [pageNumber, setPageNumber] = React.useState(0);
   const handlePageSizeChange = (params) => {
@@ -228,22 +259,22 @@ const UserProfile = () => {
     { field: 'id', headerName: 'Id', width: 150, hide: true },
     { field: 'text_id', headerName: 'Text Id', width: 150, hide: true },
     {
-      field: 'text_title', headerName: 'Title', width: 800,
-      renderCell: (params) =>
+      field: 'text_title',
+      headerName: 'Title',
+      width: 800,
+      renderCell: (params) => (
         <Box className={classes.cellBtn}>
           <Tooltip title="Go to Read">
-            <Button
-              variant="outlined"
-              className={classes.btnText}
-            >
+            <Button variant="outlined" className={classes.btnText}>
               {`${params.formattedValue}`}
             </Button>
           </Tooltip>
         </Box>
+      ),
     },
     { field: 'text_created', headerName: 'Created At', width: 200 },
   ];
-  
+
   const classes = useStyles();
 
   return (
@@ -260,14 +291,11 @@ const UserProfile = () => {
             <Box className={classes.titleDiv}>
               <Box className={classes.titleAndBtnDiv}>
                 <Typography paragraph align="left" variant="h4">
-                  {
-                    currentProfileUsername === username
-                      ? 'My Profile'
-                      : 'User Profile'
-                  }
+                  {currentProfileUsername === username
+                    ? 'My Profile'
+                    : 'User Profile'}
                 </Typography>
-                {
-                  currentProfileUsername === username &&
+                {currentProfileUsername === username && (
                   <Box className={classes.btnUiDiv}>
                     <Tooltip title="Edit Profile">
                       <Button
@@ -283,10 +311,7 @@ const UserProfile = () => {
                         Edit Profile
                       </Button>
                     </Tooltip>
-                    <Dialog
-                      open={openEditProfile}
-                      onClose={handleCancel}
-                    >
+                    <Dialog open={openEditProfile} onClose={handleCancel}>
                       <DialogTitle>Edit Profile</DialogTitle>
                       <DialogContent>
                         <TextField
@@ -313,12 +338,13 @@ const UserProfile = () => {
                         />
                       </DialogContent>
                       <DialogActions>
+                        <Button onClick={handleDelete}>Delete Account</Button>
                         <Button onClick={handleCancel}>Cancel</Button>
                         <Button onClick={handleSave}>Save</Button>
                       </DialogActions>
                     </Dialog>
                   </Box>
-                }
+                )}
               </Box>
 
               <TableContainer className={classes.tableContainer}>
@@ -382,26 +408,33 @@ const UserProfile = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {
-                currentProfileUsername !== username &&
-                userArticles.length === 0 &&
-                <Box>
-                  <Box className={classes.titleDiv}>
-                    <Typography paragraph align="left" variant="h6" color="textSecondary">
-                      {'User Reads'}
+              {currentProfileUsername !== username &&
+                userArticles.length === 0 && (
+                  <Box>
+                    <Box className={classes.titleDiv}>
+                      <Typography
+                        paragraph
+                        align="left"
+                        variant="h6"
+                        color="textSecondary"
+                      >
+                        {'User Reads'}
+                      </Typography>
+                    </Box>
+                    <Typography>
+                      {`${currentProfileUsername} has no Reads.`}
                     </Typography>
                   </Box>
-                  <Typography>
-                    {`${currentProfileUsername} has no Reads.`}
-                  </Typography>
-                </Box>
-              }            
-              {
-                currentProfileUsername !== username &&
-                userArticles.length > 0 &&
+                )}
+              {currentProfileUsername !== username && userArticles.length > 0 && (
                 <Box className={classes.articlesContainer}>
                   <Box className={classes.titleDiv}>
-                    <Typography paragraph align="left" variant="h6" color="textSecondary">
+                    <Typography
+                      paragraph
+                      align="left"
+                      variant="h6"
+                      color="textSecondary"
+                    >
                       {'User Reads'}
                     </Typography>
                   </Box>
@@ -426,7 +459,7 @@ const UserProfile = () => {
                     </div>
                   </div>
                 </Box>
-              }
+              )}
             </Box>
           </Box>
         )}
