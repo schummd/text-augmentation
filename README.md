@@ -34,7 +34,7 @@ Two env files are requied. One for frontend, and one for backend.
 
 ### Frontend (/frontend/.env)
 
-In the /frontned folder, create a file named `.env`:
+In the /frontend folder, create a file named `.env`:
 
 ```
 ├── frontend
