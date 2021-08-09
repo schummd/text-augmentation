@@ -74,6 +74,7 @@ SCIENCE_PARSE_URL="http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.ama
 - IBM_WATSON_API_KEY and IBM_WATSON_URL: [Get a key](https://cloud.ibm.com/login)
 - MEANING_CLOUD: [Get a key](https://www.meaningcloud.com/developer/summarization/dev-tools)
 - OXFORD_API_KEY and OXFORD_ID: [Get a key](http://developer.oxforddictionaries.com)
+- REACT_APP_UNPAYWALL_EMAIL (Any email address)
 
 ## Credits 
 
