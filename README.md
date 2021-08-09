@@ -20,14 +20,11 @@ If you have issues installing or using the VMWare software, then use VirtualBox 
 1. In /frontend run `yarn install`
 2. In /server run `make install`
 ##  Usage
- Ensure API keys have been loaded as described below.-
-### Server
-- run `make migrate` (one time) followed by `make run`. Server should be running on port 5000. See swagger docs at http://127.0.0.1:5000/
-- To run tests: `make tests`
-- To squash DB:  `make squash`. You must then run `make migrate` again to re-initialise DB.
 
-### Frontend
-- Run `yarn dev`. Frontend should be running on http://localhost:3000
+- Ensure API keys have been loaded as described below.
+- In /server run `make migrate` followed by `make run`. Server should be running on port 5000. See swagger docs at http://127.0.0.1:5000/
+- In /frontend run `yarn dev`. Frontend should be running on http://localhost:3000
+
 ## API Keys
 
 Two env files are requied. One for frontend, and one for backend.
@@ -71,6 +68,9 @@ SCIENCE_PARSE_URL="http://SPV1-Scienc-C3GW28LU2S2X-1391134067.eu-north-1.elb.ama
 ### Obtaining keys
 - REACT_APP_YT_KEY: API key for youtube [Getting a key](https://medium.com/swlh/how-to-get-youtubes-api-key-7c28b59b1154)
 - REACT_APP_NEWSAPI_KEY: API key for newsapi.org [Get a key](https://newsapi.org/)
+- IBM_WATSON_API_KEY and IBM_WATSON_URL: [Get a key](https://cloud.ibm.com/login)
+- MEANING_CLOUD: [Get a key](https://www.meaningcloud.com/developer/summarization/dev-tools)
+- OXFORD_API_KEY and OXFORD_ID: [Get a key](http://developer.oxforddictionaries.com)
 
 ## Credits 
 
