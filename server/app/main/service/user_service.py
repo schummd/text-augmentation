@@ -367,6 +367,13 @@ def article_search(username, search_string):
     """Search for article titles with one or more words. Returns titles in which all 
     words are present. Articles searched are those of followees"""
 
+    if search_string is None:
+        response_object = {
+            "status": "fail",
+            "message": "Please enter a text title.",
+        }
+        return response_object, 404
+
     new_string = ""
     # input validation
     for ch in search_string:
