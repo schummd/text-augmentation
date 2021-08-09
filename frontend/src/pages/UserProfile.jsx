@@ -111,8 +111,6 @@ const UserProfile = () => {
   const [email, setEmail] = React.useState('');
   const [userArticles, setUserArticles] = React.useState([]);
   const [rows, setRows] = React.useState([]);
-  const setToken = context.token[1];
-  const setUsername = context.username[1];
 
   React.useEffect(() => {
     setPage(`/user/${currentProfileUsername}`);
@@ -215,40 +213,6 @@ const UserProfile = () => {
     handleCancel();
   };
 
-  const handleDelete = async () => {
-    const profilePayload = {
-      method: 'DELETE',
-      url: '/user/',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
-    };
-    const response = await axios(profilePayload);
-    console.log('Response', response);
-    if (response.status === 200) {
-      toast.success(`Deleted profile.`);
-
-      axios({
-        method: 'POST',
-        url: `/auth/logout`,
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
-          Authorization: `Authorization: ${token}`,
-        },
-      }).then(() => {
-        setToken(null);
-        history.push('/login');
-        setUsername(null);
-        localStorage.clear();
-      });
-    } else {
-      toast.error('Error retrieving response from server.');
-    }
-    handleCancel();
-  };
-
   const [pageSize, setPageSize] = React.useState(10);
   const [pageNumber, setPageNumber] = React.useState(0);
   const handlePageSizeChange = (params) => {
@@ -338,7 +302,6 @@ const UserProfile = () => {
                         />
                       </DialogContent>
                       <DialogActions>
-                        <Button onClick={handleDelete}>Delete Account</Button>
                         <Button onClick={handleCancel}>Cancel</Button>
                         <Button onClick={handleSave}>Save</Button>
                       </DialogActions>

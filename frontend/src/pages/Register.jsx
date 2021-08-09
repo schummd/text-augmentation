@@ -62,8 +62,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Register = () => {
   const context = React.useContext(StoreContext);
-  const setToken = context.token[1];
-  const setUsername = context.username[1];
   const urlBase = context.urlBase;
   const history = useHistory();
   const toastErrorStyle = {
@@ -135,9 +133,6 @@ const Register = () => {
         .then((response) => {
 
           console.log(response);
-          setToken(response.data.Authorization);
-          setUsername(response.data.username);
-    
           toast.success(
             'Successfully signed up to ReadMore', {
               position: 'top-right',

@@ -11,7 +11,6 @@ from ..service.user_service import (
     get_all_users,
     get_a_user,
     update_user_details,
-    delete_a_user,
     follow_a_user,
     get_all_following,
     get_newsfeed,
@@ -48,13 +47,6 @@ class UserList(Resource):
         """Creates a new User """
         data = request.json
         return save_new_user(data=data)
-
-    @api.doc("delete a user")
-    @token_required
-    @api.response(404, "User not found.")
-    def delete(self):
-        """Delete a user profile"""
-        return delete_a_user()
 
     @api.doc("update a user")
     @token_required

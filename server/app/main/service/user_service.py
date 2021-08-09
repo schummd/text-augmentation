@@ -103,35 +103,6 @@ def update_user_details(data: Dict[str, str]):
         return response_object, 404
 
 
-def delete_a_user():
-    # Get user from provided auth token
-    logged_in_user = Auth.get_logged_in_user(request)[0]["data"]
-    # get row to delete
-    user = User.query.filter_by(id=logged_in_user["user_id"]).first()
-
-    # if exists
-    if bool(user):
-
-        username_follow = Follower.query.filter_by(user_name=user.username).all()
-        username_following = Follower.query.filter_by(following=user.username).all()
-
-        for row in username_follow:
-            db.session.delete(row)
-
-        for row in username_following:
-            db.session.delete(row)
-
-        db.session.delete(user)
-        db.session.commit()
-
-        response_object = {"status": "success", "message": "Successfully deleted user."}
-        return response_object, 200
-
-    else:
-        response_object = {"status": "fail", "message": "User does not exist."}
-        return response_object, 404
-
-
 def generate_token(user: User) -> Tuple[Dict[str, str], int]:
     try:
         # generate the auth token

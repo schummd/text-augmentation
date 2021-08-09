@@ -89,6 +89,16 @@ const Navigation = ({ page }) => {
         error.response.data.error !== undefined
           ? (errorText = error.response.data.error)
           : (errorText = 'Invalid Auth token');
+        toast.error(errorText, {
+            position: 'top-right',
+            hideProgressBar: true,
+            style: {
+              backgroundColor: '#cc0000',
+              opacity: 0.8,
+              textAlign: 'center',
+              fontSize: '18px',
+          },
+        });
         setToken(null);
         history.push('/login');
         setUsername(null);
