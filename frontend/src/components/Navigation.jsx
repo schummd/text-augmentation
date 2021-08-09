@@ -64,7 +64,6 @@ const Navigation = ({ page }) => {
   const token = context.token[0];
   const setUsername = context.username[1];
   const setToken = context.token[1];
-  const setSingularRead = context.singularRead[1];
 
   const btnLogout = () => {
     console.log(token);
@@ -105,10 +104,10 @@ const Navigation = ({ page }) => {
       });
   };
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  const [usersname, setUsersname] = React.useState(storedUser.username);
-  const [search, setSearch] = context.search;
-  const [header, setHeader] = context.header;
-  const [usersHeader, setUsersHeader] = context.usersHeader;
+  const [usersname, setUsersname] = React.useState(storedUser.username); // eslint-disable-line no-unused-vars
+  const [search, setSearch] = context.search; // eslint-disable-line no-unused-vars
+  const [header, setHeader] = context.header; // eslint-disable-line no-unused-vars
+  const [usersHeader, setUsersHeader] = context.usersHeader; // eslint-disable-line no-unused-vars
 
   const btnProfile = () => {
     const profileUrl = '/user/' + usersname;
@@ -149,7 +148,7 @@ const Navigation = ({ page }) => {
 
             <Grid item xs={4} align="center">
               <ButtonGroup>
-                <Tooltip title="Read Mode">
+                <Tooltip title="Reader">
                   <Button
                     id="new-article-button"
                     variant="contained"
@@ -177,16 +176,16 @@ const Navigation = ({ page }) => {
                     My Reads
                   </Button>
                 </Tooltip>
-                <Tooltip title="User Network">
+                <Tooltip title="User List">
                   <Button
                     id="profile-button"
                     variant="contained"
-                    color={page === '/user/network' ? 'primary' : 'default'}
+                    color={page === '/userlist' ? 'primary' : 'default'}
                     className={classes.btnText}
                     onClick={() => {
                       setSearch(false);
                       setUsersHeader('Users');
-                      history.push('/user/network');
+                      history.push('/userlist');
                     }}
                   >
                     User list
@@ -201,7 +200,7 @@ const Navigation = ({ page }) => {
                     onClick={() => {
                       setSearch(false);
                       setHeader('News Feed');
-                      history.push('/home');
+                      history.push('/newsfeed');
                     }}
                   >
                     News Feed
