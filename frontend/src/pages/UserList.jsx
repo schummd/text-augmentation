@@ -178,7 +178,7 @@ const UserList = () => {
 
   // setting up users
   React.useEffect(() => {
-    setPage('/user/network');
+    setPage('/userlist');
     if (!search) {
       setupHome();
     }
